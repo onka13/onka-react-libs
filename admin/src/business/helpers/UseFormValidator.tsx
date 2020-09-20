@@ -14,7 +14,7 @@ function validate(fields: PageField[], state: any): Parameters | undefined {
     field.validators?.forEach((validator) => {
       let error = null;
       if (validator instanceof RequiredValidation) {
-        if (!value) {
+        if (value === null || value === "" || value === undefined) {
           error = LocaleService.instance().translate('lib.validation.required');
         }
       } else if (validator instanceof EmailValidation) {

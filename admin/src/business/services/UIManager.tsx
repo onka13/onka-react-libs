@@ -78,6 +78,7 @@ export class UIManager {
         small: true,
         hasBackdrop: true,
         closable: false,
+        expandableContent: true
       }
     );
   }
