@@ -1,0 +1,163 @@
+@function pow($number, $exponent) {
+  $value: 1;
+
+  @if $exponent > 0 {
+    @for $i from 1 through $exponent {
+      $value: $value * $number;
+    }
+  }
+
+  @return $value;
+}
+@for $i from 1 through 20 {
+  .w#{$i*10} {
+    width: $i * 10px;
+  }
+  .h#{$i*10} {
+    height: $i * 10px;
+  }
+}
+@for $i from 1 through 10 {
+  .wh#{$i*10} {
+    width: $i * 10px;
+    height: $i * 10px;
+  }
+  .m#{$i*5} {
+    margin: $i * 5px;
+  }
+  .ml#{$i*5} {
+    margin-left: $i * 5px;
+  }
+  .mr#{$i*5} {
+    margin-right: $i * 5px;
+  }
+  .mt#{$i*5} {
+    margin-top: $i * 5px;
+  }
+  .mb#{$i*5} {
+    margin-bottom: $i * 5px;
+  }
+  .p#{$i*5} {
+    padding: $i * 5px;
+  }
+  .pl#{$i*5} {
+    padding-left: $i * 5px;
+  }
+  .pr#{$i*5} {
+    padding-right: $i * 5px;
+  }
+  .pt#{$i*5} {
+    padding-top: $i * 5px;
+  }
+  .pb#{$i*5} {
+    padding-bottom: $i * 5px;
+  }
+}
+/* */
+.overlay {
+  position: fixed;
+  z-index: 1000;
+  background-color: #00000044;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+.dialog {
+  position: fixed;
+  z-index: 1000;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  &.fullscreen {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .dialog-container {
+    position: relative;
+    z-index: 999999;
+    pointer-events: auto;
+    iframe {
+      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    .dialog-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 50px;
+      min-width: 50px;
+      height: 100%;
+      box-shadow: 0px 0px 1px 0px rgba(82, 100, 132, 0.2), 0px 8px 15.52px 0.48px rgba(28, 43, 70, 0.15);
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 0 solid rgba(0, 0, 0, 0);
+      border-radius: 5px;
+      .dialog-title {
+        padding: 12px;
+        margin-bottom: 0;
+        line-height: 1.5;
+        font-size: 1.25rem;
+      }
+      .dialog-desc {
+        padding: 12px;
+        flex: 1 1 auto;
+      }
+      .dialog-actions {
+        padding: 24px;
+        display: flex;
+        justify-content: space-evenly;
+      }
+      .close {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        z-index: 99;
+      }
+    }
+  }
+}
+.drawer-container {
+  width: 100%;
+  height: 100%;
+}
+.drawer {
+  width: 250px;
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  background-color: #00000044;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.snack {
+  position: fixed;
+  z-index: 1200;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  bottom: 20px;
+  right: 20px;
+  .alert {
+    margin-bottom: 10px;
+  }
+}
