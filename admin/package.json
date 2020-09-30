@@ -1,8 +1,8 @@
 {
   "name": "onka-react-admin-core",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
-  "license": "SEE LICENSE IN <../LICENCE>",
+  "license": "SEE LICENSE IN <../LICENCE> file",
   "homepage": "https://github.com/onka13/onka-react-libs",
   "author": {
     "name": "onka",
@@ -29,6 +29,9 @@
     "react-router-dom": "^5.2.0"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",

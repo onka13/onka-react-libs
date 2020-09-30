@@ -4,18 +4,21 @@ import { PageField } from '../../data/lib/PageField';
 import { useFormValidator } from './UseFormValidator';
 import { LibService } from '../services/LibService';
 
-interface IUseFormProps {
+export interface IUseFormProps {
   fields: PageField[];
   initialValues: any;
   onSubmit: Function;
 }
 
-interface UseFormResponse {
+export type HandleChangeType = { name: string; value: any };
+
+export interface UseFormResponse {
   formData: Parameters;
   setFormData: React.Dispatch<React.SetStateAction<Parameters>>;
   handleSubmit: (e: any) => {};
   errors: Parameters;
   handleChange: (name: string) => (value: any) => void;
+  handleChanges: (values: HandleChangeType[]) => void;
 }
 
 export function useForm(props: IUseFormProps): UseFormResponse {
@@ -33,12 +36,19 @@ export function useForm(props: IUseFormProps): UseFormResponse {
     props.onSubmit();
   }
 
-  const handleChange = (name: string) => (value: any) => {
-    console.log('useForm handleChange', name, value);
+  const handleChange = (name: string) => (value: any) => {    
+    handleChanges([{name, value}]);
+  };
+
+  const handleChanges = (values: HandleChangeType[]) => {
+    console.log('useForm handleChanges', values);
     var data = { ...formData };
-    LibService.instance().setValue(data, name, value); // { ...formData, [name]: value }
-    console.log('useForm data', data);
+    for (let i = 0; i < values.length; i++) {
+      const item = values[i];
+      LibService.instance().setValue(data, item.name, item.value);
+    }
     setFormData(data);
+    console.log('useForm data', data);
   };
 
   useEffect(() => {
@@ -51,5 +61,6 @@ export function useForm(props: IUseFormProps): UseFormResponse {
     handleSubmit,
     errors,
     handleChange,
+    handleChanges,
   };
 }

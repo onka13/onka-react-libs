@@ -14,7 +14,7 @@ import { ILoginProps, Login } from './public/Login';
 import { NoMatch } from './public/NoMatch';
 
 export interface IAdminProps {
-  children?: any[];
+  children?: React.ReactNode;
   rootRoutes?: any[];
   onLoad?: () => Promise<any>;
   dashboard?: JSX.Element;

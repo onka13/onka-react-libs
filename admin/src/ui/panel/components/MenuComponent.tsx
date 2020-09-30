@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useHistory } from 'react-router-dom';
+import { List, ListItem, Collapse, ListItemText, ListItemIcon, Button, makeStyles, createStyles, Theme } from '@material-ui/core';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 import { Menu } from '../../../data/lib/Menu';
-import { LocaleService } from '../../../business/services/LocaleService';
 import { LibService } from '../../../business/services/LibService';
 import { RouteItem } from '../../../data/lib/RouteItem';
+import { LocaleService } from '../../../business/services/LocaleService';
 
 export interface IMenuProp {
   menus: Menu[];
@@ -15,10 +19,26 @@ export interface IMenuProp {
   logoDark?: string;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+      maxWidth: 360,
+      backgroundColor: theme.palette.background.paper,
+    },
+    nested: {
+      paddingLeft: theme.spacing(4),
+    },
+  })
+);
+
 export function MenuComponent(props: IMenuProp) {
+  const classes = useStyles();
   const [menus, setMenus] = useState<Menu[]>([]);
+  const [selectedMenu, setSelectedMenu] = useState<String>();
+  const history = useHistory();
   useEffect(() => {
-    var clonedMenus = [...props.menus];
+    var clonedMenus = props.menus.filter((x) => true);
     // init menus with permission
     clonedMenus.forEach((menuItem) => {
       props.routes.forEach((routes) => {
@@ -34,70 +54,48 @@ export function MenuComponent(props: IMenuProp) {
       });
     });
     setMenus(clonedMenus);
-    setTimeout(() => {
-      // @ts-ignore
-      window['NioApp'].init();
-    }, 1000);
   }, []);
+
   return (
-    <div className="nk-sidebar nk-sidebar-fixed is-dark " data-content="sidebarMenu">
-      <div className="nk-sidebar-element nk-sidebar-head">
-        <div className="nk-sidebar-brand">
-          <Link to="/panel" className="logo-link nk-sidebar-logo">
-            {props.logoLight && <img className="logo-light logo-img" src={props.logoLight} alt="logo" />}
-            {props.logoDark && <img className="logo-dark logo-img" src={props.logoDark} alt="logo-dark" />}
-          </Link>
-        </div>
-        <div className="nk-menu-trigger mr-n2">
-          <a href="#" className="nk-nav-toggle nk-quick-nav-icon d-xl-none" data-target="sidebarMenu">
-            <em className="icon ni ni-arrow-left"></em>
-          </a>
-        </div>
-      </div>
-      <div className="nk-sidebar-element">
-        <div className="nk-sidebar-content">
-          <div className="nk-sidebar-menu" data-simplebar>
-            <ul className="nk-menu">
-              {props.headerMenu}
-              {!props.hideDashBoard && (
-                <li className="nk-menu-item">
-                  <NavLink exact strict to="/panel" className="nk-menu-link">
-                    <span className="nk-menu-icon">
-                      <em className="icon ni ni-dashlite"></em>
-                    </span>
-                    <span className="nk-menu-text">Dashboard</span>
-                  </NavLink>
-                </li>
-              )}
-              {menus.map((menu, i) => {
-                if (!menu.hasAccess) return null;
-                return (
-                  <li key={i} className="nk-menu-item has-sub">
-                    <a href="#" className="nk-menu-link nk-menu-toggle">
-                      <span className="nk-menu-icon">
-                        <em className={'icon ni ' + (menu.icon ?? 'ni-files')}></em>
-                      </span>
-                      <span className="nk-menu-text">{LocaleService.instance().translate('menu.' + menu.menuKey)}</span>
-                    </a>
-                    <ul className="nk-menu-sub">
-                      {menu.routes.map((route, j) => {
-                        return (
-                          <li key={j} className="nk-menu-item">
-                            <Link to={'/panel' + route.config.route} className="nk-menu-link">
-                              <span className="nk-menu-text">{LibService.instance().getRouteLabel(route.config)}</span>
-                            </Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                );
-              })}
-              {props.footerMenu}
-            </ul>
-          </div>
-        </div>
-      </div>
+    <div>
+      <List component="nav" aria-labelledby="nested-list-subheader" className={classes.root}>
+        {props.headerMenu}
+        {!props.hideDashBoard && (
+          <ListItem button component={Link} to={'/panel'}>
+            <ListItemIcon>
+              <DashboardIcon color="inherit" />
+            </ListItemIcon>
+            <ListItemText primary={LocaleService.instance().translate('menu.dashboard', 'Dashboard')} />
+            <ExpandLess style={{ visibility: 'hidden' }} />
+          </ListItem>
+        )}
+        {menus.map((menu, i) => {
+          if (!menu.hasAccess) return null;
+          var isSelected = selectedMenu == menu.menuKey;
+          return (
+            <div key={'menu' + i}>
+              <ListItem button onClick={() => setSelectedMenu(isSelected ? '' : menu.menuKey)}>
+                <ListItemIcon>{menu.icon}</ListItemIcon>
+                <ListItemText primary={LocaleService.instance().translate('menu.' + menu.menuKey)} />
+                {isSelected ? <ExpandLess /> : <ExpandMore />}
+              </ListItem>
+              <Collapse in={isSelected} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {menu.routes.map((route, j) => {
+                    return (
+                      <ListItem button key={'submenu' + i + j} className={classes.nested} component={Link} to={'/panel' + route.config.route}>
+                        <ListItemIcon></ListItemIcon>
+                        <ListItemText primary={LibService.instance().getRouteLabel(route.config)} />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Collapse>
+            </div>
+          );
+        })}
+        {props.footerMenu}
+      </List>
     </div>
   );
 }

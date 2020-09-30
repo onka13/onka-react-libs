@@ -17,7 +17,7 @@ export function UpsertPage(props: UpsertPageProp) {
   const { id } = useParams<{ id: any }>();
   const isEdit = (id && id > 0) || !!props.isEdit;
   const [status, setStatus] = useState<PageStatus>('none');
-  const { formData, setFormData, handleChange, handleSubmit, errors } = useForm({
+  const { formData, setFormData, handleChange, handleChanges, handleSubmit, errors } = useForm({
     fields: (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [],
     initialValues: { ...props.initialValues, ...UIManager.instance().getDefaultValues() },
     onSubmit,
@@ -65,6 +65,16 @@ export function UpsertPage(props: UpsertPageProp) {
   function renderFields(fields: PageField[]) {
     return fields.map((field) => {
       var path = LibService.instance().getPath(field.prefix, field.name);
+      var onChange = handleChange(path);
+      if (field.reference) {
+        var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+        onChange = (value: any) => {
+          handleChanges([
+            { name: refPath, value },
+            { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
+          ]);
+        };
+      }
       return (
         <div key={field.name} className={'col-lg-' + 12 / (props.columnCount || 2)}>
           {React.createElement(
@@ -77,7 +87,7 @@ export function UpsertPage(props: UpsertPageProp) {
               data: formData,
               rowData: LibService.instance().getValue(formData, path),
               isEdit: isEdit,
-              onChange: handleChange(path),
+              onChange: onChange,
               error: LibService.instance().getValue(errors, path),
             })
           )}

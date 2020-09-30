@@ -10,6 +10,15 @@ export type PageStatus = 'loading' | 'no-data' | 'done' | 'none';
 
 export type ThemeType = 'primary' | 'secondary' | 'success' | 'info' | 'danger' | 'warning' | 'dark' | 'light';
 
-export type Option = { key: string; label: any }
+export type Option = { key: string; label: any };
+
+export class OptionModel {
+  id!: number;
+  text!: any;
+
+  public constructor(init?: Partial<OptionModel>) {
+    Object.assign(this, init);
+  }
+}
 
 export type Parameters = { [x: string]: any };

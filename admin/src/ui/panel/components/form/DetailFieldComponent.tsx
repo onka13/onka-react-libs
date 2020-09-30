@@ -1,5 +1,5 @@
 import React from 'react';
-import { LibService } from '../../../..';
+import { LibService } from '../../../../business/services/LibService';
 import { DetailComponentProp } from '../../../../data/lib/DetailComponentProp';
 
 export function DetailFieldComponent(props: DetailComponentProp) {

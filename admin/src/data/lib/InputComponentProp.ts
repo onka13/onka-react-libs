@@ -11,6 +11,8 @@ export class InputComponentProp extends ComponentPropBase {
 
   error?: string;
 
+  isMultiline?: boolean;
+
   public constructor(init?: Partial<InputComponentProp>) {
     super(init);
     Object.assign(this, init);

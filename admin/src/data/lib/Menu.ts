@@ -1,10 +1,11 @@
+import { ReactNode } from "react";
 import { RouteItem } from "./RouteItem";
 
 export class Menu {
   
   menuKey!: string;
   
-  icon?: string;
+  icon?: ReactNode;
 
   routes!: RouteItem[];
 

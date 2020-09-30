@@ -1,5 +1,6 @@
 import React from 'react';
-import { InputComponentProp, LibService } from '../../../..';
+import { LibService } from '../../../../business/services/LibService';
+import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function NumberComponent(props: InputComponentProp) {
   const handleChange = (e: any) => {

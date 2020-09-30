@@ -32,6 +32,11 @@ export class LibService {
    * Selected last page
    */
   public selectedPage = new BehaviorSubject<PageConfig>(new PageConfig());
+  
+  /**
+   * Drawer state
+   */
+  public drawerState = new BehaviorSubject<boolean>(true);
 
   /**
    * Emits to refresh data

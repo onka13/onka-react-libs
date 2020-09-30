@@ -1,5 +1,5 @@
 import React from 'react';
-import { LibService } from '../../../..';
+import { LibService } from '../../../../business/services/LibService';
 import { GridComponentProp } from '../../../../data/lib/GridComponentProp';
 
 export function GridFieldComponent(props: GridComponentProp) {

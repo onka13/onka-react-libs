@@ -4,7 +4,7 @@ export class Reference {
   /**
    * Reference route
    */
-  reference!: string;
+  route!: string;
 
   pageSize?: number = 10;
 
@@ -13,6 +13,8 @@ export class Reference {
   sortDirection?: string;
 
   filterField!: string;
+  
+  dataField!: string;
 
   public constructor(init?: Partial<Reference>) {
     Object.assign(this, init);
