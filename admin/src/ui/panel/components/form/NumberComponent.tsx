@@ -1,4 +1,5 @@
 import React from 'react';
+import { TextField } from '@material-ui/core';
 import { LibService } from '../../../../business/services/LibService';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
@@ -7,21 +8,14 @@ export function NumberComponent(props: InputComponentProp) {
     props.onChange(e.target.value);
   };
   return (
-    <div className="form-group">
-      <label className="form-label" htmlFor={props.field.name}>
-        {LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
-      </label>
-      <div className="form-control-wrap">
-        <input
-          type="number"
-          className={'form-control ' + (props.error ? 'invalid' : '')}
-          id={props.field.name}
-          value={props.rowData || ''}
-          onChange={handleChange}
-          readOnly={props.readonly}
-        />
-        {props.error && <span className="invalid">{props.error}</span>}
-      </div>
-    </div>
+    <TextField
+      id={props.field.name}
+      label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
+      defaultValue={props.rowData || ''}
+      error={!!props.error}
+      helperText={props.error}
+      onChange={handleChange}
+      type="number"
+    />
   );
 }

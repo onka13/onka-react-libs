@@ -7,7 +7,6 @@ import { InputComponent } from './InputComponent';
 import { NumberComponent } from './NumberComponent';
 import { MultiReferenceComponent, ReferenceComponent } from './ReferenceComponent';
 import { SelectComponent } from './SelectComponent';
-import { SlideToggleComponent } from './SlideToggleComponent';
 import { TextareaComponent } from './TextareaComponent';
 
 export const allInputs = {
@@ -17,7 +16,6 @@ export const allInputs = {
   DateComponent: DateComponent,
   TextareaComponent: TextareaComponent,
   SelectComponent: SelectComponent,
-  SlideToggleComponent: SlideToggleComponent,
   NumberComponent: NumberComponent,
   MultiReferenceComponent: MultiReferenceComponent,
   ReferenceComponent: ReferenceComponent,

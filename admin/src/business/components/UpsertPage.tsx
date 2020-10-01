@@ -10,6 +10,7 @@ import { useForm } from '../helpers/UseForm';
 import { LocaleService } from '../services/LocaleService';
 import { UpsertPageProp } from '../../data/lib/UpsertPageProp';
 import { PageField } from '../../data/lib/PageField';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
 
 export function UpsertPage(props: UpsertPageProp) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
@@ -17,6 +18,7 @@ export function UpsertPage(props: UpsertPageProp) {
   const { id } = useParams<{ id: any }>();
   const isEdit = (id && id > 0) || !!props.isEdit;
   const [status, setStatus] = useState<PageStatus>('none');
+  const [tabIndex, setTabIndex] = useState(0);
   const { formData, setFormData, handleChange, handleChanges, handleSubmit, errors } = useForm({
     fields: (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [],
     initialValues: { ...props.initialValues, ...UIManager.instance().getDefaultValues() },
@@ -63,89 +65,81 @@ export function UpsertPage(props: UpsertPageProp) {
   }, []);
 
   function renderFields(fields: PageField[]) {
-    return fields.map((field) => {
-      var path = LibService.instance().getPath(field.prefix, field.name);
-      var onChange = handleChange(path);
-      if (field.reference) {
-        var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-        onChange = (value: any) => {
-          handleChanges([
-            { name: refPath, value },
-            { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
-          ]);
-        };
-      }
-      return (
-        <div key={field.name} className={'col-lg-' + 12 / (props.columnCount || 2)}>
-          {React.createElement(
-            (isEdit ? field.editComponent : field.createComponent) || allInputs.InputComponent,
-            new InputComponentProp({
-              key: field.name,
-              pageConfig,
-              fields,
-              field,
-              data: formData,
-              rowData: LibService.instance().getValue(formData, path),
-              isEdit: isEdit,
-              onChange: onChange,
-              error: LibService.instance().getValue(errors, path),
-            })
-          )}
-        </div>
-      );
-    });
+    return (
+      <Grid container spacing={3}>
+        {fields.map((field) => {
+          var path = LibService.instance().getPath(field.prefix, field.name);
+          var onChange = handleChange(path);
+          if (field.reference) {
+            var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+            onChange = (value: any) => {
+              handleChanges([
+                { name: refPath, value },
+                { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
+              ]);
+            };
+          }
+          var xs: GridSize = 6;
+          // @ts-ignore
+          xs = 12 / (props.columnCount || 2);
+          if (xs > 12 || xs < 1) xs = 6;
+          return (
+            <Grid item key={field.name} xs={xs}>
+              {React.createElement(
+                (isEdit ? field.editComponent : field.createComponent) || allInputs.InputComponent,
+                new InputComponentProp({
+                  key: field.name,
+                  pageConfig,
+                  fields,
+                  field,
+                  data: formData,
+                  rowData: LibService.instance().getValue(formData, path),
+                  isEdit: isEdit,
+                  onChange: onChange,
+                  error: LibService.instance().getValue(errors, path),
+                })
+              )}
+            </Grid>
+          );
+        })}
+      </Grid>
+    );
   }
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setTabIndex(newValue);
+  };
 
   if (status == 'loading') return UIManager.instance().renderLoading();
 
   return (
-    <form onSubmit={handleSubmit} className="form-validate">
-      <div className="nk-block">
-        <div className="card card-bordered">
-          <div className="card-aside-wrap">
-            <div className="card-content">
-              <ul className="nav nav-tabs nav-tabs-mb-icon nav-tabs-card">
-                {props.tabs &&
-                  props.tabs.map((tab, i) => {
-                    return (
-                      <li key={i} className="nav-item">
-                        <a className={'nav-link ' + (i == 0 && 'active')} href={'#t' + i} data-toggle="tab">
-                          <em className={'icon ni ' + tab.icon}></em>
-                          <span>{LocaleService.instance().translate(tab.label, tab.label)}</span>
-                        </a>
-                      </li>
-                    );
-                  })}
-              </ul>
-              <div className="tab-content">
-                {props.tabs &&
-                  props.tabs.map((tab, i) => {
-                    return (
-                      <div key={i} className={'tab-pane ' + (i == 0 && 'active')} id={'t' + i}>
-                        <div className="card-inner">
-                          <div className="nk-block">
-                            <div className="row gy-4">{renderFields(tab.fields)}</div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                <div className="card-inner">
-                  <div className="row gy-4">{props.fields && renderFields(props.fields)}</div>
+    <form onSubmit={handleSubmit}>
+      <Card>
+        <CardHeader></CardHeader>
+        <CardContent>
+          {props.tabs && (
+            <Tabs value={tabIndex} onChange={handleTabChange} aria-label="tabs">
+              {props.tabs.map((tab, i) => {
+                return <Tab key={i} icon={tab.icon} label={LocaleService.instance().translate(tab.label, tab.label)} id={`tab-${i}`} aria-controls={`tab-${i}`} />;
+              })}
+            </Tabs>
+          )}
+          {props.tabs &&
+            props.tabs.map((tab, i) => {
+              return (
+                <div key={i} role="tabpanel" hidden={tabIndex !== i} id={`tabpanel-${i}`} aria-labelledby={`tab-${i}`}>
+                  <Box p={3}>{renderFields(tab.fields)}</Box>
                 </div>
-              </div>
-
-              <div className="col-12 pb20 mt10">
-                <div className="form-group">
-                  <button type="submit" className="btn btn-lg btn-primary">
-                    {LocaleService.instance().translate(isEdit ? 'lib.action.edit' : 'lib.action.save')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              );
+            })}
+          {props.fields && renderFields(props.fields)}
+        </CardContent>
+        <CardActions>
+          <Button type="submit" variant="contained" color="primary">
+            {LocaleService.instance().translate(isEdit ? 'lib.action.edit' : 'lib.action.save')}
+          </Button>
+        </CardActions>
+      </Card>
     </form>
   );
 }

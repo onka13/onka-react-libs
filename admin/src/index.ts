@@ -52,7 +52,6 @@ export * from './ui/panel/components/form/InputComponent';
 export * from './ui/panel/components/form/NumberComponent';
 export * from './ui/panel/components/form/ReferenceComponent';
 export * from './ui/panel/components/form/SelectComponent';
-export * from './ui/panel/components/form/SlideToggleComponent';
 export * from './ui/panel/components/form/TextareaComponent';
 export * from './ui/panel/components/Master';
 export * from './ui/panel/components/MenuComponent';

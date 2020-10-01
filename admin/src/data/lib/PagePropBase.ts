@@ -1,5 +1,6 @@
 import { PageField } from './PageField';
 import { PageConfig } from './PageConfig';
+import { ReactNode } from 'react';
 
 export class PagePropBase {
   key?: any;
@@ -18,7 +19,7 @@ export class PagePropBase {
 export class PageTab {
   label!: string;
 
-  icon?: string;
+  icon?: JSX.Element;
 
   fields!: PageField[];
 

@@ -10,7 +10,7 @@
     "**/bower_components": true,
     "**/ios": true,
     "**/android": true,
-    "**/dist": false,
+    "**/dist": true,
     "**/build": true,
   },
   "files.watcherExclude": {

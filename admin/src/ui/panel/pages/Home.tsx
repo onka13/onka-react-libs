@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { Switch, useRouteMatch, Route, useLocation } from 'react-router-dom';
-import { PrivateRoute, NoMatch, LibService, Menu } from '../../..';
+import { LibService } from '../../../business/services/LibService';
 import { PageConfig } from '../../../data/lib/PageConfig';
 import { IAdminProps } from '../../Admin';
+import { NoMatch } from '../../public/NoMatch';
 import { Master } from '../components/Master';
+import { PrivateRoute } from '../components/PrivateRoute';
 
 export function Home(props: IAdminProps) {
   let match = useRouteMatch();
