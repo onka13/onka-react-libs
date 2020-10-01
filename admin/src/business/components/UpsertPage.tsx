@@ -65,6 +65,10 @@ export function UpsertPage(props: UpsertPageProp) {
   }, []);
 
   function renderFields(fields: PageField[]) {
+    var xs: GridSize = 6;
+    // @ts-ignore
+    xs = 12 / (props.columnCount || 2);
+    if (xs > 12 || xs < 1) xs = 6;
     return (
       <Grid container spacing={3}>
         {fields.map((field) => {
@@ -79,10 +83,6 @@ export function UpsertPage(props: UpsertPageProp) {
               ]);
             };
           }
-          var xs: GridSize = 6;
-          // @ts-ignore
-          xs = 12 / (props.columnCount || 2);
-          if (xs > 12 || xs < 1) xs = 6;
           return (
             <Grid item key={field.name} xs={xs}>
               {React.createElement(
@@ -97,6 +97,7 @@ export function UpsertPage(props: UpsertPageProp) {
                   isEdit: isEdit,
                   onChange: onChange,
                   error: LibService.instance().getValue(errors, path),
+                  className: isEdit ? 'edit-field' : 'create-field'
                 })
               )}
             </Grid>
@@ -113,33 +114,37 @@ export function UpsertPage(props: UpsertPageProp) {
   if (status == 'loading') return UIManager.instance().renderLoading();
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Card>
-        <CardHeader></CardHeader>
-        <CardContent>
-          {props.tabs && (
-            <Tabs value={tabIndex} onChange={handleTabChange} aria-label="tabs">
-              {props.tabs.map((tab, i) => {
-                return <Tab key={i} icon={tab.icon} label={LocaleService.instance().translate(tab.label, tab.label)} id={`tab-${i}`} aria-controls={`tab-${i}`} />;
+    <div className="upsert-container">
+      <form onSubmit={handleSubmit}>
+        <Card>
+          <CardHeader></CardHeader>
+          <CardContent>
+            {props.tabs && (
+              <Tabs value={tabIndex} onChange={handleTabChange} aria-label="tabs">
+                {props.tabs.map((tab, i) => {
+                  return (
+                    <Tab key={i} icon={tab.icon} label={LocaleService.instance().translate(tab.label, tab.label)} id={`tab-${i}`} aria-controls={`tab-${i}`} />
+                  );
+                })}
+              </Tabs>
+            )}
+            {props.tabs &&
+              props.tabs.map((tab, i) => {
+                return (
+                  <div key={i} role="tabpanel" hidden={tabIndex !== i} id={`tabpanel-${i}`} aria-labelledby={`tab-${i}`}>
+                    <Box p={3}>{renderFields(tab.fields)}</Box>
+                  </div>
+                );
               })}
-            </Tabs>
-          )}
-          {props.tabs &&
-            props.tabs.map((tab, i) => {
-              return (
-                <div key={i} role="tabpanel" hidden={tabIndex !== i} id={`tabpanel-${i}`} aria-labelledby={`tab-${i}`}>
-                  <Box p={3}>{renderFields(tab.fields)}</Box>
-                </div>
-              );
-            })}
-          {props.fields && renderFields(props.fields)}
-        </CardContent>
-        <CardActions>
-          <Button type="submit" variant="contained" color="primary">
-            {LocaleService.instance().translate(isEdit ? 'lib.action.edit' : 'lib.action.save')}
-          </Button>
-        </CardActions>
-      </Card>
-    </form>
+            {props.fields && renderFields(props.fields)}
+          </CardContent>
+          <CardActions>
+            <Button type="submit" variant="contained" color="primary">
+              {LocaleService.instance().translate(isEdit ? 'lib.action.edit' : 'lib.action.save')}
+            </Button>
+          </CardActions>
+        </Card>
+      </form>
+    </div>
   );
 }
