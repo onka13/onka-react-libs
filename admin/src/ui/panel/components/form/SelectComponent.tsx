@@ -17,7 +17,7 @@ export function SelectComponent(props: SelectInputComponentProp) {
     });
   }
   return (
-    <FormControl error={!!props.error}>
+    <FormControl error={!!props.error} className={props.className}>
       <InputLabel id={props.field.name}>{LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}</InputLabel>
       <Select labelId={props.field.name} value={props.rowData || ''} onChange={handleChange}>
         <MenuItem value="">-</MenuItem>

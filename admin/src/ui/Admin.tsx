@@ -12,6 +12,7 @@ import { IToolbarProps } from './panel/components/Toolbar';
 import { Home } from './panel/pages/Home';
 import { ILoginProps, Login } from './public/Login';
 import { NoMatch } from './public/NoMatch';
+import { StylesProvider, createGenerateClassName } from '@material-ui/styles';
 
 export interface IAdminProps {
   children?: React.ReactNode;
@@ -21,8 +22,13 @@ export interface IAdminProps {
   footer?: any;
   menu: IMenuProp;
   toolbar: IToolbarProps;
-  login?: ILoginProps
+  login?: ILoginProps;
 }
+
+const generateClassName = createGenerateClassName({
+  productionPrefix: 'c',
+  disableGlobal: true,
+});
 
 export function Admin(props: IAdminProps) {
   const [done, setDone] = useState(false);
@@ -38,27 +44,29 @@ export function Admin(props: IAdminProps) {
   }, []);
   if (!done) return <div></div>;
   return (
-    <BrowserRouter>
-      <ErrorHandler />
-      <DialogComponent onRef={(c) => (UIManager.instance().dialog = c)} mode="dialog" />
-      <DialogComponent onRef={(c) => (UIManager.instance().drawer = c)} mode="drawer" />
-      <SnackBarComponent onRef={(c) => (UIManager.instance().snackbar = c)} />
-      {props.children}
-      <Switch>
-        <Route exact path="/">
-          {business.isLoggedIn() ? <Redirect to="/panel" /> : <Redirect to="/login" />}
-        </Route>
-        <PrivateRoute path="/panel">
-          <Home {...props} />
-        </PrivateRoute>
-        {props.rootRoutes}
-        <Route path="/login">
-          <Login {...props.login} />
-        </Route>
-        <Route path="*">
-          <NoMatch />
-        </Route>
-      </Switch>
-    </BrowserRouter>
+    <StylesProvider generateClassName={generateClassName}>
+      <BrowserRouter>
+        <ErrorHandler />
+        <DialogComponent onRef={(c) => (UIManager.instance().dialog = c)} mode="dialog" />
+        <DialogComponent onRef={(c) => (UIManager.instance().drawer = c)} mode="drawer" />
+        <SnackBarComponent onRef={(c) => (UIManager.instance().snackbar = c)} />
+        {props.children}
+        <Switch>
+          <Route exact path="/">
+            {business.isLoggedIn() ? <Redirect to="/panel" /> : <Redirect to="/login" />}
+          </Route>
+          <PrivateRoute path="/panel">
+            <Home {...props} />
+          </PrivateRoute>
+          {props.rootRoutes}
+          <Route path="/login">
+            <Login {...props.login} />
+          </Route>
+          <Route path="*">
+            <NoMatch />
+          </Route>
+        </Switch>
+      </BrowserRouter>
+    </StylesProvider>
   );
 }

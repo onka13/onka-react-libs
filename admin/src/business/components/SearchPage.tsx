@@ -15,6 +15,29 @@ import { PageStatus } from '../../data/lib/Types';
 import { LocaleService } from '../services/LocaleService';
 import zipcelx from 'zipcelx';
 import get from 'lodash/get';
+import { Button, Card, CardActions, CardContent, CardHeader, createStyles, Grid, makeStyles, Theme } from '@material-ui/core';
+import ExportIcon from '@material-ui/icons/ImportExport';
+import AddIcon from '@material-ui/icons/Add';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell, { SortDirection } from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import Checkbox from '@material-ui/core/Checkbox';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import DetailIcon from '@material-ui/icons/Details';
 
 interface ISearchPage {
   pageConfig: PageConfig;
@@ -24,14 +47,40 @@ interface ISearchPage {
   bulkActions?: (props: GridBulkActionProp) => JSX.Element;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+    },
+    paper: {
+      width: '100%',
+      marginBottom: theme.spacing(2),
+    },
+    table: {
+      minWidth: 750,
+    },
+    visuallyHidden: {
+      border: 0,
+      clip: 'rect(0 0 0 0)',
+      height: 1,
+      margin: -1,
+      overflow: 'hidden',
+      padding: 0,
+      position: 'absolute',
+      top: 20,
+      width: 1,
+    },
+  })
+);
+
 export function SearchPage(props: ISearchPage) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
   let filterFields = props.filterFields;
   let gridFields = props.gridFields;
-  let match = useRouteMatch();
+  const match = useRouteMatch();
   const [status, setStatus] = useState<PageStatus>('loading');
   const [data, setData] = useState([]);
-  const [pageLength, setPageLength] = useState(0);
+  const [total, setTotal] = useState(0);
   let defaultValues = UIManager.instance().getDefaultValues();
   const [request, setRequest] = useState<ApiSearchRequest>({
     filter: defaultValues,
@@ -45,6 +94,8 @@ export function SearchPage(props: ISearchPage) {
     },
   });
   const [selections, setSelections] = useState<any[]>([]);
+
+  const classes = useStyles();
 
   const isHideActions = UIManager.instance().isHideActions();
   const isSelectField = UIManager.instance().isSelectField();
@@ -65,9 +116,9 @@ export function SearchPage(props: ISearchPage) {
     new ApiBusinessLogic()
       .search(pageConfig.route, request)
       .then((response) => {
+        setTotal(response.total);
         setData(response.value);
         setStatus(response.value.length > 0 ? 'done' : 'no-data');
-        setPageLength(response.value.length);
       })
       .catch((error) => {
         setStatus('none');
@@ -108,13 +159,20 @@ export function SearchPage(props: ISearchPage) {
       });
   }
 
-  function changePage(page: number) {
-    request.pagination.page = page;
+  const handleChangePage = (event: unknown, newPage: number) => {
+    request.pagination.page = newPage + 1;
     setRequest({ ...request });
     loadDataTimer();
-  }
+  };
 
-  function changeSort(field: string) {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    request.pagination.page = 1;
+    request.pagination.perPage = parseInt(event.target.value, 10);
+    setRequest({ ...request });
+    loadDataTimer();
+  };
+
+  const changeSort = (field: string) => (e: any) => {
     if (request.sort.field == field) {
       request.sort.order = request.sort.order == 'ASC' ? 'DESC' : 'ASC';
     } else {
@@ -123,7 +181,7 @@ export function SearchPage(props: ISearchPage) {
     }
     setRequest({ ...request });
     loadDataTimer();
-  }
+  };
 
   function selectedIndex(dataRow: any): number {
     return selections.indexOf(dataRow['id']);
@@ -176,297 +234,430 @@ export function SearchPage(props: ISearchPage) {
     };
   }, []);
 
-  let totalPage = Math.floor(data.length / request.pagination.perPage) + 1;
+  //let totalPage = Math.floor(data.length / request.pagination.perPage) + 1;
 
   return (
-    <div className="nk-block nk-block-lg">
-      <div className="nk-block-head nk-block-head-sm">
-        <div className="nk-block-between">
-          <div className="nk-block-head-content">
-            <div className="toggle-wrap nk-block-tools-toggle">
-              <div className="toggle-expand-content" data-content="pageMenu">
-                {!isHideActions && (
-                  <ul className="nk-block-tools g-3">
-                    <li>
-                      <a href="#" className="btn btn-white btn-outline-light" onClick={exportData}>
-                        <em className="icon ni ni-download-cloud"></em>
-                        <span>{LocaleService.instance().translate('lib.action.export')}</span>
-                      </a>
-                    </li>
-                    {pageConfig.new && (
-                      <li>
-                        <Link to={UIManager.instance().getLink('create', pageConfig, { preserveQueryParams: true })} className="btn btn-primary">
-                          <em className="icon ni ni-plus"></em>
-                          <span>{LocaleService.instance().translate('lib.action.add')}</span>
-                        </Link>
-                      </li>
-                    )}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-          <div>
-            {props.bulkActions &&
-              selections.length > 0 &&
-              props.bulkActions(
-                new GridBulkActionProp({
-                  pageConfig,
-                  fields: gridFields,
-                  data,
-                  selections,
-                })
+    <div className="list-container">
+      <div className="list-actions">
+        <div className="container-left">
+          {!isHideActions && (
+            <>
+              <Button variant="outlined" color="default" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
+                {LocaleService.instance().translate('lib.action.export')}
+              </Button>
+              {pageConfig.new && (
+                <Button
+                  component={Link}
+                  to={UIManager.instance().getLink('create', pageConfig, { preserveQueryParams: true })}
+                  color="primary"
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                >
+                  {LocaleService.instance().translate('lib.action.add')}
+                </Button>
               )}
+            </>
+          )}
+        </div>
+        <div></div>
+        <div className="container-right">
+          {props.bulkActions &&
+            selections.length > 0 &&
+            props.bulkActions(
+              new GridBulkActionProp({
+                pageConfig,
+                fields: gridFields,
+                data,
+                selections,
+              })
+            )}
+        </div>
+      </div>
+      <Paper className={classes.paper}>
+        <div className="list-search">
+          {!UIManager.instance().isHideFilters() &&
+            filterFields.map((field, i) => {
+              var path = LibService.instance().getPath(field.prefix, field.name);
+              if (UIManager.instance().isHideDefaultFilters()) {
+                if (Object.keys(defaultValues).indexOf(field.name) != -1) return null;
+              }
+              return (
+                <div key={i} className="list-search-fields">
+                  {React.createElement(
+                    field.filterComponent || field.createComponent || allInputs.InputComponent,
+                    new FilterComponentProp({
+                      key: i,
+                      pageConfig,
+                      fields: filterFields,
+                      field,
+                      data,
+                      request: request,
+                      rowData: LibService.instance().getValue(request.filter, path),
+                      onChange: (val: string) => {
+                        LibService.instance().setValue(request.filter, path, val);
+                        setRequest({ ...request });
+                        loadDataTimer();
+                      },
+                      className: 'filter-field',
+                    })
+                  )}
+                </div>
+              );
+            })}
+        </div>
+        <TableContainer>
+          <Table className={classes.table} aria-labelledby="tableTitle" size={'small'} aria-label="enhanced table">
+            <TableHead>
+              <TableRow>
+                {isSelectField && <TableCell></TableCell>}
+                {props.bulkActions && (
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      //indeterminate={numSelected > 0 && numSelected < rowCount}
+                      checked={isAllSelected()}
+                      onChange={masterToggle()}
+                      inputProps={{ 'aria-label': 'select all desserts' }}
+                    />
+                  </TableCell>
+                )}
+                {gridFields.map((field, index) => {
+                  var sortDirection: SortDirection = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'asc' : 'desc') : false;
+                  const label = LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name);
+                  return (
+                    <TableCell key={index} sortDirection={sortDirection}>
+                      {field.isSortable && (
+                        <TableSortLabel active={request.sort.field == field.name} direction={sortDirection || undefined} onClick={changeSort(field.name)}>
+                          {label}
+                          {<span className={classes.visuallyHidden}>{sortDirection === 'desc' ? 'sorted descending' : 'sorted ascending'}</span>}
+                        </TableSortLabel>
+                      )}
+                      {!field.isSortable && label}
+                    </TableCell>
+                  );
+                })}
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((item: any, i) => {
+                var isItemSelected = isSelected(data[i]);
+                return (
+                  <TableRow
+                    hover
+                    //onClick={(event) => handleClick(event, row.name)}
+                    //role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={item.id}
+                    selected={isItemSelected}
+                  >
+                    {isSelectField && (
+                      <TableCell>
+                        <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
+                          {LocaleService.instance().translate('lib.action.select')}
+                        </Button>
+                      </TableCell>
+                    )}
+                    {props.bulkActions && (
+                      <TableCell padding="checkbox">
+                        <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
+                      </TableCell>
+                    )}
+                    {gridFields.map((field, j) => {
+                      return (
+                        <TableCell key={j}>
+                          {React.createElement(
+                            field.gridComponent || allInputs.GridFieldComponent,
+                            new GridComponentProp({
+                              key: j,
+                              pageConfig,
+                              fields: gridFields,
+                              field,
+                              data,
+                              rowData: data[i],
+                            })
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell align="right">
+                      {!isHideActions && (
+                        <div>
+                          {props.rowActions &&
+                            props.rowActions(
+                              new GridRowExtraActionProp({
+                                key: i,
+                                pageConfig,
+                                fields: gridFields,
+                                data,
+                                rowData: data[i],
+                              })
+                            )}
+                          {pageConfig.edit && (
+                            <Button
+                              component={Link}
+                              to={match.url + '/edit/' + data[i]['id']}
+                              size="small"
+                              variant="text"
+                              color="secondary"
+                              startIcon={<EditIcon />}
+                            >
+                              {LocaleService.instance().translate('lib.action.edit')}
+                            </Button>
+                          )}
+                          {pageConfig.get && (
+                            <Button
+                              component={Link}
+                              to={match.url + '/detail/' + data[i]['id']}
+                              size="small"
+                              variant="text"
+                              color="secondary"
+                              startIcon={<DetailIcon />}
+                            >
+                              {LocaleService.instance().translate('lib.action.show')}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {total > 0 && (
+          <TablePagination
+            rowsPerPageOptions={[10, 20, 50]}
+            component="div"
+            count={total}
+            rowsPerPage={request.pagination.perPage}
+            page={request.pagination.page - 1}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        )}
+        {status == 'no-data' && <div className="m20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
+      </Paper>
+    </div>
+  );
+}
+
+{
+  /* <div className="card card-preview">
+<div className="card-inner">
+  <div className="dataTables_wrapper dt-bootstrap4 no-footer">
+    <div className="row justify-between g-2">
+      <div className="col-7 col-sm-6 text-left"></div>
+      <div className="col-5 col-sm-6 text-right d-flex justify-content-end"></div>
+    </div>
+    
+    <div className="datatable-wrap my-3">
+      {status == 'done' && (
+        <table
+          className="datatable-init nk-tb-list nk-tb-ulist dataTable no-footer"
+          data-auto-responsive="false"
+          role="grid"
+          aria-describedby="DataTables_Table_1_info"
+        >
+          <thead>
+            <tr className="nk-tb-item nk-tb-head" role="row">
+              {isSelectField && <th className="nk-tb-col"></th>}
+              {props.bulkActions && (
+                <th className="nk-tb-col nk-tb-col-check">
+                  <div className="custom-control custom-control-sm custom-checkbox notext">
+                    <input type="checkbox" className="custom-control-input" id="check-master" checked={isAllSelected()} onChange={masterToggle()} />
+                    <label className="custom-control-label" htmlFor="check-master"></label>
+                  </div>
+                </th>
+              )}
+              {gridFields.map((field, index) => {
+                var sortClass = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'sorting_asc' : 'sorting_desc') : '';
+                return (
+                  <th key={index} className={'nk-tb-col sorting ' + sortClass} rowSpan={1} colSpan={1}>
+                    <a href="#" className="sub-text" onClick={(e) => changeSort(field.name)}>
+                      {LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name)}
+                    </a>
+                  </th>
+                );
+              })}
+              <th className="nk-tb-col nk-tb-col-tools text-right sorting" rowSpan={1} colSpan={1}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, i) => {
+              return (
+                <tr key={i} className="nk-tb-item odd" role="row">
+                  {isSelectField && (
+                    <td className="nk-tb-col">
+                      <button className="btn btn-sm btn-light" onClick={closeDialog(data[i])}>
+                        {LocaleService.instance().translate('lib.action.select')}
+                      </button>
+                    </td>
+                  )}
+                  {props.bulkActions && (
+                    <td className="nk-tb-col nk-tb-col-check sorting_1">
+                      <div className="custom-control custom-control-sm custom-checkbox notext">
+                        <input
+                          type="checkbox"
+                          className="custom-control-input"
+                          id={'check' + i}
+                          checked={isSelected(data[i])}
+                          onChange={toggleSelected(data[i])}
+                        />
+                        <label className="custom-control-label" htmlFor={'check' + i}></label>
+                      </div>
+                    </td>
+                  )}
+                  {gridFields.map((field, j) => {
+                    return (
+                      <td key={j} className="nk-tb-col">
+                        {React.createElement(
+                          field.gridComponent || allInputs.GridFieldComponent,
+                          new GridComponentProp({
+                            key: j,
+                            pageConfig,
+                            fields: gridFields,
+                            field,
+                            data,
+                            rowData: data[i],
+                          })
+                        )}
+                      </td>
+                    );
+                  })}
+                  <td className="nk-tb-col nk-tb-col-tools">
+                    {!isHideActions && (
+                      <ul className="nk-tb-actions gx-1">
+                        {props.rowActions &&
+                          props.rowActions(
+                            new GridRowExtraActionProp({
+                              key: i,
+                              pageConfig,
+                              fields: gridFields,
+                              data,
+                              rowData: data[i],
+                            })
+                          )}
+                        {pageConfig.edit && (
+                          <li className="nk-tb-action-hidden">
+                            <Link
+                              to={match.url + '/edit/' + data[i]['id']}
+                              className="btn btn-trigger btn-icon"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title=""
+                            >
+                              <em className="icon ni ni-edit"></em>
+                              <span>{LocaleService.instance().translate('lib.action.edit')}</span>
+                            </Link>
+                          </li>
+                        )}
+                        {pageConfig.get && (
+                          <li className="nk-tb-action-hidden">
+                            <Link
+                              to={match.url + '/detail/' + data[i]['id']}
+                              className="btn btn-trigger btn-icon"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title=""
+                            >
+                              <em className="icon ni ni-list-round"></em>
+                              <span>{LocaleService.instance().translate('lib.action.show')}</span>
+                            </Link>
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>
+    {status == 'done' && (
+      <div className="row align-items-center">
+        <div className="col-7 col-sm-12 col-md-9">
+          <div className="dataTables_paginate paging_simple_numbers" id="DataTables_Table_1_paginate">
+            <ul className="pagination">
+              <li className={'paginate_button page-item previous' + (request.pagination.page > 1 ? '' : 'disabled')}>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (request.pagination.page <= 1) return;
+                    changePage(request.pagination.page - 1);
+                  }}
+                  className="page-link"
+                >
+                  {LocaleService.instance().translate('lib.action.prev')}
+                </a>
+              </li>
+
+              <li className="paginate_button page-item active">
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                  className="page-link"
+                >
+                  {request.pagination.page}
+                </a>
+              </li>
+
+              <li className={'paginate_button page-item next' + (request.pagination.page < totalPage ? '' : 'disabled')}>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (request.pagination.page >= totalPage) return;
+                    changePage(request.pagination.page + 1);
+                  }}
+                  className="page-link"
+                >
+                  {LocaleService.instance().translate('lib.action.next')}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="col-5 col-sm-12 col-md-3 text-left text-md-right d-flex justify-content-end">
+          <div className="dataTables_info mr10" role="status" aria-live="polite">
+            {(request.pagination.page - 1) * request.pagination.perPage + 1} - {request.pagination.page * request.pagination.perPage}, {data.length}
+          </div>
+          <div className="datatable-filter">
+            <div className="dataTables_length">
+              <label>
+                <div className="form-control-select">
+                  {' '}
+                  <select
+                    name="DataTables_Table_1_length"
+                    className="custom-select custom-select-sm form-control form-control-sm"
+                    onChange={(e) => {
+                      request.pagination.page = 1;
+                      request.pagination.perPage = parseInt(e.target.value);
+                      setRequest({ ...request });
+                      loadDataTimer();
+                    }}
+                    defaultValue={request.pagination.perPage}
+                  >
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>{' '}
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       </div>
-      <div className="card card-preview">
-        <div className="card-inner">
-          <div className="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div className="row justify-between g-2">
-              <div className="col-7 col-sm-6 text-left">
-                <div className="d-flex">
-                  {!UIManager.instance().isHideFilters() &&
-                    filterFields.map((field, i) => {
-                      var path = LibService.instance().getPath(field.prefix, field.name);
-                      if (UIManager.instance().isHideDefaultFilters()) {
-                        if (Object.keys(defaultValues).indexOf(field.name) != -1) return null;
-                      }
-                      return (
-                        <div key={i} className="mr10">
-                          {React.createElement(
-                            field.filterComponent || allInputs.FilterComponent,
-                            new FilterComponentProp({
-                              key: i,
-                              pageConfig,
-                              fields: filterFields,
-                              field,
-                              data,
-                              request: request,
-                              rowData: LibService.instance().getValue(request.filter, path),
-                              onChange: (val: string) => {
-                                LibService.instance().setValue(request.filter, path, val);
-                                setRequest({ ...request });
-                                loadDataTimer();
-                              },
-                            })
-                          )}
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-              <div className="col-5 col-sm-6 text-right d-flex justify-content-end"></div>
-            </div>
-            {status == 'loading' && <div className="mt20">{UIManager.instance().renderLoading()}</div>}
-            <div className="datatable-wrap my-3">
-              {status == 'done' && (
-                <table
-                  className="datatable-init nk-tb-list nk-tb-ulist dataTable no-footer"
-                  data-auto-responsive="false"
-                  role="grid"
-                  aria-describedby="DataTables_Table_1_info"
-                >
-                  <thead>
-                    <tr className="nk-tb-item nk-tb-head" role="row">
-                      {isSelectField && <th className="nk-tb-col"></th>}
-                      {props.bulkActions && (
-                        <th className="nk-tb-col nk-tb-col-check">
-                          <div className="custom-control custom-control-sm custom-checkbox notext">
-                            <input type="checkbox" className="custom-control-input" id="check-master" checked={isAllSelected()} onChange={masterToggle()} />
-                            <label className="custom-control-label" htmlFor="check-master"></label>
-                          </div>
-                        </th>
-                      )}
-                      {gridFields.map((field, index) => {
-                        var sortClass = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'sorting_asc' : 'sorting_desc') : '';
-                        return (
-                          <th key={index} className={'nk-tb-col sorting ' + sortClass} rowSpan={1} colSpan={1}>
-                            <a href="#" className="sub-text" onClick={(e) => changeSort(field.name)}>
-                              {LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name)}
-                            </a>
-                          </th>
-                        );
-                      })}
-                      <th className="nk-tb-col nk-tb-col-tools text-right sorting" rowSpan={1} colSpan={1}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.map((item, i) => {
-                      return (
-                        <tr key={i} className="nk-tb-item odd" role="row">
-                          {isSelectField && (
-                            <td className="nk-tb-col">
-                              <button className="btn btn-sm btn-light" onClick={closeDialog(data[i])}>
-                                {LocaleService.instance().translate('lib.action.select')}
-                              </button>
-                            </td>
-                          )}
-                          {props.bulkActions && (
-                            <td className="nk-tb-col nk-tb-col-check sorting_1">
-                              <div className="custom-control custom-control-sm custom-checkbox notext">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id={'check' + i}
-                                  checked={isSelected(data[i])}
-                                  onChange={toggleSelected(data[i])}
-                                />
-                                <label className="custom-control-label" htmlFor={'check' + i}></label>
-                              </div>
-                            </td>
-                          )}
-                          {gridFields.map((field, j) => {
-                            return (
-                              <td key={j} className="nk-tb-col">
-                                {React.createElement(
-                                  field.gridComponent || allInputs.GridFieldComponent,
-                                  new GridComponentProp({
-                                    key: j,
-                                    pageConfig,
-                                    fields: gridFields,
-                                    field,
-                                    data,
-                                    rowData: data[i],
-                                  })
-                                )}
-                              </td>
-                            );
-                          })}
-                          <td className="nk-tb-col nk-tb-col-tools">
-                            {!isHideActions && (
-                              <ul className="nk-tb-actions gx-1">
-                                {props.rowActions &&
-                                  props.rowActions(
-                                    new GridRowExtraActionProp({
-                                      key: i,
-                                      pageConfig,
-                                      fields: gridFields,
-                                      data,
-                                      rowData: data[i],
-                                    })
-                                  )}
-                                {pageConfig.edit && (
-                                  <li className="nk-tb-action-hidden">
-                                    <Link
-                                      to={match.url + '/edit/' + data[i]['id']}
-                                      className="btn btn-trigger btn-icon"
-                                      data-toggle="tooltip"
-                                      data-placement="top"
-                                      title=""
-                                    >
-                                      <em className="icon ni ni-edit"></em>
-                                      <span>{LocaleService.instance().translate('lib.action.edit')}</span>
-                                    </Link>
-                                  </li>
-                                )}
-                                {pageConfig.get && (
-                                  <li className="nk-tb-action-hidden">
-                                    <Link
-                                      to={match.url + '/detail/' + data[i]['id']}
-                                      className="btn btn-trigger btn-icon"
-                                      data-toggle="tooltip"
-                                      data-placement="top"
-                                      title=""
-                                    >
-                                      <em className="icon ni ni-list-round"></em>
-                                      <span>{LocaleService.instance().translate('lib.action.show')}</span>
-                                    </Link>
-                                  </li>
-                                )}
-                              </ul>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-            {status == 'done' && (
-              <div className="row align-items-center">
-                <div className="col-7 col-sm-12 col-md-9">
-                  <div className="dataTables_paginate paging_simple_numbers" id="DataTables_Table_1_paginate">
-                    <ul className="pagination">
-                      <li className={'paginate_button page-item previous' + (request.pagination.page > 1 ? '' : 'disabled')}>
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (request.pagination.page <= 1) return;
-                            changePage(request.pagination.page - 1);
-                          }}
-                          className="page-link"
-                        >
-                          {LocaleService.instance().translate('lib.action.prev')}
-                        </a>
-                      </li>
-
-                      <li className="paginate_button page-item active">
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
-                          className="page-link"
-                        >
-                          {request.pagination.page}
-                        </a>
-                      </li>
-
-                      <li className={'paginate_button page-item next' + (request.pagination.page < totalPage ? '' : 'disabled')}>
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (request.pagination.page >= totalPage) return;
-                            changePage(request.pagination.page + 1);
-                          }}
-                          className="page-link"
-                        >
-                          {LocaleService.instance().translate('lib.action.next')}
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="col-5 col-sm-12 col-md-3 text-left text-md-right d-flex justify-content-end">
-                  <div className="dataTables_info mr10" role="status" aria-live="polite">
-                    {(request.pagination.page - 1) * request.pagination.perPage + 1} - {request.pagination.page * request.pagination.perPage}, {data.length}
-                  </div>
-                  <div className="datatable-filter">
-                    <div className="dataTables_length">
-                      <label>
-                        <div className="form-control-select">
-                          {' '}
-                          <select
-                            name="DataTables_Table_1_length"
-                            className="custom-select custom-select-sm form-control form-control-sm"
-                            onChange={(e) => {
-                              request.pagination.page = 1;
-                              request.pagination.perPage = parseInt(e.target.value);
-                              setRequest({ ...request });
-                              loadDataTimer();
-                            }}
-                            defaultValue={request.pagination.perPage}
-                          >
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                          </select>{' '}
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            {status == 'no-data' && <div className="m20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
-          </div>
-        </div>{' '}
-      </div>
-    </div>
-  );
+    )}
+    {status == 'no-data' && <div className="m20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
+  </div>
+</div>{' '}
+</div> */
 }

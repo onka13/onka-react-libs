@@ -9,6 +9,8 @@ import { PageStatus } from '../../data/lib/Types';
 import { LocaleService } from '../services/LocaleService';
 import { PagePropBase } from '../../data/lib/PagePropBase';
 import { PageField } from '../../data/lib/PageField';
+import { Box, Button, Card, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
+import EditIcon from '@material-ui/icons/Edit';
 
 export function DetailPage(props: PagePropBase) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
@@ -17,6 +19,7 @@ export function DetailPage(props: PagePropBase) {
   const [state, setState] = useState<{ [x: string]: any }>({});
   const [status, setStatus] = useState<PageStatus>('loading');
   const { id } = useParams<{ id: any }>();
+  const [tabIndex, setTabIndex] = useState(0);
 
   function loadData() {
     setStatus('loading');
@@ -43,88 +46,78 @@ export function DetailPage(props: PagePropBase) {
   }, []);
 
   function renderFields(fields: PageField[]) {
-    return fields.map((field, i) => {
-      var path = LibService.instance().getPath(field.prefix, field.name);
-      return React.createElement(
-        field.detailComponent || allInputs.DetailFieldComponent,
-        new DetailComponentProp({
-          key: field.name,
-          pageConfig,
-          fields,
-          field,
-          data: state,
-          rowData: LibService.instance().getValue(state, path),
-        })
-      );
-    });
+    var xs: GridSize = 6;
+    // @ts-ignore
+    xs = 12 / (props.columnCount || 2);
+    if (xs > 12 || xs < 1) xs = 6;
+    return (
+      <Grid container spacing={3}>
+        {fields.map((field, i) => {
+          var path = LibService.instance().getPath(field.prefix, field.name);
+          return (
+            <Grid item key={field.name} xs={xs}>
+              {React.createElement(
+                field.detailComponent || allInputs.DetailFieldComponent,
+                new DetailComponentProp({
+                  key: field.name,
+                  pageConfig,
+                  fields,
+                  field,
+                  data: state,
+                  rowData: LibService.instance().getValue(state, path),
+                  className: 'detail-field'
+                })
+              )}
+            </Grid>
+          );
+        })}
+      </Grid>
+    );
   }
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setTabIndex(newValue);
+  };
 
   if (status == 'loading') return UIManager.instance().renderLoading();
 
   return (
-    <React.Fragment>
-      <div className="nk-block-head nk-block-head-sm">
-        <div className="nk-block-between g-3">
-          <div className="nk-block-head-content"></div>
-          {!UIManager.instance().isHideActions() && (
-            <div className="nk-block-head-content">
-              {pageConfig.edit && (
-                <Link
-                  to={UIManager.instance().getLink('edit', pageConfig, { id, preserveQueryParams: true })}
-                  className="btn btn-outline-light bg-white d-none d-sm-inline-flex"
-                >
-                  <em className="icon ni ni-edit"></em>
-                  <span>{LocaleService.instance().translate('lib.action.edit')}</span>
-                </Link>
-              )}
-            </div>
+    <div className="detail-container">
+      <Card>
+        <CardHeader>
+          {!UIManager.instance().isHideActions() && pageConfig.edit && (
+            <Button
+              variant="contained"
+              color="primary"
+              component={Link}
+              to={UIManager.instance().getLink('edit', pageConfig, { id, preserveQueryParams: true })}
+              startIcon={<EditIcon />}
+            >
+              {LocaleService.instance().translate('lib.action.edit')}
+            </Button>
           )}
-        </div>
-      </div>
-      <div className="nk-block">
-        <div className="card card-bordered">
-          <div className="card-aside-wrap">
-            <div className="card-content">
-              <ul className="nav nav-tabs nav-tabs-mb-icon nav-tabs-card">
-                {props.tabs &&
-                  props.tabs.map((tab, i) => {
-                    return (
-                      <li key={i} className="nav-item">
-                        <a className={'nav-link ' + (i == 0 && 'active')} href={'#t' + i} data-toggle="tab">
-                          <em className={'icon ni ' + tab.icon}></em>
-                          <span>{LocaleService.instance().translate(tab.label, tab.label)}</span>
-                        </a>
-                      </li>
-                    );
-                  })}
-              </ul>
-              <div className="tab-content">
-                {props.tabs &&
-                  props.tabs.map((tab, i) => {
-                    return (
-                      <div key={i} className={'tab-pane ' + (i == 0 && 'active')} id={'t' + i}>
-                        <div className="card-inner">
-                          <div className="nk-block">
-                            <div className="row">{renderFields(tab.fields)}</div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                {fields && (
-                  <div className="tab-pane active">
-                    <div className="card-inner">
-                      <div className="nk-block">
-                        <div className="row">{renderFields(fields)}</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </React.Fragment>
+        </CardHeader>
+        <CardContent>
+          {props.tabs && (
+            <Tabs value={tabIndex} onChange={handleTabChange} aria-label="tabs">
+              {props.tabs.map((tab, i) => {
+                return (
+                  <Tab key={i} icon={tab.icon} label={LocaleService.instance().translate(tab.label, tab.label)} id={`tab-${i}`} aria-controls={`tab-${i}`} />
+                );
+              })}
+            </Tabs>
+          )}
+          {props.tabs &&
+            props.tabs.map((tab, i) => {
+              return (
+                <div key={i} role="tabpanel" hidden={tabIndex !== i} id={`tabpanel-${i}`} aria-labelledby={`tab-${i}`}>
+                  <Box p={3}>{renderFields(tab.fields)}</Box>
+                </div>
+              );
+            })}
+          {props.fields && renderFields(props.fields)}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
