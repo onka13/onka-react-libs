@@ -44,7 +44,9 @@ export function UpsertPage(props: UpsertPageProp) {
       props.onSubmit(formData);
       return;
     }
+    UIManager.instance().displayLoading(true);
     var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, formData);
+    UIManager.instance().displayLoading(false);
     var redirect = UIManager.instance().getRedirect() || 'list';
     UIManager.instance().gotoPage(history, redirect, pageConfig, {
       id: record.value?.id,

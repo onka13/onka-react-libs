@@ -7,6 +7,9 @@ export function GridFieldComponent(props: GridComponentProp) {
   var val;
   if (props.field.enumName) {
     val = LibService.instance().translatEnum(props.field.enum, props.field.enumName, val);
+  } else if (props.field.reference) {
+    var relatedData = props.rowData[props.field.reference.dataField];
+    val = relatedData ? relatedData[props.field.reference.filterField] : '';
   } else {
     val = LibService.instance().getValue(props.rowData, path);
   }

@@ -1,11 +1,15 @@
-import React from "react";
+import React from 'react';
+import MuiAlert, { Color } from '@material-ui/lab/Alert';
+import { IconButton } from '@material-ui/core';
+import RemoveIcon from "@material-ui/icons/Clear";
+//import MuiSnackbar from '@material-ui/core/Snackbar';
 
 interface SnackBarComponentProps {
   onRef: (c: SnackBarComponent) => {};
 }
 
 export interface Snackbar {
-  type: "danger" | "success" | "info" | "warning";
+  type: 'danger' | 'success' | 'info' | 'warning';
   /**
    * In sec.
    */
@@ -23,16 +27,16 @@ export class SnackBarComponent extends React.Component<SnackBarComponentProps> {
     props.onRef && props.onRef(this);
   }
   _randomId(): string {
-    return new Date().getTime() + "";
+    return new Date().getTime() + '';
   }
   add(snackbar: Snackbar): string {
     var id = snackbar.id || this._randomId();
-    if (!snackbar.type) snackbar.type = "info";
+    if (!snackbar.type) snackbar.type = 'info';
     if (!snackbar.duration && snackbar.duration != 0) snackbar.duration = 5;
     this.state.snackbars[id] = snackbar;
     this.setState({ snackbars: this.state.snackbars });
 
-    if (snackbar.type != "danger" && snackbar.duration > 0) {
+    if (snackbar.type != 'danger' && snackbar.duration > 0) {
       setTimeout(() => {
         this.remove(id);
       }, snackbar.duration * 1000);
@@ -45,32 +49,46 @@ export class SnackBarComponent extends React.Component<SnackBarComponentProps> {
   }
   render() {
     return (
-      <div className="snack" style={{ display: "flex", alignItems: "flex-end" }}>
+      <div className="snack" style={{ display: 'flex', alignItems: 'flex-end' }}>
         {Object.keys(this.state.snackbars).map((key, index) => {
           var snackbar = this.state.snackbars[key];
-          var icon;
+          var severity: Color;
           switch (snackbar.type) {
-            case "danger":
-              icon = "ni-cross-circle";
+            case 'danger':
+              severity = 'error';
               break;
-            case "success":
-              icon = "ni-check-circle";
+            case 'success':
+              severity = 'success';
+              break;
+            case 'warning':
+              severity = 'warning';
               break;
             default:
-              icon = "ni-alert-circle";
+              severity = 'info';
               break;
           }
           return (
-            <div key={key} className={"alert alert-" + snackbar.type + " alert-icon alert-dismissible "}>
-              <em className={"icon ni " + icon}></em> {snackbar.text}{" "}
-              <button
-                className="close"
-                onClick={(e) => {
-                  e.preventDefault();
-                  this.remove(key);
-                }}
-              ></button>
-            </div>
+            <MuiAlert
+              key={key}
+              elevation={6}
+              variant="filled"
+              severity={severity}
+              className="alert"
+              action={
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    this.remove(key);
+                  }}
+                >
+                  <RemoveIcon />
+                </IconButton>
+              }
+            >
+              {snackbar.text}
+            </MuiAlert>
           );
         })}
       </div>

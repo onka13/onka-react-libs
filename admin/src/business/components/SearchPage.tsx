@@ -37,7 +37,7 @@ import Switch from '@material-ui/core/Switch';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import DetailIcon from '@material-ui/icons/Details';
+import DetailIcon from '@material-ui/icons/RemoveRedEye';
 
 interface ISearchPage {
   pageConfig: PageConfig;
@@ -305,128 +305,131 @@ export function SearchPage(props: ISearchPage) {
               );
             })}
         </div>
-        <TableContainer>
-          <Table className={classes.table} aria-labelledby="tableTitle" size={'small'} aria-label="enhanced table">
-            <TableHead>
-              <TableRow>
-                {isSelectField && <TableCell></TableCell>}
-                {props.bulkActions && (
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      //indeterminate={numSelected > 0 && numSelected < rowCount}
-                      checked={isAllSelected()}
-                      onChange={masterToggle()}
-                      inputProps={{ 'aria-label': 'select all desserts' }}
-                    />
-                  </TableCell>
-                )}
-                {gridFields.map((field, index) => {
-                  var sortDirection: SortDirection = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'asc' : 'desc') : false;
-                  const label = LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name);
-                  return (
-                    <TableCell key={index} sortDirection={sortDirection}>
-                      {field.isSortable && (
-                        <TableSortLabel active={request.sort.field == field.name} direction={sortDirection || undefined} onClick={changeSort(field.name)}>
-                          {label}
-                          {<span className={classes.visuallyHidden}>{sortDirection === 'desc' ? 'sorted descending' : 'sorted ascending'}</span>}
-                        </TableSortLabel>
-                      )}
-                      {!field.isSortable && label}
+        {status == 'loading' && <div className="p20">{UIManager.instance().renderLoading()}</div>}
+        {status == 'done' && (
+          <TableContainer>
+            <Table className={classes.table} aria-labelledby="tableTitle" size={'small'} aria-label="enhanced table">
+              <TableHead>
+                <TableRow>
+                  {isSelectField && <TableCell></TableCell>}
+                  {props.bulkActions && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        //indeterminate={numSelected > 0 && numSelected < rowCount}
+                        checked={isAllSelected()}
+                        onChange={masterToggle()}
+                        inputProps={{ 'aria-label': 'select all desserts' }}
+                      />
                     </TableCell>
-                  );
-                })}
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((item: any, i) => {
-                var isItemSelected = isSelected(data[i]);
-                return (
-                  <TableRow
-                    hover
-                    //onClick={(event) => handleClick(event, row.name)}
-                    //role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={item.id}
-                    selected={isItemSelected}
-                  >
-                    {isSelectField && (
-                      <TableCell>
-                        <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
-                          {LocaleService.instance().translate('lib.action.select')}
-                        </Button>
+                  )}
+                  {gridFields.map((field, index) => {
+                    var sortDirection: SortDirection = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'asc' : 'desc') : false;
+                    const label = LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name);
+                    return (
+                      <TableCell key={index} sortDirection={sortDirection}>
+                        {field.isSortable && (
+                          <TableSortLabel active={request.sort.field == field.name} direction={sortDirection || undefined} onClick={changeSort(field.name)}>
+                            {label}
+                            {<span className={classes.visuallyHidden}>{sortDirection === 'desc' ? 'sorted descending' : 'sorted ascending'}</span>}
+                          </TableSortLabel>
+                        )}
+                        {!field.isSortable && label}
                       </TableCell>
-                    )}
-                    {props.bulkActions && (
-                      <TableCell padding="checkbox">
-                        <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
-                      </TableCell>
-                    )}
-                    {gridFields.map((field, j) => {
-                      return (
-                        <TableCell key={j}>
-                          {React.createElement(
-                            field.gridComponent || allInputs.GridFieldComponent,
-                            new GridComponentProp({
-                              key: j,
-                              pageConfig,
-                              fields: gridFields,
-                              field,
-                              data,
-                              rowData: data[i],
-                            })
-                          )}
+                    );
+                  })}
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((item: any, i) => {
+                  var isItemSelected = isSelected(data[i]);
+                  return (
+                    <TableRow
+                      hover
+                      //onClick={(event) => handleClick(event, row.name)}
+                      //role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={item.id}
+                      selected={isItemSelected}
+                    >
+                      {isSelectField && (
+                        <TableCell>
+                          <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
+                            {LocaleService.instance().translate('lib.action.select')}
+                          </Button>
                         </TableCell>
-                      );
-                    })}
-                    <TableCell align="right">
-                      {!isHideActions && (
-                        <div>
-                          {props.rowActions &&
-                            props.rowActions(
-                              new GridRowExtraActionProp({
-                                key: i,
+                      )}
+                      {props.bulkActions && (
+                        <TableCell padding="checkbox">
+                          <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
+                        </TableCell>
+                      )}
+                      {gridFields.map((field, j) => {
+                        return (
+                          <TableCell key={j}>
+                            {React.createElement(
+                              field.gridComponent || allInputs.GridFieldComponent,
+                              new GridComponentProp({
+                                key: j,
                                 pageConfig,
                                 fields: gridFields,
+                                field,
                                 data,
                                 rowData: data[i],
                               })
                             )}
-                          {pageConfig.edit && (
-                            <Button
-                              component={Link}
-                              to={match.url + '/edit/' + data[i]['id']}
-                              size="small"
-                              variant="text"
-                              color="secondary"
-                              startIcon={<EditIcon />}
-                            >
-                              {LocaleService.instance().translate('lib.action.edit')}
-                            </Button>
-                          )}
-                          {pageConfig.get && (
-                            <Button
-                              component={Link}
-                              to={match.url + '/detail/' + data[i]['id']}
-                              size="small"
-                              variant="text"
-                              color="secondary"
-                              startIcon={<DetailIcon />}
-                            >
-                              {LocaleService.instance().translate('lib.action.show')}
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {total > 0 && (
+                          </TableCell>
+                        );
+                      })}
+                      <TableCell align="right">
+                        {!isHideActions && (
+                          <div>
+                            {props.rowActions &&
+                              props.rowActions(
+                                new GridRowExtraActionProp({
+                                  key: i,
+                                  pageConfig,
+                                  fields: gridFields,
+                                  data,
+                                  rowData: data[i],
+                                })
+                              )}
+                            {pageConfig.edit && (
+                              <Button
+                                component={Link}
+                                to={match.url + '/edit/' + data[i]['id']}
+                                size="small"
+                                variant="text"
+                                color="secondary"
+                                startIcon={<EditIcon />}
+                              >
+                                {LocaleService.instance().translate('lib.action.edit')}
+                              </Button>
+                            )}
+                            {pageConfig.get && (
+                              <Button
+                                component={Link}
+                                to={match.url + '/detail/' + data[i]['id']}
+                                size="small"
+                                variant="text"
+                                color="secondary"
+                                startIcon={<DetailIcon />}
+                              >
+                                {LocaleService.instance().translate('lib.action.show')}
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        {status == 'done' && total > 0 && (
           <TablePagination
             rowsPerPageOptions={[10, 20, 50]}
             component="div"
@@ -437,227 +440,8 @@ export function SearchPage(props: ISearchPage) {
             onChangeRowsPerPage={handleChangeRowsPerPage}
           />
         )}
-        {status == 'no-data' && <div className="m20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
+        {status == 'no-data' && <div className="p20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
       </Paper>
     </div>
   );
-}
-
-{
-  /* <div className="card card-preview">
-<div className="card-inner">
-  <div className="dataTables_wrapper dt-bootstrap4 no-footer">
-    <div className="row justify-between g-2">
-      <div className="col-7 col-sm-6 text-left"></div>
-      <div className="col-5 col-sm-6 text-right d-flex justify-content-end"></div>
-    </div>
-    
-    <div className="datatable-wrap my-3">
-      {status == 'done' && (
-        <table
-          className="datatable-init nk-tb-list nk-tb-ulist dataTable no-footer"
-          data-auto-responsive="false"
-          role="grid"
-          aria-describedby="DataTables_Table_1_info"
-        >
-          <thead>
-            <tr className="nk-tb-item nk-tb-head" role="row">
-              {isSelectField && <th className="nk-tb-col"></th>}
-              {props.bulkActions && (
-                <th className="nk-tb-col nk-tb-col-check">
-                  <div className="custom-control custom-control-sm custom-checkbox notext">
-                    <input type="checkbox" className="custom-control-input" id="check-master" checked={isAllSelected()} onChange={masterToggle()} />
-                    <label className="custom-control-label" htmlFor="check-master"></label>
-                  </div>
-                </th>
-              )}
-              {gridFields.map((field, index) => {
-                var sortClass = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'sorting_asc' : 'sorting_desc') : '';
-                return (
-                  <th key={index} className={'nk-tb-col sorting ' + sortClass} rowSpan={1} colSpan={1}>
-                    <a href="#" className="sub-text" onClick={(e) => changeSort(field.name)}>
-                      {LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name)}
-                    </a>
-                  </th>
-                );
-              })}
-              <th className="nk-tb-col nk-tb-col-tools text-right sorting" rowSpan={1} colSpan={1}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, i) => {
-              return (
-                <tr key={i} className="nk-tb-item odd" role="row">
-                  {isSelectField && (
-                    <td className="nk-tb-col">
-                      <button className="btn btn-sm btn-light" onClick={closeDialog(data[i])}>
-                        {LocaleService.instance().translate('lib.action.select')}
-                      </button>
-                    </td>
-                  )}
-                  {props.bulkActions && (
-                    <td className="nk-tb-col nk-tb-col-check sorting_1">
-                      <div className="custom-control custom-control-sm custom-checkbox notext">
-                        <input
-                          type="checkbox"
-                          className="custom-control-input"
-                          id={'check' + i}
-                          checked={isSelected(data[i])}
-                          onChange={toggleSelected(data[i])}
-                        />
-                        <label className="custom-control-label" htmlFor={'check' + i}></label>
-                      </div>
-                    </td>
-                  )}
-                  {gridFields.map((field, j) => {
-                    return (
-                      <td key={j} className="nk-tb-col">
-                        {React.createElement(
-                          field.gridComponent || allInputs.GridFieldComponent,
-                          new GridComponentProp({
-                            key: j,
-                            pageConfig,
-                            fields: gridFields,
-                            field,
-                            data,
-                            rowData: data[i],
-                          })
-                        )}
-                      </td>
-                    );
-                  })}
-                  <td className="nk-tb-col nk-tb-col-tools">
-                    {!isHideActions && (
-                      <ul className="nk-tb-actions gx-1">
-                        {props.rowActions &&
-                          props.rowActions(
-                            new GridRowExtraActionProp({
-                              key: i,
-                              pageConfig,
-                              fields: gridFields,
-                              data,
-                              rowData: data[i],
-                            })
-                          )}
-                        {pageConfig.edit && (
-                          <li className="nk-tb-action-hidden">
-                            <Link
-                              to={match.url + '/edit/' + data[i]['id']}
-                              className="btn btn-trigger btn-icon"
-                              data-toggle="tooltip"
-                              data-placement="top"
-                              title=""
-                            >
-                              <em className="icon ni ni-edit"></em>
-                              <span>{LocaleService.instance().translate('lib.action.edit')}</span>
-                            </Link>
-                          </li>
-                        )}
-                        {pageConfig.get && (
-                          <li className="nk-tb-action-hidden">
-                            <Link
-                              to={match.url + '/detail/' + data[i]['id']}
-                              className="btn btn-trigger btn-icon"
-                              data-toggle="tooltip"
-                              data-placement="top"
-                              title=""
-                            >
-                              <em className="icon ni ni-list-round"></em>
-                              <span>{LocaleService.instance().translate('lib.action.show')}</span>
-                            </Link>
-                          </li>
-                        )}
-                      </ul>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-    </div>
-    {status == 'done' && (
-      <div className="row align-items-center">
-        <div className="col-7 col-sm-12 col-md-9">
-          <div className="dataTables_paginate paging_simple_numbers" id="DataTables_Table_1_paginate">
-            <ul className="pagination">
-              <li className={'paginate_button page-item previous' + (request.pagination.page > 1 ? '' : 'disabled')}>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (request.pagination.page <= 1) return;
-                    changePage(request.pagination.page - 1);
-                  }}
-                  className="page-link"
-                >
-                  {LocaleService.instance().translate('lib.action.prev')}
-                </a>
-              </li>
-
-              <li className="paginate_button page-item active">
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                  }}
-                  className="page-link"
-                >
-                  {request.pagination.page}
-                </a>
-              </li>
-
-              <li className={'paginate_button page-item next' + (request.pagination.page < totalPage ? '' : 'disabled')}>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (request.pagination.page >= totalPage) return;
-                    changePage(request.pagination.page + 1);
-                  }}
-                  className="page-link"
-                >
-                  {LocaleService.instance().translate('lib.action.next')}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="col-5 col-sm-12 col-md-3 text-left text-md-right d-flex justify-content-end">
-          <div className="dataTables_info mr10" role="status" aria-live="polite">
-            {(request.pagination.page - 1) * request.pagination.perPage + 1} - {request.pagination.page * request.pagination.perPage}, {data.length}
-          </div>
-          <div className="datatable-filter">
-            <div className="dataTables_length">
-              <label>
-                <div className="form-control-select">
-                  {' '}
-                  <select
-                    name="DataTables_Table_1_length"
-                    className="custom-select custom-select-sm form-control form-control-sm"
-                    onChange={(e) => {
-                      request.pagination.page = 1;
-                      request.pagination.perPage = parseInt(e.target.value);
-                      setRequest({ ...request });
-                      loadDataTimer();
-                    }}
-                    defaultValue={request.pagination.perPage}
-                  >
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>{' '}
-                </div>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-    {status == 'no-data' && <div className="m20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
-  </div>
-</div>{' '}
-</div> */
 }

@@ -16,6 +16,7 @@ export function ErrorHandler() {
   function globalErrorHandler(e: any) {
     e.preventDefault();
     e.stopImmediatePropagation();
+    UIManager.instance().displayLoading(false);
     if (e.reason instanceof ApiError) {
       let localeService = LocaleService.instance();
       let configService = ConfigService.instance();

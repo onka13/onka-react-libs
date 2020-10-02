@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink, useHistory } from 'react-router-dom';
+import { Link, NavLink, useHistory, useRouteMatch } from 'react-router-dom';
 import { List, ListItem, Collapse, ListItemText, ListItemIcon, Button, makeStyles, createStyles, Theme } from '@material-ui/core';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -37,6 +37,8 @@ export function MenuComponent(props: IMenuProp) {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [selectedMenu, setSelectedMenu] = useState<String>();
   const history = useHistory();
+  const match = useRouteMatch();
+
   useEffect(() => {
     var clonedMenus = props.menus.filter((x) => true);
     // init menus with permission
@@ -83,7 +85,14 @@ export function MenuComponent(props: IMenuProp) {
                 <List component="div" disablePadding>
                   {menu.routes.map((route, j) => {
                     return (
-                      <ListItem button key={'submenu' + i + j} className={classes.nested} component={Link} to={'/panel' + route.config.route}>
+                      <ListItem
+                        button
+                        key={'submenu' + i + j}
+                        className={classes.nested}
+                        component={Link}
+                        to={'/panel' + route.config.route}
+                        //selected={route.config.route}
+                      >
                         <ListItemIcon></ListItemIcon>
                         <ListItemText primary={LibService.instance().getRouteLabel(route.config)} />
                       </ListItem>

@@ -150,7 +150,7 @@
 }
 .snack {
   position: fixed;
-  z-index: 1200;
+  z-index: 1201;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
@@ -159,6 +159,13 @@
   right: 20px;
   .alert {
     margin-bottom: 10px;
+    max-width: 500px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .alert > div {
+    max-width: 400px;
+    overflow-wrap: break-word;
   }
 }
 
