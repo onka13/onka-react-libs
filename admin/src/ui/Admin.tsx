@@ -19,6 +19,8 @@ export interface IAdminProps {
   rootRoutes?: any[];
   onLoad?: () => Promise<any>;
   dashboard?: JSX.Element;
+  noMatch?: JSX.Element;
+  loginComponent?: (props: ILoginProps) => JSX.Element;
   footer?: any;
   menu: IMenuProp;
   toolbar: IToolbarProps;
@@ -59,12 +61,8 @@ export function Admin(props: IAdminProps) {
             <Home {...props} />
           </PrivateRoute>
           {props.rootRoutes}
-          <Route path="/login">
-            <Login {...props.login} />
-          </Route>
-          <Route path="*">
-            <NoMatch />
-          </Route>
+          <Route path="/login">{props.loginComponent ? <props.loginComponent {...props.login} /> : <Login {...props.login} />}</Route>
+          <Route path="*">{props.noMatch ? props.noMatch : <NoMatch />}</Route>
         </Switch>
       </BrowserRouter>
     </StylesProvider>

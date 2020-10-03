@@ -15,8 +15,7 @@ export interface IMenuProp {
   headerMenu?: any;
   footerMenu?: any;
   hideDashBoard?: boolean;
-  logoLight?: string;
-  logoDark?: string;
+  logo?: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -60,6 +59,11 @@ export function MenuComponent(props: IMenuProp) {
 
   return (
     <div>
+      {props.logo && (
+        <div className="logo">
+          <img src={props.logo} alt="logo" />
+        </div>
+      )}
       <List component="nav" aria-labelledby="nested-list-subheader" className={classes.root}>
         {props.headerMenu}
         {!props.hideDashBoard && (
