@@ -16,6 +16,7 @@ export function InputComponent(props: InputComponentProp) {
       helperText={props.error}
       onChange={handleChange}
       multiline={props.isMultiline}
+      fullWidth
     />
   );
 }

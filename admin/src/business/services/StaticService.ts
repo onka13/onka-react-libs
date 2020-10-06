@@ -79,13 +79,11 @@ export class StaticService {
     localStorage.setItem("roles", JSON.stringify(roles));
   }
 
-  /**R
+  /**
    * Clear login data
    */
   logout() {
-    ["AdminToken", "username", "name", "isSuper", "roles"].forEach((x) => {
-      localStorage.removeItem(x);
-    });
+    localStorage.clear();
   }
 
   /**

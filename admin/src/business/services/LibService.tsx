@@ -22,7 +22,6 @@ export class LibService {
     return this._instance;
   }
 
-
   private localeService: LocaleService;
   constructor() {
     this.localeService = LocaleService.instance();
@@ -32,7 +31,7 @@ export class LibService {
    * Selected last page
    */
   public selectedPage = new BehaviorSubject<PageConfig>(new PageConfig());
-  
+
   /**
    * Drawer state
    */
@@ -67,7 +66,7 @@ export class LibService {
    * @param key key
    */
   translatEnumKey(enumName: string, key: string) {
-    return this.translate('enums.' + enumName + '.' + key);
+    return this.translate('enums.' + enumName + '.' + key, key);
   }
 
   /**
@@ -121,7 +120,7 @@ export class LibService {
       var isOwner = this.hasAccess(pageConfig.moduleKey, pageConfig.pageKey, 'admin');
       ['export', 'get', 'new', 'edit', 'delete'].forEach((key) => {
         // @ts-ignore
-        pageConfig[key] = isOwner || this.hasAccess(pageConfig.moduleKey, pageConfig.pageKey, key);
+        pageConfig[key] = pageConfig[key] && (isOwner || this.hasAccess(pageConfig.moduleKey, pageConfig.pageKey, key));
       });
     }
     return pageConfig;

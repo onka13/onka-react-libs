@@ -19,6 +19,7 @@ export function DateComponent(props: InputComponentProp) {
         shrink: true,
       }}
       type="datetime-local"
+      fullWidth
     />
   );
 }

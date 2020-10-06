@@ -15,7 +15,7 @@ import { PageStatus } from '../../data/lib/Types';
 import { LocaleService } from '../services/LocaleService';
 import zipcelx from 'zipcelx';
 import get from 'lodash/get';
-import { Button, Card, CardActions, CardContent, CardHeader, createStyles, Grid, makeStyles, Theme } from '@material-ui/core';
+import { Button, createStyles, makeStyles, Theme } from '@material-ui/core';
 import ExportIcon from '@material-ui/icons/ImportExport';
 import AddIcon from '@material-ui/icons/Add';
 import Table from '@material-ui/core/Table';
@@ -26,17 +26,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import FilterListIcon from '@material-ui/icons/FilterList';
 import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
 import DetailIcon from '@material-ui/icons/RemoveRedEye';
 
 interface ISearchPage {
@@ -172,7 +164,7 @@ export function SearchPage(props: ISearchPage) {
     loadDataTimer();
   };
 
-  const changeSort = (field: string) => (e: any) => {
+  const changeSort = (field: string) => () => {
     if (request.sort.field == field) {
       request.sort.order = request.sort.order == 'ASC' ? 'DESC' : 'ASC';
     } else {
@@ -190,7 +182,7 @@ export function SearchPage(props: ISearchPage) {
     return selectedIndex(dataRow) != -1;
   }
   function toggleSelected(dataRow: any) {
-    return (e: any) => {
+    return () => {
       var index = selectedIndex(dataRow);
       if (index > -1) {
         selections.splice(index, 1);
@@ -205,7 +197,7 @@ export function SearchPage(props: ISearchPage) {
   }
 
   function masterToggle() {
-    return (e: any) => {
+    return () => {
       if (isAllSelected()) {
         setSelections([]);
         return;
@@ -215,7 +207,7 @@ export function SearchPage(props: ISearchPage) {
   }
 
   function closeDialog(record?: any) {
-    return (e: any) => {
+    return () => {
       // @ts-ignore
       var callback = window.parent['iframeCallback' + UIManager.instance().getDialogId()];
       if (callback) {
@@ -242,9 +234,11 @@ export function SearchPage(props: ISearchPage) {
         <div className="container-left">
           {!isHideActions && (
             <>
-              <Button variant="outlined" color="default" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
-                {LocaleService.instance().translate('lib.action.export')}
-              </Button>
+              {pageConfig.export && (
+                <Button variant="outlined" color="default" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
+                  {LocaleService.instance().translate('lib.action.export')}
+                </Button>
+              )}
               {pageConfig.new && (
                 <Button
                   component={Link}

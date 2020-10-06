@@ -16,6 +16,7 @@ export function NumberComponent(props: InputComponentProp) {
       helperText={props.error}
       onChange={handleChange}
       type="number"
+      fullWidth
     />
   );
 }

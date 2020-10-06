@@ -77,6 +77,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       onChange={handleChange}
       onOpen={onOpen}
       filterOptions={(options: any, state: object) => options}
+      fullWidth
       renderInput={(params) => {
         return (
           <TextField

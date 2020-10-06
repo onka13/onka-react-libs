@@ -193,7 +193,8 @@
   }
   .list-search {
     padding: 10px;
-    display: flex;
+    display: inline-flex;
+    flex-wrap: wrap;
     flex-direction: row;
     align-items: center;
     .list-search-fields {

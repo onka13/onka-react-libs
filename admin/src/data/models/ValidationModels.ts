@@ -24,6 +24,6 @@ export class Validators {
   static email = new EmailValidation({ type: "email" });
   static max = (value: number) => new ValueValidation({ type: "max", value });
   static min = (value: number) => new ValueValidation({ type: "min", value });
-  static maxLength = (value: number) => new ValueValidation({ type: "minLength", value });
-  static minLength = (value: number) => new ValueValidation({ type: "maxLength", value });
+  static maxLength = (value: number) => new ValueValidation({ type: "maxLength", value });
+  static minLength = (value: number) => new ValueValidation({ type: "minLength", value });
 }

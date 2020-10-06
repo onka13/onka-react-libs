@@ -14,7 +14,7 @@ function validate(fields: PageField[], state: any): Parameters | undefined {
     field.validators?.forEach((validator) => {
       let error = null;
       if (validator instanceof RequiredValidation) {
-        if (value === null || value === "" || value === undefined) {
+        if (value === null || value === '' || value === undefined) {
           error = LocaleService.instance().translate('lib.validation.required');
         }
       } else if (validator instanceof EmailValidation) {
@@ -29,19 +29,28 @@ function validate(fields: PageField[], state: any): Parameters | undefined {
         if (validation.type == 'minLength') {
           let validation = validator as ValueValidation;
           if ((value + '').length > validation.value) {
-            error = LocaleService.instance().translate('lib.validation.minlength');
+            error = LocaleService.instance().translate('lib.validation.minlength', undefined, {
+              requiredLength: validation.value,
+            });
           }
         } else if (validation.type == 'maxLength') {
           if ((value + '').length > validation.value) {
-            error = LocaleService.instance().translate('lib.validation.maxLength');
+            error = LocaleService.instance().translate('lib.validation.maxLength', undefined, {
+              requiredLength: validation.value,
+              actualLength: (value + '').length,
+            });
           }
         } else if (validation.type == 'min') {
           if (parseFloat(value) < validation.value) {
-            error = LocaleService.instance().translate('lib.validation.min');
+            error = LocaleService.instance().translate('lib.validation.min', undefined, {
+              min: validation.value,
+            });
           }
         } else if (validation.type == 'max') {
           if (parseFloat(value) > validation.value) {
-            error = LocaleService.instance().translate('lib.validation.max');
+            error = LocaleService.instance().translate('lib.validation.max', undefined, {
+              max: validation.value,
+            });
           }
         }
       }
