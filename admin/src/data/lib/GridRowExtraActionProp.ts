@@ -1,5 +1,5 @@
-import { PageField } from './PageField';
 import { PageConfig } from './PageConfig';
+import { PageGridField } from './PageGridFields';
 
 export class GridRowExtraActionProp {
 
@@ -13,7 +13,7 @@ export class GridRowExtraActionProp {
   /**
    * Fields
    */
-  fields!: PageField[];
+  gridFields!: PageGridField[];
 
   /**
    * Data

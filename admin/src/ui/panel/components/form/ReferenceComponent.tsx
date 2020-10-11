@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
+import { TextField, CircularProgress, Checkbox } from '@material-ui/core';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import { Autocomplete } from '@material-ui/lab';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { ApiSearchRequest } from '../../../../data/api/ApiRequest';
 import { LibService } from '../../../../business/services/LibService';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { ApiBusinessLogic } from '../../../../business/services/ApiBusinessLogic';
-import { TextField, CircularProgress, Checkbox } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
 
 export function MultiReferenceComponent(props: InputComponentProp) {
   return <ReferenceComponentBase isMultiple={true} props={props} />;

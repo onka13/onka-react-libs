@@ -1,7 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useRouteMatch } from 'react-router-dom';
+import zipcelx from 'zipcelx';
+import get from 'lodash/get';
+import {
+  Button,
+  createStyles,
+  makeStyles,
+  Theme,
+  Table,
+  TableBody,
+  TableCell,
+  SortDirection,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+  Checkbox,
+  Paper,
+} from '@material-ui/core';
+import ExportIcon from '@material-ui/icons/ImportExport';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
+import DetailIcon from '@material-ui/icons/RemoveRedEye';
 import { PageConfig } from '../../data/lib/PageConfig';
-import { PageField } from '../../data/lib/PageField';
 import { ApiSearchRequest } from '../../data/api/ApiRequest';
 import { UIManager } from '../services/UIManager';
 import { ApiBusinessLogic } from '../services/ApiBusinessLogic';
@@ -13,28 +35,13 @@ import { GridBulkActionProp } from '../../data/lib/GridBulkActionProp';
 import { LibService } from '../services/LibService';
 import { PageStatus } from '../../data/lib/Types';
 import { LocaleService } from '../services/LocaleService';
-import zipcelx from 'zipcelx';
-import get from 'lodash/get';
-import { Button, createStyles, makeStyles, Theme } from '@material-ui/core';
-import ExportIcon from '@material-ui/icons/ImportExport';
-import AddIcon from '@material-ui/icons/Add';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell, { SortDirection } from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import EditIcon from '@material-ui/icons/Edit';
-import DetailIcon from '@material-ui/icons/RemoveRedEye';
+import { PageFilterField } from '../../data/lib/PageFilterField';
+import { PageGridField } from '../../data/lib/PageGridFields';
 
 interface ISearchPage {
   pageConfig: PageConfig;
-  gridFields: PageField[];
-  filterFields: PageField[];
+  gridFields: PageGridField[];
+  filterFields: PageFilterField[];
   rowActions?: (props: GridRowExtraActionProp) => JSX.Element;
   bulkActions?: (props: GridBulkActionProp) => JSX.Element;
 }
@@ -226,8 +233,6 @@ export function SearchPage(props: ISearchPage) {
     };
   }, []);
 
-  //let totalPage = Math.floor(data.length / request.pagination.perPage) + 1;
-
   return (
     <div className="list-container">
       <div className="list-actions">
@@ -260,7 +265,7 @@ export function SearchPage(props: ISearchPage) {
             props.bulkActions(
               new GridBulkActionProp({
                 pageConfig,
-                fields: gridFields,
+                gridFields,
                 data,
                 selections,
               })
@@ -278,12 +283,12 @@ export function SearchPage(props: ISearchPage) {
               return (
                 <div key={i} className="list-search-fields">
                   {React.createElement(
-                    field.filterComponent || field.createComponent || allInputs.InputComponent,
+                    field.filterComponent || allInputs.FilterComponent,
                     new FilterComponentProp({
                       key: i,
                       pageConfig,
-                      fields: filterFields,
-                      field,
+                      filterFields: filterFields,
+                      filterField: field,
                       data,
                       request: request,
                       rowData: LibService.instance().getValue(request.filter, path),
@@ -308,12 +313,7 @@ export function SearchPage(props: ISearchPage) {
                   {isSelectField && <TableCell></TableCell>}
                   {props.bulkActions && (
                     <TableCell padding="checkbox">
-                      <Checkbox
-                        //indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={isAllSelected()}
-                        onChange={masterToggle()}
-                        inputProps={{ 'aria-label': 'select all desserts' }}
-                      />
+                      <Checkbox checked={isAllSelected()} onChange={masterToggle()} inputProps={{ 'aria-label': 'select all desserts' }} />
                     </TableCell>
                   )}
                   {gridFields.map((field, index) => {
@@ -359,16 +359,16 @@ export function SearchPage(props: ISearchPage) {
                           <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
                         </TableCell>
                       )}
-                      {gridFields.map((field, j) => {
+                      {gridFields.map((gridField, j) => {
                         return (
                           <TableCell key={j}>
                             {React.createElement(
-                              field.gridComponent || allInputs.GridFieldComponent,
+                              gridField.gridComponent || allInputs.GridFieldComponent,
                               new GridComponentProp({
                                 key: j,
                                 pageConfig,
-                                fields: gridFields,
-                                field,
+                                gridFields,
+                                gridField,
                                 data,
                                 rowData: data[i],
                               })
@@ -384,7 +384,7 @@ export function SearchPage(props: ISearchPage) {
                                 new GridRowExtraActionProp({
                                   key: i,
                                   pageConfig,
-                                  fields: gridFields,
+                                  gridFields,
                                   data,
                                   rowData: data[i],
                                 })

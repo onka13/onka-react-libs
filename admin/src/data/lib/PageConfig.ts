@@ -1,4 +1,6 @@
 import { PageField } from './PageField';
+import { PageFilterField } from './PageFilterField';
+import { PageGridField } from './PageGridFields';
 
 /**
  * Page configuration model
@@ -68,6 +70,16 @@ export class PageConfig {
    * Field list
    */
   fields!: PageField[];
+  
+  /**
+   * Filter Field list
+   */
+  filterFields!: PageFilterField[];
+  
+  /**
+   * Grid Field list
+   */
+  gridFields!: PageGridField[];
 
   public constructor(init?: Partial<PageConfig>) {
     Object.assign(this, init);

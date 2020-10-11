@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
 import { ApiBusinessLogic } from '../services/ApiBusinessLogic';
 import { UIManager } from '../services/UIManager';
 import { allInputs } from '../../ui/panel/components/form';
@@ -10,7 +11,6 @@ import { useForm } from '../helpers/UseForm';
 import { LocaleService } from '../services/LocaleService';
 import { UpsertPageProp } from '../../data/lib/UpsertPageProp';
 import { PageField } from '../../data/lib/PageField';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
 
 export function UpsertPage(props: UpsertPageProp) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
@@ -69,7 +69,7 @@ export function UpsertPage(props: UpsertPageProp) {
   function renderFields(fields: PageField[]) {
     var xs: GridSize = 6;
     // @ts-ignore
-    xs = 12 / (props.columnCount || 2);
+    xs = 12 / (props.fieldSize || 2);
     if (xs > 12 || xs < 1) xs = 6;
     return (
       <Grid container spacing={3}>
@@ -99,7 +99,7 @@ export function UpsertPage(props: UpsertPageProp) {
                   isEdit: isEdit,
                   onChange: onChange,
                   error: LibService.instance().getValue(errors, path),
-                  className: isEdit ? 'edit-field' : 'create-field'
+                  className: isEdit ? 'edit-field' : 'create-field',
                 })
               )}
             </Grid>

@@ -11,7 +11,7 @@ export class UpsertPageProp extends PagePropBase {
   loadData?: () => Promise<ServiceResult<any>>;
   onSubmit?: (data: Parameters) => void;
   isEdit?: boolean;
-  columnCount?: number;
+  fieldSize?: number;
   
   public constructor(init?: Partial<UpsertPageProp>) {
     super(init);

@@ -1,70 +1,10 @@
 import { FunctionComponent } from "react";
-
-export class Reference {
-  /**
-   * Reference route
-   */
-  route!: string;
-
-  pageSize?: number = 10;
-
-  sortField?: string;
-
-  sortDirection?: string;
-
-  filterField!: string;
-  
-  dataField!: string;
-
-  public constructor(init?: Partial<Reference>) {
-    Object.assign(this, init);
-  }
-}
+import { PageFieldBase } from "./PageFieldBase";
 
 /**
  * Field model
  */
-export class PageField {
-  /**
-   * Field name
-   */
-  name!: string;
-
-  /**
-   * Label
-   */
-  label!: string;
-
-  /**
-   * Enum name
-   */
-  enumName!: string;
-
-  /**
-   * Enum object
-   */
-  enum!: { [x: string]: any };
-
-  /**
-   * filter name
-   */
-  filterName!: string;
-
-  /**
-   * Reference
-   */
-  reference!: Reference;
-
-  /**
-   * Grid component
-   */
-  gridComponent!: FunctionComponent<any>;
-
-  /**
-   * Filter component
-   */
-  filterComponent!: FunctionComponent<any>;
-
+export class PageField extends PageFieldBase {
   /**
    * Update component
    */
@@ -81,34 +21,19 @@ export class PageField {
   detailComponent!: FunctionComponent<any>;
 
   /**
-   * Display in filters
-   */
-  inFilter!: boolean;
-
-  /**
-   * Display in search results
-   */
-  inGrid!: boolean;
-
-  /**
-   * Is sortable
-   */
-  isSortable!: boolean;
-
-  /**
    * Display in detail page
    */
-  inDetail!: boolean;
+  displayInDetail!: boolean;
 
   /**
    * Display in update page
    */
-  isEditable!: boolean;
+  displayInEdit!: boolean;
 
   /**
    * Display in create page
    */
-  isCreatable!: boolean;
+  displayInCreate!: boolean;
 
   /**
    * Validators
@@ -121,18 +46,12 @@ export class PageField {
   isRequired!: boolean;
 
   /**
-   * Format in grid list
+   * Grid size
    */
-  format!: (row: any, value: any) => string;
-
-  /**
-   * Field data type
-   */
-  dataType!: 'string' | 'number' | undefined;
-
-  prefix?: string;
+  fieldSize!: number;
 
   public constructor(init?: Partial<PageField>) {
+    super(init);
     Object.assign(this, init);
   }
 }

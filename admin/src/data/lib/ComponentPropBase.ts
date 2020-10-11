@@ -11,16 +11,6 @@ export class ComponentPropBase {
   pageConfig!: PageConfig;
 
   /**
-   * Field
-   */
-  field!: PageField;
-  
-  /**
-   * Fields
-   */
-  fields!: PageField[];
-
-  /**
    * Data
    */
   data!: any;

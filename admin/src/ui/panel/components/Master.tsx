@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { UIManager } from '../../../business/services/UIManager';
-import { IMenuProp, MenuComponent } from './MenuComponent';
-import { IToolbarProps, Toolbar } from './Toolbar';
 import clsx from 'clsx';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { UIManager } from '../../../business/services/UIManager';
+import { IMenuProp, MenuComponent } from './MenuComponent';
+import { IToolbarProps, Toolbar } from './Toolbar';
 import { LibService } from '../../../business/services/LibService';
 
 export interface IMasterProps {

@@ -3,14 +3,15 @@ import { LibService } from '../../../../business/services/LibService';
 import { GridComponentProp } from '../../../../data/lib/GridComponentProp';
 
 export function GridFieldComponent(props: GridComponentProp) {
-  var path = LibService.instance().getPath(props.field.prefix, props.field.name);
+  const field = props.gridField;
+  var path = LibService.instance().getPath(field.prefix, field.name);
   var val;
-  if (props.field.enumName) {
+  if (field.enumName) {
     val = LibService.instance().getValue(props.rowData, path);
-    val = LibService.instance().translatEnum(props.field.enum, props.field.enumName, val);
-  } else if (props.field.reference) {
-    var relatedData = props.rowData[props.field.reference.dataField];
-    val = relatedData ? relatedData[props.field.reference.filterField] : '';
+    val = LibService.instance().translatEnum(field.enum, field.enumName, val);
+  } else if (field.reference) {
+    var relatedData = props.rowData[field.reference.dataField];
+    val = relatedData ? relatedData[field.reference.filterField] : '';
   } else {
     val = LibService.instance().getValue(props.rowData, path);
   }

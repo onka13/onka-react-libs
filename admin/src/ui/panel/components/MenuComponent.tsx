@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink, useHistory, useRouteMatch } from 'react-router-dom';
-import { List, ListItem, Collapse, ListItemText, ListItemIcon, Button, makeStyles, createStyles, Theme } from '@material-ui/core';
+import { Link, useHistory, useRouteMatch } from 'react-router-dom';
+import { List, ListItem, Collapse, ListItemText, ListItemIcon, makeStyles, createStyles, Theme } from '@material-ui/core';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import DashboardIcon from '@material-ui/icons/Dashboard';
@@ -35,8 +35,6 @@ export function MenuComponent(props: IMenuProp) {
   const classes = useStyles();
   const [menus, setMenus] = useState<Menu[]>([]);
   const [selectedMenu, setSelectedMenu] = useState<String>();
-  const history = useHistory();
-  const match = useRouteMatch();
 
   useEffect(() => {
     var clonedMenus = props.menus.filter((x) => true);

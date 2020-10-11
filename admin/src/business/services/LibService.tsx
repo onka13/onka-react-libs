@@ -144,11 +144,9 @@ export class LibService {
 
   filterFields(pageFields: PageField[], pageType: PageType, prefix?: string): PageField[] {
     var fields = pageFields.filter((x) => {
-      if (pageType == 'edit') return x.isEditable;
-      if (pageType == 'create') return x.isCreatable;
-      if (pageType == 'detail') return x.inDetail;
-      if (pageType == 'list') return x.inGrid;
-      if (pageType == 'filter') return x.inFilter;
+      if (pageType == 'edit') return x.displayInEdit;
+      if (pageType == 'create') return x.displayInCreate;
+      if (pageType == 'detail') return x.displayInDetail;
       return false;
     });
     if (prefix) {

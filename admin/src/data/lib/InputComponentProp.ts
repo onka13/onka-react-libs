@@ -1,5 +1,6 @@
-import { ComponentPropBase } from "./ComponentPropBase";
-import { Option } from "./Types";
+import { ComponentPropBase } from './ComponentPropBase';
+import { PageField } from './PageField';
+import { Option } from './Types';
 
 export class InputComponentProp extends ComponentPropBase {
   /**
@@ -12,6 +13,16 @@ export class InputComponentProp extends ComponentPropBase {
   error?: string;
 
   isMultiline?: boolean;
+
+  /**
+   * Field
+   */
+  field!: PageField;
+
+  /**
+   * Fields
+   */
+  fields!: PageField[];
 
   public constructor(init?: Partial<InputComponentProp>) {
     super(init);
