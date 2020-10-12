@@ -1,3 +1,5 @@
+import { PropTypes } from '@material-ui/core';
+
 /**
  * Page Type
  */
@@ -8,7 +10,7 @@ export type PageType = 'list' | 'detail' | 'edit' | 'create' | 'filter' | 'none'
  */
 export type PageStatus = 'loading' | 'no-data' | 'done' | 'none';
 
-export type ThemeType = 'primary' | 'secondary' | 'success' | 'info' | 'danger' | 'warning' | 'dark' | 'light';
+export type ThemeType = PropTypes.Color; // 'primary' | 'secondary' | 'success' | 'info' | 'danger' | 'warning' | 'dark' | 'light';
 
 export type Option = { key: string; label: any };
 

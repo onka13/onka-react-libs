@@ -9,6 +9,7 @@ import { UIManager } from '../../../business/services/UIManager';
 import { LocaleService } from '../../../business/services/LocaleService';
 import {
   AppBar,
+  Button,
   createStyles,
   IconButton,
   ListItemIcon,
@@ -83,14 +84,14 @@ function LocaleList() {
   };
   return (
     <div className="dialog-desc">
-      <button className="btn" onClick={() => handleListItemClick('tr')}>
+      <Button onClick={() => handleListItemClick('tr')} color={currentLocale == 'tr' ? 'secondary' : undefined}>
         <img src={process.env.PUBLIC_URL + '/images/flags/turkey.png'} className="mr10" />
-        <span className={currentLocale == 'tr' ? 'selected' : ''}>Türkçe</span>
-      </button>
-      <button className="btn" onClick={() => handleListItemClick('en')}>
+        <span>Türkçe</span>
+      </Button>
+      <Button onClick={() => handleListItemClick('en')} color={currentLocale == 'tr' ? 'secondary' : undefined}>
         <img src={process.env.PUBLIC_URL + '/images/flags/uk.png'} className="mr10" />
-        <span className={currentLocale == 'en' ? 'selected' : ''}>English</span>
-      </button>
+        <span>English</span>
+      </Button>
     </div>
   );
 }

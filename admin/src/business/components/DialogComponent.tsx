@@ -1,3 +1,5 @@
+import { Button } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import React, { FunctionComponent } from 'react';
 import { PageType, Parameters, ThemeType } from '../../data/lib/Types';
 
@@ -131,7 +133,7 @@ export class DialogComponent extends React.Component<DialogComponentProps, { sho
           <div className="dialog-content">
             {this.options.closable && (
               <a className="close" onClick={(e) => this.close()}>
-                <em className="icon ni ni-cross"></em>
+                <CloseIcon />
               </a>
             )}
             {this.data.content}
@@ -144,7 +146,7 @@ export class DialogComponent extends React.Component<DialogComponentProps, { sho
       <div className="dialog-content">
         {this.options.closable && (
           <a className="close" onClick={(e) => this.close()}>
-            <em className="icon ni ni-cross"></em>
+            <CloseIcon />
           </a>
         )}
         {this.data.title && <h1 className="dialog-title">{this.data.title}</h1>}
@@ -153,9 +155,9 @@ export class DialogComponent extends React.Component<DialogComponentProps, { sho
           <div className="dialog-actions">
             {this.data.actions.map((action, i) => {
               return (
-                <button key={i} onClick={(e) => this.close(action)} className={'btn btn-' + (action.theme || 'primary')}>
+                <Button key={i} onClick={(e) => this.close(action)} color={action.theme} variant="outlined">
                   <span className="pl10 pr10">{action.label}</span>
-                </button>
+                </Button>
               );
             })}
           </div>

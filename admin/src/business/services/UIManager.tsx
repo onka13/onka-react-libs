@@ -5,6 +5,7 @@ import { Parameters, PageType } from '../../data/lib/Types';
 import { PageConfig } from '../../data/lib/PageConfig';
 import * as H from 'history';
 import { LocaleService } from './LocaleService';
+import { CircularProgress } from '@material-ui/core';
 
 export class UIManager {
   private constructor() {}
@@ -32,11 +33,7 @@ export class UIManager {
     }
     this.dialog.open(
       {
-        content: (
-          <div className="spinner-border text-primary" role="status">
-            <span className="sr-only">...</span>
-          </div>
-        ),
+        content: <CircularProgress color="secondary" />,
         width: 'unset',
         height: 'unset',
       },
@@ -67,7 +64,7 @@ export class UIManager {
           title: LocaleService.instance().translate('lib.page.warning'),
           content: LocaleService.instance().translate('lib.confirm'),
           actions: [
-            { label: LocaleService.instance().translate('lib.false'), value: false, theme: 'danger' },
+            { label: LocaleService.instance().translate('lib.false'), value: false, theme: 'secondary' },
             { label: LocaleService.instance().translate('lib.true'), value: true, theme: 'primary' },
           ],
         },
@@ -78,7 +75,7 @@ export class UIManager {
         small: true,
         hasBackdrop: true,
         closable: false,
-        expandableContent: true
+        expandableContent: true,
       }
     );
   }
