@@ -7,7 +7,7 @@ Contains components for react admin projects
 
 Simple admin panel based on react. 
 
-- [Documentation](admin/docs)
+- [Documentation](admin)
 
 ## sample project
 
