@@ -2,6 +2,7 @@
 // Run command `node .\scripts\generatePublicApi.js`
 
 export * from './business/components/DetailPage';
+export * from './business/components/DetailPageView';
 export * from './business/components/DialogComponent';
 export * from './business/components/SearchPage';
 export * from './business/components/SnackBarComponent';
@@ -37,6 +38,7 @@ export * from './data/lib/PageFilterField';
 export * from './data/lib/PageGridFields';
 export * from './data/lib/PagePropBase';
 export * from './data/lib/PageReference';
+export * from './data/lib/PageViewProp';
 export * from './data/lib/ReferenceComponentProp';
 export * from './data/lib/RouteItem';
 export * from './data/lib/Types';

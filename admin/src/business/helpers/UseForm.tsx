@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Parameters } from '../../data/lib/Types';
 import { PageField } from '../../data/lib/PageField';
 import { useFormValidator } from './UseFormValidator';
@@ -8,13 +8,14 @@ export interface IUseFormProps {
   fields: PageField[];
   initialValues: any;
   onSubmit: Function;
+  onChange?: (values: Parameters) => void;
 }
 
 export type HandleChangeType = { name: string; value: any };
 
 export interface UseFormResponse {
   formData: Parameters;
-  setFormData: React.Dispatch<React.SetStateAction<Parameters>>;
+  setFormData: (data: Parameters) => void;
   handleSubmit: (e: any) => {};
   errors: Parameters;
   handleChange: (name: string) => (value: any) => void;
@@ -22,13 +23,13 @@ export interface UseFormResponse {
 }
 
 export function useForm(props: IUseFormProps): UseFormResponse {
-  const [formData, setFormData] = useState<Parameters>(props.initialValues);
+  const [data, setData] = useState<Parameters>(props.initialValues);
   const [errors, setErrors] = useState<Parameters>({});
   const { validate } = useFormValidator({});
+
   async function handleSubmit(e: any) {
     e.preventDefault();
-    console.log('values', formData);
-    var errorList = validate(props.fields, formData);
+    var errorList = validate(props.fields, data);
     if (errorList) {
       setErrors(errorList);
       return;
@@ -36,27 +37,26 @@ export function useForm(props: IUseFormProps): UseFormResponse {
     props.onSubmit();
   }
 
-  const handleChange = (name: string) => (value: any) => {    
-    handleChanges([{name, value}]);
+  function setFormData(data: Parameters) {
+    setData(data);
+    props.onChange && props.onChange(data);
+  }
+
+  const handleChange = (name: string) => (value: any) => {
+    handleChanges([{ name, value }]);
   };
 
   const handleChanges = (values: HandleChangeType[]) => {
-    console.log('useForm handleChanges', values);
-    var data = { ...formData };
+    var dataCloned = { ...data };
     for (let i = 0; i < values.length; i++) {
       const item = values[i];
-      LibService.instance().setValue(data, item.name, item.value);
+      LibService.instance().setValue(dataCloned, item.name, item.value);
     }
-    setFormData(data);
-    console.log('useForm data', data);
+    setFormData(dataCloned);
   };
 
-  useEffect(() => {
-    return () => {};
-  });
-
   return {
-    formData,
+    formData: data,
     setFormData,
     handleSubmit,
     errors,

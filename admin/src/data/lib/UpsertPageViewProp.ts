@@ -4,16 +4,15 @@ import { PagePropBase } from './PagePropBase';
 import { ServiceResult } from '../api/ServiceResult';
 import { Parameters } from './Types';
 
-export class UpsertPageProp extends PagePropBase {
+export class UpsertPageViewProp extends PagePropBase {
   pageConfig!: PageConfig;
   fields?: PageField[];
   initialValues?: any;
-  loadData?: () => Promise<ServiceResult<any>>;
-  onSubmit?: (data: Parameters) => void;
+  onSubmit!: (data: Parameters) => void;
   isEdit?: boolean;
   onChange?: (values: Parameters) => void;
   
-  public constructor(init?: Partial<UpsertPageProp>) {
+  public constructor(init?: Partial<UpsertPageViewProp>) {
     super(init);
     Object.assign(this, init);
   }

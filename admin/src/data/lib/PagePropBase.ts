@@ -1,6 +1,5 @@
 import { PageField } from './PageField';
 import { PageConfig } from './PageConfig';
-import { ReactNode } from 'react';
 
 export class PagePropBase {
   key?: any;
@@ -10,6 +9,8 @@ export class PagePropBase {
   fields?: PageField[];
 
   tabs?: PageTab[];
+
+  columnCount?: number;
 
   public constructor(init?: Partial<PagePropBase>) {
     Object.assign(this, init);
