@@ -289,11 +289,20 @@ export function SearchPage(props: ISearchPage) {
                       pageConfig,
                       filterFields: filterFields,
                       filterField: field,
-                      data,
                       request: request,
+                      data: request.filter,
                       rowData: LibService.instance().getValue(request.filter, path),
-                      onChange: (val: string) => {
-                        LibService.instance().setValue(request.filter, path, val);
+                      onChange: (value: any) => {
+                        console.log('filter onChange', value);
+                        
+                        if (field.reference) {
+                          var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+                          LibService.instance().setValue(request.filter, refPath, value);
+                          LibService.instance().setValue(request.filter, path, value instanceof Array ? value?.map((x) => x.id) : value?.id);
+                        } else {
+                          LibService.instance().setValue(request.filter, path, value);
+                        } 
+                        request.pagination.page = 1;
                         setRequest({ ...request });
                         loadDataTimer();
                       },

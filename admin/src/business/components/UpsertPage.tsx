@@ -11,7 +11,7 @@ export function UpsertPage(props: UpsertPageProp) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
   let history = useHistory();
   const { id } = useParams<{ id: any }>();
-  const isEdit = (id && id > 0) || !!props.isEdit;
+  const isEdit = (!!id) || !!props.isEdit;
   const [status, setStatus] = useState<PageStatus>('none');
   const { formData, setFormData, UpsertPageView } = useUpsertPageView({
     onSubmit,
@@ -46,9 +46,9 @@ export function UpsertPage(props: UpsertPageProp) {
     UIManager.instance().displayLoading(true);
     var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, formData);
     UIManager.instance().displayLoading(false);
-    var redirect = UIManager.instance().getRedirect() || 'list';
+    var redirect = UIManager.instance().getRedirect() || 'edit';
     UIManager.instance().gotoPage(history, redirect, pageConfig, {
-      id: record.value?.id,
+      id: record.value?.id ?? id,
       preserveQueryParams: true,
     });
   }

@@ -9,7 +9,7 @@ export function getFields(pageType: PageType, prefix?: string) {
 
 function Upsert(params: any) {
   const { id } = useParams<{ id: any }>();
-  const isEdit = id && id > 0;
+  const isEdit = !!id;
   let fields = getFields(isEdit ? 'edit' : 'create');
   return UpsertPage({ pageConfig, fields, initialValues });
 }
@@ -20,7 +20,7 @@ function Upsert(params: any) {
 ```
 function Upsert(params: any) {
   const { id } = useParams<{ id: any }>();
-  const isEdit = id && id > 0;
+  const isEdit = !!id;
   let fields = getFields(isEdit ? 'edit' : 'create');
   var email = fields.find((x) => x.name == 'email');
   if (email) {

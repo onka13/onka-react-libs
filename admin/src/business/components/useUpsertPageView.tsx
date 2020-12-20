@@ -37,17 +37,7 @@ export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewR
           // @ts-ignore
           xs = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
           if (xs > 12 || xs < 1) xs = 6;
-          var path = LibService.instance().getPath(field.prefix, field.name);
-          var onChange = handleChange(path);
-          if (field.reference) {
-            var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-            onChange = (value: any) => {
-              handleChanges([
-                { name: refPath, value },
-                { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
-              ]);
-            };
-          }
+          const path = LibService.instance().getPath(field.prefix, field.name);
           return (
             <Grid item key={field.name} xs={xs}>
               {React.createElement(
@@ -60,7 +50,18 @@ export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewR
                   data: formData,
                   rowData: LibService.instance().getValue(formData, path),
                   isEdit: props.isEdit,
-                  onChange: onChange,
+                  onChange: (value: any) => {
+                    console.log('input onChange', value);
+                    if (!field.reference) {
+                      handleChange(path)(value);
+                      return;
+                    }
+                    const refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+                    handleChanges([
+                      { name: refPath, value },
+                      { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
+                    ]);
+                  },
                   error: LibService.instance().getValue(errors, path),
                   className: props.isEdit ? 'edit-field' : 'create-field',
                 })
@@ -76,7 +77,7 @@ export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewR
     setTabIndex(newValue);
   };
 
-  function UpsertPageView() : JSX.Element {
+  function UpsertPageView(): JSX.Element {
     return (
       <div className="upsert-container">
         <form onSubmit={handleSubmit}>

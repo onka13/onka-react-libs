@@ -53,6 +53,7 @@ export function useForm(props: IUseFormProps): UseFormResponse {
       LibService.instance().setValue(dataCloned, item.name, item.value);
     }
     setFormData(dataCloned);
+    console.log("handleChanges", dataCloned);    
   };
 
   return {
