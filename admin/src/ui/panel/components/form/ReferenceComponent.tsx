@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { TextField, CircularProgress, Checkbox } from '@material-ui/core';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
@@ -21,8 +21,8 @@ const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp | FilterComponentProp }) {
-  const [options, setOptions] = React.useState<any>([]);
-  const [loading, setLoading] = React.useState(() => {
+  const [options, setOptions] = useState<any>([]);
+  const [loading, setLoading] = useState(() => {
     console.log('ReferenceComponentBase loading useState');
     return false;
   });  
@@ -46,7 +46,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const getOptionLabel = (option: any) => {
     return option[reference.filterField] || '';
   };
-  const [inputValue, setInputValue] = React.useState(isMultiple ? '' : getOptionLabel(value));
+  const [inputValue, setInputValue] = useState(isMultiple ? '' : getOptionLabel(value));
 
   const makeRequest = (term: String) => {
     if (timer.current) clearTimeout(timer.current);
@@ -91,7 +91,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       setInputValue(value);
     }
   };
-  
+  console.log('ReferenceComponent timer.current', timer.current);
   return (
     <Autocomplete
       id={name}

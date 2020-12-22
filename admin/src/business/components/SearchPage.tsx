@@ -37,6 +37,7 @@ import { PageStatus } from '../../data/lib/Types';
 import { LocaleService } from '../services/LocaleService';
 import { PageFilterField } from '../../data/lib/PageFilterField';
 import { PageGridField } from '../../data/lib/PageGridFields';
+import { TablePaginationActions } from './TablePaginationActions';
 
 interface ISearchPage {
   pageConfig: PageConfig;
@@ -440,7 +441,8 @@ export function SearchPage(props: ISearchPage) {
             rowsPerPage={request.pagination.perPage}
             page={request.pagination.page - 1}
             onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}            
+            ActionsComponent={TablePaginationActions}
           />
         )}
         {status == 'no-data' && <div className="p20">{LocaleService.instance().translate('lib.page.no_data')}</div>}

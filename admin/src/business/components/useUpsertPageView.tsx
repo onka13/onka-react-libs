@@ -17,69 +17,17 @@ class useUpsertPageViewResponse {
   formData!: Parameters;
 }
 
-export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewResponse {
+export function UpsertPageView(props: UpsertPageViewProp) {
   const [tabIndex, setTabIndex] = useState(0);
-  /*const { formData, updateFormData, handleChange, handleChanges, handleSubmit, errors } = useForm({
-    fields: (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [],
-    initialValues: { ...props.initialValues, ...UIManager.instance().getDefaultValues() },
-    onSubmit: props.onSubmit,
-    onChange: props.onChange,
-  });*/
-
-  const [formData, setFormData] = useState<Parameters>(() => {
-    return props.initialValues;
-  });
-  const refFormData = useRef<Parameters>();
-  const refErrors = useRef<Parameters>();
-
-  const [errors, setErrors] = useState<Parameters>({});
-  const { validate } = useFormValidator({});
-
-  const handleSubmit = useCallback(
-    function (e: any) {
-      e.preventDefault();
-      var fields = (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [];
-      var errorList = validate(fields, formData);
-      if (errorList) {
-        refErrors.current = errorList;
-        setErrors(errorList);
-        return;
-      }
-      props.onSubmit(formData);
-    },
-    [formData]
-  );
-
-  const updateFormData = useCallback(function (data: Parameters) {
-    setFormData(data);
-    props.onChange && props.onChange(data);
-  }, []);
-
-  const handleChanges = useCallback(
-    (values: HandleChangeType[]) => {
-      var dataCloned = { ...refFormData.current };
-      for (let i = 0; i < values.length; i++) {
-        const item = values[i];
-        LibService.instance().setValue(dataCloned, item.name, item.value);
-      }
-      refFormData.current = dataCloned;
-      setFormData(dataCloned);
-    },
-    [formData]
-  );
-
-  const handleChange = (name: string) => (value: any) => {
-    handleChanges([{ name, value }]);
-  };
 
   const onChange = useCallback((field: PageField, value: any) => {
     const path = LibService.instance().getPath(field.prefix, field.name);
     if (!field.reference) {
-      handleChange(path)(value);
+      props.handleChanges([{ name: path, value }]);
       return;
     }
     const refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-    handleChanges([
+    props.handleChanges([
       { name: refPath, value },
       { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
     ]);
@@ -104,11 +52,11 @@ export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewR
                     pageConfig: props.pageConfig,
                     fields,
                     field,
-                    data: formData,
-                    rowData: LibService.instance().getValue(formData, path),
+                    data: props.formData,
+                    rowData: LibService.instance().getValue(props.formData, path),
                     isEdit: props.isEdit,
                     onChange: (value: any) => onChange(field, value),
-                    error: LibService.instance().getValue(refErrors.current, path),
+                    error: LibService.instance().getValue(props.errors, path),
                     className: props.isEdit ? 'edit-field' : 'create-field',
                   })
                 )}
@@ -118,19 +66,15 @@ export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewR
         </Grid>
       );
     },
-    [formData]
+    [props.formData, props.errors]
   );
 
   const handleTabChange = useCallback((event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
   }, []);
 
-  return {
-    formData,
-    updateFormData,
-    UpsertPageView: (
-      <div className="upsert-container">
-        <form onSubmit={handleSubmit}>
+  return <div className="upsert-container">
+        <form onSubmit={props.handleSubmit}>
           <Card>
             <CardHeader></CardHeader>
             <CardContent>
@@ -167,6 +111,5 @@ export function useUpsertPageView(props: UpsertPageViewProp): useUpsertPageViewR
           </Card>
         </form>
       </div>
-    ),
-  };
+  ;
 }

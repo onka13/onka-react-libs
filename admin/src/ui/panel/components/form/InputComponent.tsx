@@ -4,6 +4,7 @@ import { LibService } from '../../../../business/services/LibService';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function InputComponent(props: InputComponentProp) {
+  console.log('InputComponent', props);
   const handleChange = useCallback((e: any) => {
     props.onChange(e.target.value);
   }, []);
