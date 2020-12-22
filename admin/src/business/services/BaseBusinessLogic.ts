@@ -106,6 +106,14 @@ export class BaseBusinessLogicService {
       result.status = reason.response.status;
       result.statusText = reason.response.statusText || reason.response.data;
       result.message = json.message;
+      if(reason.response.data?.errors) {
+        result.message = reason.response.data.title || '';
+        for (const key in reason.response.data.errors) {
+          for (let i = 0; i < reason.response.data.errors[key].length; i++) {
+            result.message += "\n" + reason.response.data.errors[key][i];            
+          }
+        }
+      }    
     } else if (reason instanceof Error) {
       let error = reason as Error;
       result.message = error.message;

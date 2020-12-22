@@ -22,12 +22,14 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp | FilterComponentProp }) {
   const [options, setOptions] = React.useState<any>([]);
-  const [loading, setLoading] = React.useState(false);  
+  const [loading, setLoading] = React.useState(() => {
+    console.log('ReferenceComponentBase loading useState');
+    return false;
+  });  
   const timer = useRef<number>(-1);
 
   var name: string;
   var reference: PageReference;
-  //console.log('ReferenceComponentBase', props instanceof FilterComponentProp, props instanceof InputComponentProp, props);
   var filter = props as FilterComponentProp;
   if (filter && filter.filterField) {
     name = filter.filterField.filterName;
@@ -90,10 +92,6 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     }
   };
   
-  console.log('ReferenceComponent render timer.current:', timer.current);
-  console.log('ReferenceComponent render inputValue:', inputValue);
-  console.log('ReferenceComponent render1 name, value:', name, value);
-  console.log('ReferenceComponent render2 props.data:', props.data);
   return (
     <Autocomplete
       id={name}

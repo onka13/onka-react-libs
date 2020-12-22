@@ -77,6 +77,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export function Master(props: IMasterProps) {
+  console.log('Master', props);
   if (UIManager.instance().isDialog()) {
     return props.children;
   }

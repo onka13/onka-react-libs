@@ -24,7 +24,7 @@ export function ErrorHandler() {
       console.log('err', error.detail);
 
       var localeKey = 'lib.api.code' + error.detail.code;
-      var msg = localeService.translate(localeKey);
+      var msg = localeService.translate(localeKey, localeKey);
       if (msg == localeKey) msg = error.detail.message || '';
       if (msg) {
         UIManager.instance().displayMessage({

@@ -40,8 +40,7 @@ export function Admin(props: IAdminProps) {
     await LocaleService.instance().loadDefaultLang();
     setDone(true);
   }
-  useEffect(() => {
-    console.log('App');
+  useEffect(() => {    
     preload();
   }, []);
   if (!done) return <div></div>;

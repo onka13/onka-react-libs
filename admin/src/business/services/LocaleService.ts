@@ -55,23 +55,23 @@ export class LocaleService {
    */
   changeLang(lang: string | any): Promise<any> {
     if (!lang) lang = 'en';
-    console.log('LocaleService changeLang', lang);
+    //console.log('LocaleService changeLang', lang);
     StaticService.instance().setCurrentLang(lang);
     const part1 = this.langList[lang];
     const part2 = ConfigService.instance().getLangList()[lang];
     return part1()
       .then((data) => {
-        console.log('changeLang1', data.default);
+        //console.log('changeLang1', data.default);
         this.jsonContent = data.default;
       })
       .then(() => {
         if (part2) return part2();
       })
       .then((newData) => {
-        console.log('changeLang2', newData);
+        //console.log('changeLang2', newData);
         if (!newData) return;
         this.jsonContent = lodash.merge(this.jsonContent, newData);
-        console.log('final', this.jsonContent);
+        //console.log('final', this.jsonContent);
       })
       .catch((error) => {
         return Promise.resolve();
