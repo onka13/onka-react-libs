@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useHistory, useRouteMatch } from 'react-router-dom';
 import zipcelx from 'zipcelx';
 import get from 'lodash/get';
 import {
@@ -28,21 +28,21 @@ import { ApiSearchRequest } from '../../data/api/ApiRequest';
 import { UIManager } from '../services/UIManager';
 import { ApiBusinessLogic } from '../services/ApiBusinessLogic';
 import { allInputs } from '../../ui/panel/components/form/index';
-import { FilterComponentProp } from '../../data/lib/FilterComponentProp';
 import { GridComponentProp } from '../../data/lib/GridComponentProp';
 import { GridRowExtraActionProp } from '../../data/lib/GridRowExtraActionProp';
 import { GridBulkActionProp } from '../../data/lib/GridBulkActionProp';
 import { LibService } from '../services/LibService';
 import { PageStatus } from '../../data/lib/Types';
 import { LocaleService } from '../services/LocaleService';
-import { PageFilterField } from '../../data/lib/PageFilterField';
 import { PageGridField } from '../../data/lib/PageGridFields';
 import { TablePaginationActions } from './TablePaginationActions';
+import { InputComponentProp } from '../../data/lib/InputComponentProp';
+import { PageField } from '../../data/lib/PageField';
 
 interface ISearchPage {
   pageConfig: PageConfig;
   gridFields: PageGridField[];
-  filterFields: PageFilterField[];
+  filterFields: PageField[];
   rowActions?: (props: GridRowExtraActionProp) => JSX.Element;
   bulkActions?: (props: GridBulkActionProp) => JSX.Element;
 }
@@ -78,6 +78,7 @@ export function SearchPage(props: ISearchPage) {
   let filterFields = props.filterFields;
   let gridFields = props.gridFields;
   const match = useRouteMatch();
+  const history = useHistory();
   const [status, setStatus] = useState<PageStatus>('loading');
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -85,7 +86,7 @@ export function SearchPage(props: ISearchPage) {
   const [request, setRequest] = useState<ApiSearchRequest>({
     filter: defaultValues,
     pagination: {
-      page: 1,
+      page: UIManager.instance().getPageNumber(),
       perPage: 20,
     },
     sort: {
@@ -97,11 +98,24 @@ export function SearchPage(props: ISearchPage) {
 
   const classes = useStyles();
 
+  useEffect(() => {    
+    request.filter = UIManager.instance().getDefaultValues();
+    request.pagination.page = UIManager.instance().getPageNumber();
+    console.log('SearchPage URL Changed filter', request.filter);
+    console.log('SearchPage URL Changed page', request.pagination.page);
+    setRequest({ ...request });
+    loadDataTimer(true);
+  }, [match]);
+
   const isHideActions = UIManager.instance().isHideActions();
   const isSelectField = UIManager.instance().isSelectField();
 
   let timer = useRef<ReturnType<typeof setTimeout>>();
-  function loadDataTimer() {
+  function loadDataTimer(fromUrlChangeEvent: boolean = false) {
+    if (!fromUrlChangeEvent) {
+      UIManager.instance().changeQueryParams(history, { page: request.pagination.page, defaultValues: JSON.stringify(request.filter) });
+      return;
+    }
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       loadData();
@@ -225,14 +239,60 @@ export function SearchPage(props: ISearchPage) {
   }
 
   useEffect(() => {
-    loadData();
+    console.log('SearchPage useEffect');
+    loadDataTimer(true);
     var refreshSubscription = LibService.instance().refreshPage.subscribe(() => {
-      loadData();
+      loadDataTimer(true);
     });
     return () => {
       refreshSubscription.unsubscribe();
     };
   }, []);
+
+  const filterComponents = useCallback(() => {
+    console.log('filterComponents');
+    return (
+      <div className="list-search">
+        {!UIManager.instance().isHideFilters() &&
+          filterFields.map((field, i) => {
+            var path = LibService.instance().getPath(field.prefix, field.name);
+            if (UIManager.instance().isHideDefaultFilters()) {
+              if (Object.keys(defaultValues).indexOf(field.name) != -1) return null;
+            }
+            return (
+              <div key={i} className="list-search-fields">
+                {React.createElement(
+                  field.filterComponent || allInputs.InputComponent,
+                  new InputComponentProp({
+                    key: i,
+                    pageConfig,
+                    fields: filterFields,
+                    field: field,
+                    data: request.filter,
+                    rowData: LibService.instance().getValue(request.filter, path),
+                    onChange: (value: any) => {
+                      console.log('filter onChange', value);
+
+                      if (field.reference) {
+                        var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+                        LibService.instance().setValue(request.filter, refPath, value);
+                        LibService.instance().setValue(request.filter, path, value instanceof Array ? value?.map((x) => x.id) : value?.id);
+                      } else {
+                        LibService.instance().setValue(request.filter, path, value);
+                      }
+                      request.pagination.page = 1;
+                      setRequest({ ...request });
+                      loadDataTimer();
+                    },
+                    className: 'filter-field',
+                  })
+                )}
+              </div>
+            );
+          })}
+      </div>
+    );
+  }, [request.filter]);
 
   return (
     <div className="list-container">
@@ -274,46 +334,7 @@ export function SearchPage(props: ISearchPage) {
         </div>
       </div>
       <Paper className={classes.paper}>
-        <div className="list-search">
-          {!UIManager.instance().isHideFilters() &&
-            filterFields.map((field, i) => {
-              var path = LibService.instance().getPath(field.prefix, field.name);
-              if (UIManager.instance().isHideDefaultFilters()) {
-                if (Object.keys(defaultValues).indexOf(field.name) != -1) return null;
-              }
-              return (
-                <div key={i} className="list-search-fields">
-                  {React.createElement(
-                    field.filterComponent || allInputs.FilterComponent,
-                    new FilterComponentProp({
-                      key: i,
-                      pageConfig,
-                      filterFields: filterFields,
-                      filterField: field,
-                      request: request,
-                      data: request.filter,
-                      rowData: LibService.instance().getValue(request.filter, path),
-                      onChange: (value: any) => {
-                        console.log('filter onChange', value);
-                        
-                        if (field.reference) {
-                          var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-                          LibService.instance().setValue(request.filter, refPath, value);
-                          LibService.instance().setValue(request.filter, path, value instanceof Array ? value?.map((x) => x.id) : value?.id);
-                        } else {
-                          LibService.instance().setValue(request.filter, path, value);
-                        } 
-                        request.pagination.page = 1;
-                        setRequest({ ...request });
-                        loadDataTimer();
-                      },
-                      className: 'filter-field',
-                    })
-                  )}
-                </div>
-              );
-            })}
-        </div>
+        {filterComponents()}
         {status == 'loading' && <div className="p20">{UIManager.instance().renderLoading()}</div>}
         {status == 'done' && (
           <TableContainer>
@@ -441,7 +462,7 @@ export function SearchPage(props: ISearchPage) {
             rowsPerPage={request.pagination.perPage}
             page={request.pagination.page - 1}
             onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}            
+            onChangeRowsPerPage={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
           />
         )}

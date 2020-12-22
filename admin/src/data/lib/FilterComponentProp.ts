@@ -1,22 +1,25 @@
 import { InputComponentProp } from './InputComponentProp';
 import { ApiSearchRequest } from '../api/ApiRequest';
-import { PageFilterField } from './PageFilterField';
+import { Option } from './Types';
+import { PageField } from './PageField';
 
-export class FilterComponentProp extends InputComponentProp {
-  request!: ApiSearchRequest;
+// export class FilterComponentProp extends InputComponentProp {
+//   request!: ApiSearchRequest;
 
-  /**
-   * Field
-   */
-  filterField!: PageFilterField;
+//   /**
+//    * Field
+//    */
+//   filterField!: PageField;
 
-  /**
-   * Fields
-   */
-  filterFields!: PageFilterField[];  
+//   /**
+//    * Fields
+//    */
+//   filterFields!: PageField[];  
 
-  public constructor(init?: Partial<FilterComponentProp>) {
-    super(init);
-    Object.assign(this, init);
-  }
-}
+//   values?: Option[];
+
+//   public constructor(init?: Partial<FilterComponentProp>) {
+//     super(init);
+//     Object.assign(this, init);
+//   }
+// }

@@ -169,7 +169,7 @@ export function Toolbar(props: IToolbarProps) {
           <MenuIcon />
         </IconButton>
         {pageConfig && (
-          <Link to={UIManager.instance().getLink('list', pageConfig)} className={classes.grow}>
+          <Link to={UIManager.instance().getLink('list', pageConfig, { preserveQueryParams: false })} className={classes.grow}>
             <Typography variant="h6">{LibService.instance().getRouteLabel(pageConfig)}</Typography>
           </Link>
         )}

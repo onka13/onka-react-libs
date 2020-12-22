@@ -21,6 +21,11 @@ export class PageField extends PageFieldBase {
   detailComponent!: FunctionComponent<any>;
 
   /**
+   * Filter Component
+   */
+  filterComponent!: FunctionComponent<any>;
+
+  /**
    * Display in detail page
    */
   displayInDetail!: boolean;

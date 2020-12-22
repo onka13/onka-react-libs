@@ -20,7 +20,7 @@ export function SelectComponent(props: SelectInputComponentProp) {
         return { key: props.field.enum[x], label: LibService.instance().translatEnumKey(props.field.enumName, x) };
       });
     }
-    return props.values;
+    return props.values || [];
   });  
   return (
     <FormControl error={!!props.error} className={props.className} fullWidth>

@@ -121,9 +121,13 @@ export class UIManager {
     return route;
   }
 
+  getUrlSearchParams(): URLSearchParams {
+    return new URLSearchParams(new URL(window.location.href).search.slice(1));
+  }
+
   getQueryParams(): Parameters {
     var params: Parameters = {};
-    var searchParams = new URLSearchParams(window.location.href);
+    var searchParams = this.getUrlSearchParams();
     searchParams.forEach((value, key) => {
       //console.log("param", key, value);
       params[key] = value;
@@ -132,8 +136,19 @@ export class UIManager {
   }
 
   getQueryParam(key: string): any {
-    var searchParams = new URLSearchParams(window.location.search);
+    var searchParams = this.getUrlSearchParams();
     return searchParams.get(key);
+  }
+
+  changeQueryParams(history: H.History<H.LocationState>, values: Parameters, replace: boolean = false) {
+    var searchParams = this.getUrlSearchParams();
+    for (const key in values) {
+      searchParams.set(key, values[key]);
+    }
+    var url = history.location.pathname + '?' + searchParams.toString();
+    console.log('url', url);
+    if(replace) history.replace(url);
+    else history.push(url);
   }
 
   /* Dialog */
@@ -155,7 +170,7 @@ export class UIManager {
   // default values from query string
   getDefaultValues() {
     return JSON.parse(this.getQueryParam('defaultValues') || '{}');
-  }
+  }  
   getRedirect(): PageType {
     return this.getQueryParam('redirect');
   }
@@ -167,5 +182,8 @@ export class UIManager {
   }
   hasToolbar(): boolean {
     return this.getQueryParam('toolbar') == '1';
+  }
+  getPageNumber(): number {
+    return this.getQueryParam('page') || 1;
   }
 }

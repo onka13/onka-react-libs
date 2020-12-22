@@ -1,5 +1,4 @@
 import { PageField } from './PageField';
-import { PageFilterField } from './PageFilterField';
 import { PageGridField } from './PageGridFields';
 
 /**
@@ -74,7 +73,7 @@ export class PageConfig {
   /**
    * Filter Field list
    */
-  filterFields!: PageFilterField[];
+  filterFields!: PageField[];
   
   /**
    * Grid Field list

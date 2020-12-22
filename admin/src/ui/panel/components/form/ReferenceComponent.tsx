@@ -7,20 +7,18 @@ import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { ApiSearchRequest } from '../../../../data/api/ApiRequest';
 import { LibService } from '../../../../business/services/LibService';
 import { ApiBusinessLogic } from '../../../../business/services/ApiBusinessLogic';
-import { FilterComponentProp } from '../../../../data/lib/FilterComponentProp';
-import { PageReference } from '../../../../data/lib/PageReference';
 
-export function MultiReferenceComponent(props: InputComponentProp | FilterComponentProp) {
+export function MultiReferenceComponent(props: InputComponentProp) {
   return <ReferenceComponentBase isMultiple={true} props={props} />;
 }
-export function ReferenceComponent(props: InputComponentProp | FilterComponentProp) {
+export function ReferenceComponent(props: InputComponentProp) {
   return <ReferenceComponentBase isMultiple={false} props={props} />;
 }
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp | FilterComponentProp }) {
+export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
   const [options, setOptions] = useState<any>([]);
   const [loading, setLoading] = useState(() => {
     console.log('ReferenceComponentBase loading useState');
@@ -28,16 +26,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   });  
   const timer = useRef<number>(-1);
 
-  var name: string;
-  var reference: PageReference;
-  var filter = props as FilterComponentProp;
-  if (filter && filter.filterField) {
-    name = filter.filterField.filterName;
-    reference = filter.filterField.reference;
-  } else {
-    name = props.field.name;
-    reference = props.field.reference;
-  }
+  const name = props.field.name;
+  const reference = props.field.reference;
 
   var value = props.data ? props.data[reference.dataField] : null;
   if (!value) {
