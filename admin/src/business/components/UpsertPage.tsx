@@ -36,48 +36,42 @@ export function UpsertPage(props: UpsertPageProp) {
   const [formData, setFormData] = useState<Parameters>(() => {
     return props.initialValues;
   });
-  //const refFormData = useRef<Parameters>();
+  const refFormData = useRef<Parameters>();
   //const refErrors = useRef<Parameters>();
 
   const [errors, setErrors] = useState<Parameters>({});
   const { validate } = useFormValidator({});
 
-  const handleSubmit = useCallback(
-    (e: any) => {
-      console.log('handleSubmit', formData);
-      e.preventDefault();
-      var fields = (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [];
-      var errorList = validate(fields, formData);
-      if (errorList) {
-        //refErrors.current = errorList;
-        setErrors(errorList);
-        return;
-      }
-      onSubmit();
-    },
-    [formData]
-  );
+  const handleSubmit = (e: any) => {
+    console.log('handleSubmit', formData);
+    e.preventDefault();
+    var fields = (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [];
+    var errorList = validate(fields, formData);
+    if (errorList) {
+      //refErrors.current = errorList;
+      setErrors(errorList);
+      return;
+    }
+    onSubmit();
+  };
 
-  const updateFormData = useCallback(function (data: Parameters) {
+  const updateFormData = function (data: Parameters) {
     setFormData(data);
     props.onChange && props.onChange(data);
-  }, []);
+  };
 
-  const handleChanges = useCallback(
-    (values: HandleChangeType[]) => {
-      console.log('handleChanges formData', formData);
-      var dataCloned = { ...formData };
-      for (let i = 0; i < values.length; i++) {
-        const item = values[i];
-        LibService.instance().setValue(dataCloned, item.name, item.value);
-      }
-      //refFormData.current = dataCloned;
-      setFormData(dataCloned);
-    },
-    [formData]
-  );
+  const handleChanges = (values: HandleChangeType[]) => {
+    console.log('handleChanges formData', formData, refFormData.current);
+    var dataCloned = { ...refFormData.current, ...formData };
+    for (let i = 0; i < values.length; i++) {
+      const item = values[i];
+      LibService.instance().setValue(dataCloned, item.name, item.value);
+    }
+    refFormData.current = dataCloned;
+    setFormData(dataCloned);
+  };
 
-  const loadData = useCallback(function () {
+  const loadData = function () {
     setStatus('loading');
     (props.loadData ? props.loadData() : new ApiBusinessLogic().get(pageConfig.route, id))
       .then((response) => {
@@ -89,7 +83,7 @@ export function UpsertPage(props: UpsertPageProp) {
         UIManager.instance().gotoPage(history, 'list', pageConfig, { id, preserveQueryParams: true });
         throw reason;
       });
-  }, []);
+  };
 
   useEffect(() => {
     if (!isEdit) return;

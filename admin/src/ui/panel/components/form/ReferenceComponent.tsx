@@ -23,7 +23,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const [loading, setLoading] = useState(() => {
     console.log('ReferenceComponentBase loading useState');
     return false;
-  });  
+  });
   const timer = useRef<number>(-1);
 
   const name = props.field.name;
@@ -60,8 +60,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
   const onChange = (e: any, newValue: any, reason: AutocompleteChangeReason) => {
     console.log('onChange', newValue, reason);
-    if(!isMultiple && reason == 'select-option') setInputValue(getOptionLabel(newValue));
-    props.onChange(newValue);    
+    if (!isMultiple && reason == 'select-option') setInputValue(getOptionLabel(newValue));
+    props.onChange(newValue);
   };
   const handleInputChange = async (e: any, newInputValue: any) => {
     makeRequest(newInputValue);

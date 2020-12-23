@@ -31,6 +31,8 @@ export class PageFieldBase {
 
   prefix?: string;
 
+  isList?: boolean;
+
   public constructor(init?: Partial<PageFieldBase>) {
     Object.assign(this, init);
   }

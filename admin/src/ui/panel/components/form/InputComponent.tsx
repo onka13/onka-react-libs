@@ -5,9 +5,9 @@ import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function InputComponent(props: InputComponentProp) {
   console.log('InputComponent', props);
-  const handleChange = useCallback((e: any) => {
+  const handleChange = (e: any) => {
     props.onChange(e.target.value);
-  }, []);
+  };
   const [value, setValue] = useState('');
   useEffect(() => {
     setValue(props.rowData || '');
@@ -16,7 +16,6 @@ export function InputComponent(props: InputComponentProp) {
     <TextField
       id={props.field.name}
       label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
-      defaultValue={value}
       value={value}
       error={!!props.error}
       helperText={props.error}

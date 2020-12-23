@@ -1,4 +1,5 @@
 import React from 'react';
+import Chip from '@material-ui/core/Chip';
 import { LibService } from '../../../../business/services/LibService';
 import { GridComponentProp } from '../../../../data/lib/GridComponentProp';
 
@@ -11,7 +12,15 @@ export function GridFieldComponent(props: GridComponentProp) {
     val = LibService.instance().translatEnum(field.enum, field.enumName, val);
   } else if (field.reference) {
     var relatedData = props.rowData[field.reference.dataField];
-    val = relatedData ? relatedData[field.reference.filterField] : '';
+    if (relatedData) {
+      if (field.isList) {
+        val = relatedData.map((item: any, i: any) => {
+          return <Chip key={i} label={item[field.reference.filterField] ?? ''} />;
+        });
+      } else {
+        val = relatedData[field.reference.filterField];
+      }
+    }
   } else {
     val = LibService.instance().getValue(props.rowData, path);
   }

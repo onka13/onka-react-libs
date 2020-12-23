@@ -20,7 +20,7 @@ class useUpsertPageViewResponse {
 export function UpsertPageView(props: UpsertPageViewProp) {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const onChange = useCallback((field: PageField, value: any) => {
+  const onChange = (field: PageField, value: any) => {
     const path = LibService.instance().getPath(field.prefix, field.name);
     if (!field.reference) {
       props.handleChanges([{ name: path, value }]);
@@ -31,85 +31,76 @@ export function UpsertPageView(props: UpsertPageViewProp) {
       { name: refPath, value },
       { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
     ]);
-  }, []);
+  };
 
-  const renderFields = useCallback(
-    function (fields: PageField[]) {
-      var xs: GridSize = 6;
-      return (
-        <Grid container spacing={3}>
-          {fields.map((field) => {
-            // @ts-ignore
-            xs = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
-            if (xs > 12 || xs < 1) xs = 6;
-            const path = LibService.instance().getPath(field.prefix, field.name);
-            return (
-              <Grid item key={field.name} xs={xs}>
-                {React.createElement(
-                  (props.isEdit ? field.editComponent : field.createComponent) || allInputs.InputComponent,
-                  new InputComponentProp({
-                    key: field.name,
-                    pageConfig: props.pageConfig,
-                    fields,
-                    field,
-                    data: props.formData,
-                    rowData: LibService.instance().getValue(props.formData, path),
-                    isEdit: props.isEdit,
-                    onChange: (value: any) => onChange(field, value),
-                    error: LibService.instance().getValue(props.errors, path),
-                    className: props.isEdit ? 'edit-field' : 'create-field',
-                  })
-                )}
-              </Grid>
-            );
-          })}
-        </Grid>
-      );
-    },
-    [props.formData, props.errors]
-  );
-
-  const handleTabChange = useCallback((event: React.ChangeEvent<{}>, newValue: number) => {
-    setTabIndex(newValue);
-  }, []);
-
-  return <div className="upsert-container">
-        <form onSubmit={props.handleSubmit}>
-          <Card>
-            <CardHeader></CardHeader>
-            <CardContent>
-              {props.tabs && (
-                <Tabs value={tabIndex} onChange={handleTabChange} aria-label="tabs">
-                  {props.tabs.map((tab, i) => {
-                    return (
-                      <Tab
-                        key={i}
-                        icon={tab.icon}
-                        label={LocaleService.instance().translate(tab.label, tab.label)}
-                        id={`tab-${i}`}
-                        aria-controls={`tab-${i}`}
-                      />
-                    );
-                  })}
-                </Tabs>
+  const renderFields = function (fields: PageField[]) {
+    var xs: GridSize = 6;
+    return (
+      <Grid container spacing={3}>
+        {fields.map((field) => {
+          // @ts-ignore
+          xs = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
+          if (xs > 12 || xs < 1) xs = 6;
+          const path = LibService.instance().getPath(field.prefix, field.name);
+          return (
+            <Grid item key={field.name} xs={xs}>
+              {React.createElement(
+                (props.isEdit ? field.editComponent : field.createComponent) || allInputs.InputComponent,
+                new InputComponentProp({
+                  key: field.name,
+                  pageConfig: props.pageConfig,
+                  fields,
+                  field,
+                  data: props.formData,
+                  rowData: LibService.instance().getValue(props.formData, path),
+                  isEdit: props.isEdit,
+                  onChange: (value: any) => onChange(field, value),
+                  error: LibService.instance().getValue(props.errors, path),
+                  className: props.isEdit ? 'edit-field' : 'create-field',
+                })
               )}
-              {props.tabs &&
-                props.tabs.map((tab, i) => {
+            </Grid>
+          );
+        })}
+      </Grid>
+    );
+  };
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  return (
+    <div className="upsert-container">
+      <form onSubmit={props.handleSubmit}>
+        <Card>
+          <CardHeader></CardHeader>
+          <CardContent>
+            {props.tabs && (
+              <Tabs value={tabIndex} onChange={handleTabChange} aria-label="tabs">
+                {props.tabs.map((tab, i) => {
                   return (
-                    <div key={i} role="tabpanel" hidden={tabIndex !== i} id={`tabpanel-${i}`} aria-labelledby={`tab-${i}`}>
-                      <Box p={3}>{renderFields(tab.fields)}</Box>
-                    </div>
+                    <Tab key={i} icon={tab.icon} label={LocaleService.instance().translate(tab.label, tab.label)} id={`tab-${i}`} aria-controls={`tab-${i}`} />
                   );
                 })}
-              {props.fields && renderFields(props.fields)}
-            </CardContent>
-            <CardActions>
-              <Button type="submit" variant="contained" color="primary">
-                {LocaleService.instance().translate(props.isEdit ? 'lib.action.edit' : 'lib.action.save')}
-              </Button>
-            </CardActions>
-          </Card>
-        </form>
-      </div>
-  ;
+              </Tabs>
+            )}
+            {props.tabs &&
+              props.tabs.map((tab, i) => {
+                return (
+                  <div key={i} role="tabpanel" hidden={tabIndex !== i} id={`tabpanel-${i}`} aria-labelledby={`tab-${i}`}>
+                    <Box p={3}>{renderFields(tab.fields)}</Box>
+                  </div>
+                );
+              })}
+            {props.fields && renderFields(props.fields)}
+          </CardContent>
+          <CardActions>
+            <Button type="submit" variant="contained" color="primary">
+              {LocaleService.instance().translate(props.isEdit ? 'lib.action.edit' : 'lib.action.save')}
+            </Button>
+          </CardActions>
+        </Card>
+      </form>
+    </div>
+  );
 }

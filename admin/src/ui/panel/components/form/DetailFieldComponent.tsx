@@ -1,5 +1,6 @@
-import { Grid } from '@material-ui/core';
 import React from 'react';
+import Chip from '@material-ui/core/Chip';
+import Grid from '@material-ui/core/Grid';
 import { LibService } from '../../../../business/services/LibService';
 import { DetailComponentProp } from '../../../../data/lib/DetailComponentProp';
 
@@ -12,7 +13,15 @@ export function DetailFieldComponent(props: DetailComponentProp) {
     val = LibService.instance().translatEnum(field.enum, field.enumName, val);
   } else if (field.reference) {
     var relatedData = props.data[field.reference.dataField];
-    val = relatedData ? relatedData[field.reference.filterField] : '';
+    if (relatedData) {
+      if (field.isList) {
+        val = relatedData.map((item: any, i: any) => {
+          return <Chip key={i} label={item[field.reference.filterField] ?? ''} />;
+        });
+      } else {
+        val = relatedData[field.reference.filterField];
+      }
+    }
   }
   return (
     <Grid container spacing={3}>
