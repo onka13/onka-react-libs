@@ -83,7 +83,7 @@ export function SearchPage(props: ISearchPage) {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   let defaultValues = UIManager.instance().getDefaultValues();
-  const [request, setRequest] = useState<ApiSearchRequest>({
+  const refRequest = useRef<ApiSearchRequest>({
     filter: defaultValues,
     pagination: {
       page: UIManager.instance().getPageNumber(),
@@ -94,16 +94,30 @@ export function SearchPage(props: ISearchPage) {
       order: 'ASC',
     },
   });
+  // const [request, setRequest] = useState<ApiSearchRequest>({
+  //   filter: defaultValues,
+  //   pagination: {
+  //     page: UIManager.instance().getPageNumber(),
+  //     perPage: 20,
+  //   },
+  //   sort: {
+  //     field: 'id',
+  //     order: 'ASC',
+  //   },
+  // });
+  const getRequest = () => refRequest.current;
+  const setRequest = (val: ApiSearchRequest) => refRequest.current = val;
   const [selections, setSelections] = useState<any[]>([]);
 
   const classes = useStyles();
 
-  useEffect(() => {    
+  useEffect(() => {
+    var request = getRequest();
     request.filter = UIManager.instance().getDefaultValues();
     request.pagination.page = UIManager.instance().getPageNumber();
     console.log('SearchPage URL Changed filter', request.filter);
     console.log('SearchPage URL Changed page', request.pagination.page);
-    setRequest({ ...request });
+    setRequest(request);
     loadDataTimer(true);
   }, [match]);
 
@@ -113,6 +127,7 @@ export function SearchPage(props: ISearchPage) {
   let timer = useRef<ReturnType<typeof setTimeout>>();
   function loadDataTimer(fromUrlChangeEvent: boolean = false) {
     if (!fromUrlChangeEvent) {
+      var request = getRequest();
       UIManager.instance().changeQueryParams(history, { page: request.pagination.page, defaultValues: JSON.stringify(request.filter) });
       return;
     }
@@ -124,6 +139,7 @@ export function SearchPage(props: ISearchPage) {
 
   function loadData() {
     setStatus('loading');
+    var request = getRequest();
     if (!request.sort.field) request.sort.field = 'id';
     if (!request.sort.order) request.sort.order = 'ASC';
 
@@ -143,6 +159,7 @@ export function SearchPage(props: ISearchPage) {
   function exportData(e: any) {
     e.preventDefault();
     UIManager.instance().displayLoading(true);
+    var request = getRequest();
     var requestExport = { ...request };
     requestExport.pagination.page = 1;
     requestExport.pagination.perPage = 0;
@@ -174,26 +191,29 @@ export function SearchPage(props: ISearchPage) {
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
+    var request = getRequest();
     request.pagination.page = newPage + 1;
-    setRequest({ ...request });
+    setRequest(request);
     loadDataTimer();
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    var request = getRequest();
     request.pagination.page = 1;
     request.pagination.perPage = parseInt(event.target.value, 10);
-    setRequest({ ...request });
+    setRequest(request);
     loadDataTimer();
   };
 
   const changeSort = (field: string) => () => {
+    var request = getRequest();
     if (request.sort.field == field) {
       request.sort.order = request.sort.order == 'ASC' ? 'DESC' : 'ASC';
     } else {
       request.sort.field = field;
       request.sort.order = 'ASC';
     }
-    setRequest({ ...request });
+    setRequest(request);
     loadDataTimer();
   };
 
@@ -249,12 +269,31 @@ export function SearchPage(props: ISearchPage) {
     };
   }, []);
 
-  const filterComponents = useCallback(() => {
-    console.log('filterComponents');
+  const onChange = (field: PageField, value: any) => {
+    var request = getRequest();
+    console.log('filter onChange value', value);
+    console.log('filter onChange request.filter', request.filter);
+
+    var path = LibService.instance().getPath(field.prefix, field.name);
+    if (field.reference) {
+      var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+      LibService.instance().setValue(request.filter, refPath, value);
+      LibService.instance().setValue(request.filter, path, value instanceof Array ? value?.map((x) => x.id) : value?.id);
+    } else {
+      LibService.instance().setValue(request.filter, path, value);
+    }
+    request.pagination.page = 1;
+    setRequest(request);
+    loadDataTimer();
+  };
+
+  const filterComponents = (fields: PageField[]) => {
+    var request = getRequest();
+    console.log('filterComponents', request.filter);
     return (
       <div className="list-search">
         {!UIManager.instance().isHideFilters() &&
-          filterFields.map((field, i) => {
+          fields.map((field, i) => {
             var path = LibService.instance().getPath(field.prefix, field.name);
             if (UIManager.instance().isHideDefaultFilters()) {
               if (Object.keys(defaultValues).indexOf(field.name) != -1) return null;
@@ -266,24 +305,11 @@ export function SearchPage(props: ISearchPage) {
                   new InputComponentProp({
                     key: i,
                     pageConfig,
-                    fields: filterFields,
+                    fields: fields,
                     field: field,
                     data: request.filter,
                     rowData: LibService.instance().getValue(request.filter, path),
-                    onChange: (value: any) => {
-                      console.log('filter onChange', value);
-
-                      if (field.reference) {
-                        var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-                        LibService.instance().setValue(request.filter, refPath, value);
-                        LibService.instance().setValue(request.filter, path, value instanceof Array ? value?.map((x) => x.id) : value?.id);
-                      } else {
-                        LibService.instance().setValue(request.filter, path, value);
-                      }
-                      request.pagination.page = 1;
-                      setRequest({ ...request });
-                      loadDataTimer();
-                    },
+                    onChange: (value:any) => onChange(field, value),
                     className: 'filter-field',
                   })
                 )}
@@ -292,8 +318,9 @@ export function SearchPage(props: ISearchPage) {
           })}
       </div>
     );
-  }, [request.filter]);
+  };
 
+  console.log('SearchPage render', getRequest());
   return (
     <div className="list-container">
       <div className="list-actions">
@@ -334,7 +361,7 @@ export function SearchPage(props: ISearchPage) {
         </div>
       </div>
       <Paper className={classes.paper}>
-        {filterComponents()}
+        {filterComponents(filterFields)}
         {status == 'loading' && <div className="p20">{UIManager.instance().renderLoading()}</div>}
         {status == 'done' && (
           <TableContainer>
@@ -348,12 +375,12 @@ export function SearchPage(props: ISearchPage) {
                     </TableCell>
                   )}
                   {gridFields.map((field, index) => {
-                    var sortDirection: SortDirection = request.sort.field == field.name ? (request.sort.order == 'ASC' ? 'asc' : 'desc') : false;
+                    var sortDirection: SortDirection = getRequest().sort.field == field.name ? (getRequest().sort.order == 'ASC' ? 'asc' : 'desc') : false;
                     const label = LocaleService.instance().translate('resources.' + pageConfig.route + '.fields.' + field.name, field.name);
                     return (
                       <TableCell key={index} sortDirection={sortDirection}>
                         {field.isSortable && (
-                          <TableSortLabel active={request.sort.field == field.name} direction={sortDirection || undefined} onClick={changeSort(field.name)}>
+                          <TableSortLabel active={getRequest().sort.field == field.name} direction={sortDirection || undefined} onClick={changeSort(field.name)}>
                             {label}
                             {<span className={classes.visuallyHidden}>{sortDirection === 'desc' ? 'sorted descending' : 'sorted ascending'}</span>}
                           </TableSortLabel>
@@ -459,8 +486,8 @@ export function SearchPage(props: ISearchPage) {
             rowsPerPageOptions={[10, 20, 50]}
             component="div"
             count={total}
-            rowsPerPage={request.pagination.perPage}
-            page={request.pagination.page - 1}
+            rowsPerPage={getRequest().pagination.perPage}
+            page={getRequest().pagination.page - 1}
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
