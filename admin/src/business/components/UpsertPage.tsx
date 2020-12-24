@@ -18,13 +18,31 @@ export function UpsertPage(props: UpsertPageProp) {
   const isEdit = !!id || !!props.isEdit;
   const [status, setStatus] = useState<PageStatus>('none');
 
+  const [count, setCount] = useState(0);
+  const forceUpdate = () => setCount(prev => prev + 1);
+  const refFormData = useRef<Parameters>(props.initialValues);
+  const refErrors = useRef<Parameters>();
+
+  const { validate } = useFormValidator({});
+
+  const getErrors = () => refErrors.current || {};
+  const setErrors = (data: Parameters) => {    
+    refErrors.current = data;
+    forceUpdate();
+  };
+  const getFormData = () => refFormData.current;
+  const setFormData = (data: Parameters) => {    
+    refFormData.current = data;
+    forceUpdate();
+  };
+
   const onSubmit = async function () {
     if (props.onSubmit) {
-      props.onSubmit(formData);
+      props.onSubmit(getFormData());
       return;
     }
     UIManager.instance().displayLoading(true);
-    var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, formData);
+    var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, getFormData());
     UIManager.instance().displayLoading(false);
     var redirect = UIManager.instance().getRedirect() || 'edit';
     UIManager.instance().gotoPage(history, redirect, pageConfig, {
@@ -33,25 +51,18 @@ export function UpsertPage(props: UpsertPageProp) {
     });
   };
 
-  const [formData, setFormData] = useState<Parameters>(() => {
-    return props.initialValues;
-  });
-  const refFormData = useRef<Parameters>();
-  //const refErrors = useRef<Parameters>();
-
-  const [errors, setErrors] = useState<Parameters>({});
-  const { validate } = useFormValidator({});
-
   const handleSubmit = (e: any) => {
-    console.log('handleSubmit', formData);
+    console.log('handleSubmit', getFormData());
+    console.log('handleSubmit err', getErrors());
     e.preventDefault();
     var fields = (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [];
-    var errorList = validate(fields, formData);
+    var errorList = validate(fields, getFormData());
     if (errorList) {
-      //refErrors.current = errorList;
       setErrors(errorList);
       return;
-    }
+    } else  {
+      setErrors({});
+    }    
     onSubmit();
   };
 
@@ -61,13 +72,12 @@ export function UpsertPage(props: UpsertPageProp) {
   };
 
   const handleChanges = (values: HandleChangeType[]) => {
-    console.log('handleChanges formData', formData, refFormData.current);
-    var dataCloned = { ...refFormData.current, ...formData };
+    console.log('handleChanges formData', getFormData());
+    var dataCloned = { ...getFormData() };
     for (let i = 0; i < values.length; i++) {
       const item = values[i];
       LibService.instance().setValue(dataCloned, item.name, item.value);
     }
-    refFormData.current = dataCloned;
     setFormData(dataCloned);
   };
 
@@ -105,8 +115,8 @@ export function UpsertPage(props: UpsertPageProp) {
     isEdit: props.isEdit,
     onChange: props.onChange,
     tabs: props.tabs,
-    errors,
-    formData,
+    errors: getErrors(),
+    formData: getFormData(),
     handleChanges,
     handleSubmit,
   };

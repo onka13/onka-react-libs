@@ -22,6 +22,7 @@ import {
 import ExportIcon from '@material-ui/icons/ImportExport';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import DetailIcon from '@material-ui/icons/RemoveRedEye';
 import { PageConfig } from '../../data/lib/PageConfig';
 import { ApiSearchRequest } from '../../data/api/ApiRequest';
@@ -106,7 +107,7 @@ export function SearchPage(props: ISearchPage) {
   //   },
   // });
   const getRequest = () => refRequest.current;
-  const setRequest = (val: ApiSearchRequest) => refRequest.current = val;
+  const setRequest = (val: ApiSearchRequest) => (refRequest.current = val);
   const [selections, setSelections] = useState<any[]>([]);
 
   const classes = useStyles();
@@ -154,6 +155,15 @@ export function SearchPage(props: ISearchPage) {
         setStatus('none');
         throw error;
       });
+  }
+
+  function deleteItem(id: any) {
+    UIManager.instance().confirm({}, (response) => {
+      if (!response.value) return;
+      new ApiBusinessLogic().delete(pageConfig.route, id).then((response) => {
+        loadData();
+      });
+    });
   }
 
   function exportData(e: any) {
@@ -309,7 +319,7 @@ export function SearchPage(props: ISearchPage) {
                     field: field,
                     data: request.filter,
                     rowData: LibService.instance().getValue(request.filter, path),
-                    onChange: (value:any) => onChange(field, value),
+                    onChange: (value: any) => onChange(field, value),
                     className: 'filter-field',
                   })
                 )}
@@ -380,7 +390,11 @@ export function SearchPage(props: ISearchPage) {
                     return (
                       <TableCell key={index} sortDirection={sortDirection}>
                         {field.isSortable && (
-                          <TableSortLabel active={getRequest().sort.field == field.name} direction={sortDirection || undefined} onClick={changeSort(field.name)}>
+                          <TableSortLabel
+                            active={getRequest().sort.field == field.name}
+                            direction={sortDirection || undefined}
+                            onClick={changeSort(field.name)}
+                          >
                             {label}
                             {<span className={classes.visuallyHidden}>{sortDirection === 'desc' ? 'sorted descending' : 'sorted ascending'}</span>}
                           </TableSortLabel>
@@ -447,6 +461,20 @@ export function SearchPage(props: ISearchPage) {
                                   rowData: data[i],
                                 })
                               )}
+                            {pageConfig.delete && (
+                              <Button
+                                size="small"
+                                variant="text"
+                                color="secondary"
+                                startIcon={<DeleteIcon />}
+                                onClick={(e: any) => {
+                                  e.preventDefault();
+                                  deleteItem(data[i]['id']);
+                                }}
+                              >
+                                {LocaleService.instance().translate('lib.action.delete')}
+                              </Button>
+                            )}
                             {pageConfig.edit && (
                               <Button
                                 component={Link}
