@@ -29,3 +29,8 @@ code {
   top: 0;
 }
 .selected{ color: blue;}
+
+a, a:visited, a:hover, a:active {
+  text-decoration: none;
+  color: inherit;
+}

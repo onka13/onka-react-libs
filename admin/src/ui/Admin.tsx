@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { DialogComponent } from '../business/components/DialogComponent';
 import { SnackBarComponent } from '../business/components/SnackBarComponent';
 import { ErrorHandler } from '../business/ErrorBoundary';
@@ -13,6 +13,8 @@ import { Home } from './panel/pages/Home';
 import { ILoginProps, Login } from './public/Login';
 import { NoMatch } from './public/NoMatch';
 import { StylesProvider, createGenerateClassName } from '@material-ui/styles';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import { MuiThemeProvider } from '@material-ui/core/styles';
 
 export interface IAdminProps {
   children?: React.ReactNode;
@@ -25,6 +27,7 @@ export interface IAdminProps {
   menu: IMenuProp;
   toolbar: IToolbarProps;
   login?: ILoginProps;
+  theme?: Partial<Theme> | ((outerTheme: Theme) => Theme);
 }
 
 const generateClassName = createGenerateClassName({
@@ -40,13 +43,17 @@ export function Admin(props: IAdminProps) {
     await LocaleService.instance().loadDefaultLang();
     setDone(true);
   }
-  useEffect(() => {    
+  useEffect(() => {
     preload();
   }, []);
   if (!done) return <div></div>;
-  return (
+  const wrapper = (child: any) => {
+    if (props.theme) return <MuiThemeProvider theme={props.theme}>{child}</MuiThemeProvider>;
+    return child;
+  };
+  return wrapper(
     <StylesProvider generateClassName={generateClassName}>
-      <BrowserRouter>
+      <HashRouter>
         <ErrorHandler />
         <DialogComponent onRef={(c) => (UIManager.instance().dialog = c)} mode="dialog" />
         <DialogComponent onRef={(c) => (UIManager.instance().drawer = c)} mode="drawer" />
@@ -63,7 +70,7 @@ export function Admin(props: IAdminProps) {
           <Route path="/login">{props.loginComponent ? <props.loginComponent {...props.login} /> : <Login {...props.login} />}</Route>
           <Route path="*">{props.noMatch ? props.noMatch : <NoMatch />}</Route>
         </Switch>
-      </BrowserRouter>
+      </HashRouter>
     </StylesProvider>
   );
 }
