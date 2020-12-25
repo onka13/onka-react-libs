@@ -55,6 +55,11 @@ export class PageField extends PageFieldBase {
    */
   fieldSize!: number;
 
+  /**
+   * Is ReadOnly
+   */
+  isReadOnly!: boolean;
+
   public constructor(init?: Partial<PageField>) {
     super(init);
     Object.assign(this, init);

@@ -112,7 +112,7 @@ export function UpsertPage(props: UpsertPageProp) {
     pageConfig: pageConfig,
     columnCount: props.columnCount,
     fields: props.fields,
-    isEdit: props.isEdit,
+    isEdit: isEdit,
     onChange: props.onChange,
     tabs: props.tabs,
     errors: getErrors(),

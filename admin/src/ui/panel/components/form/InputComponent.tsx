@@ -22,6 +22,9 @@ export function InputComponent(props: InputComponentProp) {
       onChange={handleChange}
       multiline={props.isMultiline}
       fullWidth
+      InputProps={{
+        readOnly: props.field.isReadOnly,
+      }}
     />
   );
 }

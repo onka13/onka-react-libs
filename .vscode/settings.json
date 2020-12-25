@@ -22,5 +22,10 @@
     "**/os/**": true,
     "**/android/**": true,
     "**/dist/**": true
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#140907",
+    "titleBar.activeBackground": "#140907",
+    "titleBar.activeForeground": "#FBFAFC"
   } 
 }

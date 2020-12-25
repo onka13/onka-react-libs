@@ -87,14 +87,26 @@ export class ErrorBoundary extends React.Component<{}, { hasError: boolean }> {
     return { hasError: true };
   }
 
+  error: any;
+  info: any;
   componentDidCatch(error: any, info: any) {
     console.log('error', error, info);
-    //TODO: log msg
+    this.error = error;
+    this.info = info;
+    this.forceUpdate();
   }
 
   render() {
     if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
+      if (ConfigService.instance().isProd()) return <h1>Something went wrong.</h1>;
+      return (
+        <div>
+          <h2>ERROR</h2>
+          <pre>{JSON.stringify(this.error, null, 4)}</pre>
+          <hr />
+          <pre>{this.info && this.info.componentStack && this.info.componentStack}</pre>
+        </div>
+      );
     }
 
     return this.props.children;
