@@ -57,6 +57,7 @@ export function UpsertPageView(props: UpsertPageViewProp) {
                   onChange: (value: any) => onChange(field, value),
                   error: LibService.instance().getValue(props.errors, path),
                   className: props.isEdit ? 'edit-field' : 'create-field',
+                  handleChanges: props.handleChanges
                 })
               )}
             </Grid>

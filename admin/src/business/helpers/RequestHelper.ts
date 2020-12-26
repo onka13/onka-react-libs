@@ -52,6 +52,15 @@ export class RequestHelper {
         options.headers[key] = headers[key];
       }
     }
+    
+    if (data && data.isFileUpload) {
+      var formData = new FormData();
+      for (const key in data) {
+        formData.append(key, data[key]);
+      }
+      data = formData;
+      options.headers["Content-Type"] = "multipart/form-data";
+    }
     options = {
       ...{
         method: method,

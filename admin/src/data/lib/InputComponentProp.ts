@@ -1,3 +1,4 @@
+import { HandleChangeType } from '../../business/helpers/UseForm';
 import { ComponentPropBase } from './ComponentPropBase';
 import { PageField } from './PageField';
 import { Option } from './Types';
@@ -23,6 +24,8 @@ export class InputComponentProp extends ComponentPropBase {
    * Fields
    */
   fields!: PageField[];
+
+  handleChanges!: (values: HandleChangeType[]) => void;
 
   public constructor(init?: Partial<InputComponentProp>) {
     super(init);

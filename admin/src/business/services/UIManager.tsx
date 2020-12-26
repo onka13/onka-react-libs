@@ -122,7 +122,8 @@ export class UIManager {
   }
 
   getUrlSearchParams(): URLSearchParams {
-    return new URLSearchParams(new URL(window.location.href).search.slice(1));
+    //console.log('getUrlSearchParams href', window.location.href);
+    return new URLSearchParams(new URL(window.location.origin + window.location.hash.slice(1)).search.slice(1));
   }
 
   getQueryParams(): Parameters {
@@ -145,10 +146,10 @@ export class UIManager {
     for (const key in values) {
       searchParams.set(key, values[key]);
     }
-    var url = history.location.pathname + '?' + searchParams.toString();
-    console.log('url', url);
-    if(replace) history.replace(url);
-    else history.push(url);
+    var search = '?' + searchParams.toString();
+    //console.log('url', search);
+    if (replace) history.replace({ search });
+    else history.push({ search });
   }
 
   /* Dialog */
@@ -170,7 +171,7 @@ export class UIManager {
   // default values from query string
   getDefaultValues() {
     return JSON.parse(this.getQueryParam('defaultValues') || '{}');
-  }  
+  }
   getRedirect(): PageType {
     return this.getQueryParam('redirect');
   }

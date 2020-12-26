@@ -86,7 +86,7 @@ export class LibService {
     return Loadable({
       loader: () =>
         imp()
-          .then((a: any) => new Promise((resolve) => setTimeout(() => resolve(a), 500)))
+          .then((a: any) => new Promise((resolve) => setTimeout(() => resolve(a), 50)))
           .then((resp: any) => resp[key]),
       loading() {
         return (
