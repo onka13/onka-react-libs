@@ -21,7 +21,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
   const [options, setOptions] = useState<any>([]);
   const [loading, setLoading] = useState(() => {
-    console.log('ReferenceComponentBase loading useState');
+    //console.log('ReferenceComponentBase loading useState');
     return false;
   });
   const timer = useRef<number>(-1);
@@ -40,7 +40,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
 
   const makeRequest = (term: String) => {
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
+    timer.current = window.setTimeout(() => {
       setLoading(true);
       var request = new ApiSearchRequest();
       request.pagination.page = 1;
@@ -59,7 +59,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     }, 500);
   };
   const onChange = (e: any, newValue: any, reason: AutocompleteChangeReason) => {
-    console.log('onChange', newValue, reason);
+    //console.log('onChange', newValue, reason);
     if (!isMultiple && reason == 'select-option') setInputValue(getOptionLabel(newValue));
     props.onChange(newValue);
   };
@@ -75,13 +75,13 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     if (timer.current == -1) makeRequest('');
   };
   const onInputChange = (event: any, value: any, reason: any) => {
-    console.log('onInputChange', value, reason);
+    //console.log('onInputChange', value, reason);
 
     if (reason !== 'reset') {
       setInputValue(value);
     }
   };
-  console.log('ReferenceComponent timer.current', timer.current);
+  //console.log('ReferenceComponent timer.current', timer.current);
   return (
     <Autocomplete
       id={name}

@@ -5,7 +5,7 @@ import { SelectInputComponentProp } from '../../../../data/lib/InputComponentPro
 import { LibService } from '../../../../business/services/LibService';
 
 export function SelectComponent(props: SelectInputComponentProp) {
-  console.log('InputComponent', props);
+  //console.log('SelectComponent', props);
   const handleChange = useCallback((e: any) => {
     //setValue(e.target.value);
     props.onChange(e.target.value);
