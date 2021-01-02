@@ -24,3 +24,11 @@ export class OptionModel {
 }
 
 export type Parameters = { [x: string]: any };
+
+export class PageFieldDepend
+{
+  name!: string;
+  field?: string;
+  value?: string;
+}
+

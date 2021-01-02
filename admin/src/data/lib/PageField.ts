@@ -1,5 +1,6 @@
 import { FunctionComponent } from "react";
 import { PageFieldBase } from "./PageFieldBase";
+import { PageFieldDepend } from "./Types";
 
 /**
  * Field model
@@ -59,6 +60,8 @@ export class PageField extends PageFieldBase {
    * Is ReadOnly
    */
   isReadOnly!: boolean;
+
+  depends!: PageFieldDepend[];
 
   public constructor(init?: Partial<PageField>) {
     super(init);

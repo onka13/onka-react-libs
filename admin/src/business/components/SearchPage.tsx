@@ -39,6 +39,7 @@ import { PageGridField } from '../../data/lib/PageGridFields';
 import { TablePaginationActions } from './TablePaginationActions';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
+import { HandleChangeType } from '../helpers/UseForm';
 
 interface ISearchPage {
   pageConfig: PageConfig;
@@ -46,6 +47,11 @@ interface ISearchPage {
   filterFields: PageField[];
   rowActions?: (props: GridRowExtraActionProp) => JSX.Element;
   bulkActions?: (props: GridBulkActionProp) => JSX.Element;
+  hideActions?: boolean;
+  hideFilters?: boolean;
+  noPaging?: boolean;
+  initialData?: any;
+  disableOnload?: boolean;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -81,7 +87,7 @@ export function SearchPage(props: ISearchPage) {
   const match = useRouteMatch();
   const history = useHistory();
   const [status, setStatus] = useState<PageStatus>('loading');
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(props.initialData || []);
   const [total, setTotal] = useState(0);
   let defaultValues = UIManager.instance().getDefaultValues();
   const refRequest = useRef<ApiSearchRequest>({
@@ -113,17 +119,22 @@ export function SearchPage(props: ISearchPage) {
   const classes = useStyles();
 
   useEffect(() => {
+    setData(props.initialData || []);
+  }, [props.initialData]);
+
+  useEffect(() => {
     var request = getRequest();
     request.filter = UIManager.instance().getDefaultValues();
     request.pagination.page = UIManager.instance().getPageNumber();
-    console.log('SearchPage URL Changed filter', request.filter);
-    console.log('SearchPage URL Changed page', request.pagination.page);
+    //console.log('SearchPage URL Changed filter', request.filter);
+    //console.log('SearchPage URL Changed page', request.pagination.page);
     setRequest(request);
     loadDataTimer(true);
   }, [match]);
 
-  const isHideActions = UIManager.instance().isHideActions();
+  const isHideActions = UIManager.instance().isHideActions() || props.hideActions;
   const isSelectField = UIManager.instance().isSelectField();
+  const isHideFilters = UIManager.instance().isHideFilters() || props.hideFilters;
 
   let timer = useRef<ReturnType<typeof setTimeout>>();
   function loadDataTimer(fromUrlChangeEvent: boolean = false) {
@@ -139,6 +150,10 @@ export function SearchPage(props: ISearchPage) {
   }
 
   function loadData() {
+    if (props.disableOnload) {
+      setStatus('done');
+      return;
+    }
     setStatus('loading');
     var request = getRequest();
     if (!request.sort.field) request.sort.field = 'id';
@@ -254,7 +269,7 @@ export function SearchPage(props: ISearchPage) {
         setSelections([]);
         return;
       }
-      setSelections(data.map((x) => x['id']));
+      setSelections(data.map((x: any) => x['id']));
     };
   }
 
@@ -279,6 +294,17 @@ export function SearchPage(props: ISearchPage) {
     };
   }, []);
 
+  const handleChanges = (values: HandleChangeType[]) => {
+    var dataCloned = { ...getRequest() };
+    for (let i = 0; i < values.length; i++) {
+      const item = values[i];
+      LibService.instance().setValue(dataCloned, item.name, item.value);
+    }
+    dataCloned.pagination.page = 1;
+    setRequest(dataCloned);
+    loadDataTimer();
+  };
+
   const onChange = (field: PageField, value: any) => {
     var request = getRequest();
     console.log('filter onChange value', value);
@@ -302,7 +328,7 @@ export function SearchPage(props: ISearchPage) {
     console.log('filterComponents', request.filter);
     return (
       <div className="list-search">
-        {!UIManager.instance().isHideFilters() &&
+        {!isHideFilters &&
           fields.map((field, i) => {
             var path = LibService.instance().getPath(field.prefix, field.name);
             if (UIManager.instance().isHideDefaultFilters()) {
@@ -321,6 +347,7 @@ export function SearchPage(props: ISearchPage) {
                     rowData: LibService.instance().getValue(request.filter, path),
                     onChange: (value: any) => onChange(field, value),
                     className: 'filter-field',
+                    handleChanges: handleChanges
                   })
                 )}
               </div>
@@ -407,7 +434,7 @@ export function SearchPage(props: ISearchPage) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((item: any, i) => {
+                {data.map((item: any, i: number) => {
                   var isItemSelected = isSelected(data[i]);
                   return (
                     <TableRow
@@ -509,7 +536,7 @@ export function SearchPage(props: ISearchPage) {
             </Table>
           </TableContainer>
         )}
-        {status == 'done' && total > 0 && (
+        {!props.noPaging && status == 'done' && total > 0 && (
           <TablePagination
             rowsPerPageOptions={[10, 20, 50]}
             component="div"

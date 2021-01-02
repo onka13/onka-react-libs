@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TextField, CircularProgress, Checkbox } from '@material-ui/core';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
@@ -25,9 +25,11 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     return false;
   });
   const timer = useRef<number>(-1);
+  const request = useRef<ApiSearchRequest>();
 
   const name = props.field.name;
   const reference = props.field.reference;
+  const dependField = (props.field.depends?.length > 0 ? props.field.depends?.map((x) => x.field)[0] : null) || null;
 
   var value = props.data ? props.data[reference.dataField] : null;
   if (!value) {
@@ -38,18 +40,42 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
   const [inputValue, setInputValue] = useState(isMultiple ? '' : getOptionLabel(value));
 
+  useEffect(() => {
+    if(!dependField) return;
+    //console.log('dep0', dependField, props.data[dependField], props);
+    timer.current = -1;
+    if(!props.data[dependField]) setInputValue('');
+    else if(props.data[dependField] != request.current?.filter[dependField]) setInputValue('');
+    // @ts-ignore
+  }, [props.data[dependField]]);
+
+  useEffect(() => {
+    //console.log('rowData0', props.rowData);
+    if (!props.rowData) {
+      setInputValue('');
+      timer.current = -1;
+    }
+  }, [props.rowData]);
+
   const makeRequest = (term: String) => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
       setLoading(true);
-      var request = new ApiSearchRequest();
-      request.pagination.page = 1;
-      request.pagination.perPage = reference.pageSize || 20;
-      request.sort.field = reference.sortField || 'id';
-      request.sort.order = reference.sortDirection || 'ASC';
-      request.filter[reference.filterField] = term;
+      var req = new ApiSearchRequest();
+      req.pagination.page = 1;
+      req.pagination.perPage = reference.pageSize || 20;
+      req.sort.field = reference.sortField || 'id';
+      req.sort.order = reference.sortDirection || 'ASC';
+      req.filter[reference.filterField] = term;
+      if (props.field.depends) {
+        for (let i = 0; i < props.field.depends.length; i++) {
+          const depend = props.field.depends[i];
+          req.filter[depend.name] = depend.field ? props.data[depend.field] : depend.value;
+        }
+      }
+      request.current = req;
       new ApiBusinessLogic()
-        .search(reference.route, request)
+        .search(reference.route, req)
         .then((response) => {
           setOptions(response.value);
         })
@@ -62,6 +88,16 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     //console.log('onChange', newValue, reason);
     if (!isMultiple && reason == 'select-option') setInputValue(getOptionLabel(newValue));
     props.onChange(newValue);
+    for (let i = 0; i < props.fields.length; i++) {
+      const element = props.fields[i];
+      var depend = element.depends?.filter((x) => x.field == props.field.name);
+      if (depend && depend.length > 0) {
+        props.handleChanges([
+          { name: element.name, value: null },
+          { name: element.reference?.dataField, value: null },
+        ]);
+      }
+    }
   };
   const handleInputChange = async (e: any, newInputValue: any) => {
     makeRequest(newInputValue);
@@ -81,7 +117,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       setInputValue(value);
     }
   };
-  //console.log('ReferenceComponent timer.current', timer.current);
+  //console.log('ReferenceComponent1', props.field.name, props.rowData, props);
+  //console.log('ReferenceComponent2', props.field.name, dependField, dependField ? props.data[dependField] : null);
   return (
     <Autocomplete
       id={name}
@@ -100,6 +137,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       fullWidth
       inputValue={!isMultiple ? inputValue : undefined}
       onInputChange={!isMultiple ? onInputChange : undefined}
+      disabled={!!dependField && !props.data[dependField]}
       renderInput={(params) => {
         return (
           <TextField

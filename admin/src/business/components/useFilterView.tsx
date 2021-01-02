@@ -5,6 +5,7 @@ import { allInputs } from '../../ui/panel/components/form/index';
 import { LibService } from '../services/LibService';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
+import { HandleChangeType } from '../helpers/UseForm';
 
 export interface IFilterView {
   pageConfig: PageConfig;
@@ -26,6 +27,16 @@ export function useFilterView(props: IFilterView) {
       props.onLoadData(getRequest());
     }, 1000);
   }
+
+  const handleChanges = (values: HandleChangeType[]) => {
+    var dataCloned = { ...getRequest() };
+    for (let i = 0; i < values.length; i++) {
+      const item = values[i];
+      LibService.instance().setValue(dataCloned, item.name, item.value);
+    }
+    setRequest(dataCloned);
+    loadDataTimer();
+  };
 
   const onChange = (field: PageField, value: any) => {
     var request = getRequest();
@@ -68,6 +79,7 @@ export function useFilterView(props: IFilterView) {
                     rowData: LibService.instance().getValue(request, path),
                     onChange: (value: any) => onChange(field, value),
                     className: 'filter-field',
+                    handleChanges: handleChanges
                   })
                 )}
               </div>
