@@ -55,6 +55,7 @@ export * from './ui/css';
 export * from './ui/panel/components/form/CheckboxComponent';
 export * from './ui/panel/components/form/DateComponent';
 export * from './ui/panel/components/form/DetailFieldComponent';
+export * from './ui/panel/components/form/EditorComponent';
 export * from './ui/panel/components/form/FilterComponent';
 export * from './ui/panel/components/form/GridFieldComponent';
 export * from './ui/panel/components/form/index';

@@ -1,6 +1,7 @@
 import { CheckboxComponent } from './CheckboxComponent';
 import { DateComponent } from './DateComponent';
 import { DetailFieldComponent } from './DetailFieldComponent';
+import { EditorComponent } from './EditorComponent';
 import { GridFieldComponent } from './GridFieldComponent';
 import { InputComponent } from './InputComponent';
 import { NumberComponent } from './NumberComponent';
@@ -19,4 +20,5 @@ export const allInputs = {
   ReferenceComponent: ReferenceComponent,
   GridFieldComponent: GridFieldComponent,
   DetailFieldComponent: DetailFieldComponent,
+  EditorComponent: EditorComponent,
 };
