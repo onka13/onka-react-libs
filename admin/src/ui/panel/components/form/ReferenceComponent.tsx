@@ -21,44 +21,42 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
   const [options, setOptions] = useState<any>([]);
   const [loading, setLoading] = useState(() => {
-    //console.log('ReferenceComponentBase loading useState');
     return false;
   });
   const timer = useRef<number>(-1);
   const request = useRef<ApiSearchRequest>();
 
-  const name = props.field.name;
-  const reference = props.field.reference;
   const dependField = (props.field.depends?.length > 0 ? props.field.depends?.map((x) => x.field)[0] : null) || null;
 
-  var value = props.data ? props.data[reference.dataField] : null;
-  if (!value) {
-    value = isMultiple ? [] : {};
-  }
+  const getValueByData = () => {
+    return (props.data ? props.data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
+  };
+  const [value, setValue] = useState<any>(() => getValueByData());
   const getOptionLabel = (option: any) => {
-    return option[reference.filterField] || '';
+    return option[props.field.reference.filterField] || '';
   };
   const [inputValue, setInputValue] = useState(isMultiple ? '' : getOptionLabel(value));
 
   useEffect(() => {
-    if(!dependField) return;
-    //console.log('dep0', dependField, props.data[dependField], props);
+    if (!dependField) return;
     timer.current = -1;
-    if(!props.data[dependField]) setInputValue('');
-    else if(props.data[dependField] != request.current?.filter[dependField]) setInputValue('');
+    if (!props.data[dependField]) setInputValue('');
+    else if (props.data[dependField] != request.current?.filter[dependField]) setInputValue('');
     // @ts-ignore
   }, [props.data[dependField]]);
 
   useEffect(() => {
-    //console.log('rowData0', props.rowData);
     if (!props.rowData) {
       setInputValue('');
       timer.current = -1;
+      return;
     }
+    setValue(getValueByData());
   }, [props.rowData]);
 
   const makeRequest = (term: String) => {
     if (timer.current) clearTimeout(timer.current);
+    const reference = props.field.reference;
     timer.current = window.setTimeout(() => {
       setLoading(true);
       var req = new ApiSearchRequest();
@@ -85,9 +83,12 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     }, 500);
   };
   const onChange = (e: any, newValue: any, reason: AutocompleteChangeReason) => {
-    //console.log('onChange', newValue, reason);
-    if (!isMultiple && reason == 'select-option') setInputValue(getOptionLabel(newValue));
+    setValue(newValue);
     props.onChange(newValue);
+    if (!isMultiple && reason == 'select-option') {
+      setInputValue(getOptionLabel(newValue));
+      timer.current = -1;
+    }
     for (let i = 0; i < props.fields.length; i++) {
       const element = props.fields[i];
       var depend = element.depends?.filter((x) => x.field == props.field.name);
@@ -111,17 +112,13 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     if (timer.current == -1) makeRequest('');
   };
   const onInputChange = (event: any, value: any, reason: any) => {
-    //console.log('onInputChange', value, reason);
-
     if (reason !== 'reset') {
       setInputValue(value);
     }
   };
-  //console.log('ReferenceComponent1', props.field.name, props.rowData, props);
-  //console.log('ReferenceComponent2', props.field.name, dependField, dependField ? props.data[dependField] : null);
   return (
     <Autocomplete
-      id={name}
+      id={props.field.name}
       value={value}
       options={options}
       openOnFocus={true}
@@ -135,14 +132,14 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       filterOptions={(options: any, state: object) => options}
       className={props.className}
       fullWidth
-      inputValue={!isMultiple ? inputValue : undefined}
-      onInputChange={!isMultiple ? onInputChange : undefined}
+      inputValue={inputValue}
+      onInputChange={onInputChange}
       disabled={!!dependField && !props.data[dependField]}
       renderInput={(params) => {
         return (
           <TextField
             {...params}
-            label={LibService.instance().getFieldLabel(props.pageConfig, name)}
+            label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
             onChange={(e) => {
               handleInputChange(e, e.target.value);
             }}
