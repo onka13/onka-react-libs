@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TextField, CircularProgress, Checkbox } from '@material-ui/core';
+import { TextField, CircularProgress, Checkbox, FormControl, FormControlLabel, FormHelperText } from '@material-ui/core';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { Autocomplete, AutocompleteChangeReason } from '@material-ui/lab';
@@ -52,6 +52,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       return;
     }
     setValue(getValueByData());
+    if (isMultiple && props.isFilter) setValueEmpty(props.data ? props.data[props.field.name + 'Empty'] : false);
   }, [props.rowData]);
 
   const makeRequest = (term: String) => {
@@ -61,7 +62,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       setLoading(true);
       var req = new ApiSearchRequest();
       req.pagination.page = 1;
-      req.pagination.perPage = reference.pageSize || 20;
+      req.pagination.perPage = reference.limit !== undefined ? reference.limit : 20;
       req.sort.field = reference.sortField || 'id';
       req.sort.order = reference.sortDirection || 'ASC';
       req.filter[reference.filterField] = term;
@@ -116,56 +117,73 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       setInputValue(value);
     }
   };
+  const [valueEmpty, setValueEmpty] = useState(false);
+  const handleChangeEmpty = (e: any) => {
+    setValueEmpty(e.target.checked);
+    const { reference, ...rest } = props.field;
+    props.handleChanges([{ name: props.field.name + 'Empty', value: e.target.checked }]);
+  };
   return (
-    <Autocomplete
-      id={props.field.name}
-      value={value}
-      options={options}
-      openOnFocus={true}
-      loading={loading}
-      multiple={isMultiple}
-      disableCloseOnSelect={isMultiple}
-      getOptionLabel={getOptionLabel}
-      getOptionSelected={getOptionSelected}
-      onChange={onChange}
-      onOpen={onOpen}
-      filterOptions={(options: any, state: object) => options}
-      className={props.className}
-      fullWidth
-      inputValue={inputValue}
-      onInputChange={onInputChange}
-      disabled={!!dependField && !props.data[dependField]}
-      renderInput={(params) => {
-        return (
-          <TextField
-            {...params}
-            label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
-            onChange={(e) => {
-              handleInputChange(e, e.target.value);
-            }}
-            InputProps={{
-              ...params.InputProps,
-              readOnly: loading,
-              endAdornment: (
-                <React.Fragment>
-                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </React.Fragment>
-              ),
-            }}
-            error={!!props.error}
+    <div style={{ display: 'inline-flex' }}>
+      <Autocomplete
+        id={props.field.name}
+        value={value}
+        options={options}
+        openOnFocus={true}
+        loading={loading}
+        multiple={isMultiple}
+        disableCloseOnSelect={isMultiple}
+        getOptionLabel={getOptionLabel}
+        getOptionSelected={getOptionSelected}
+        onChange={onChange}
+        onOpen={onOpen}
+        filterOptions={(options: any, state: object) => options}
+        className={props.className}
+        fullWidth
+        inputValue={inputValue}
+        onInputChange={onInputChange}
+        disabled={(!!dependField && !props.data[dependField]) || !!valueEmpty}
+        renderInput={(params) => {
+          return (
+            <TextField
+              {...params}
+              label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
+              onChange={(e) => {
+                handleInputChange(e, e.target.value);
+              }}
+              InputProps={{
+                ...params.InputProps,
+                readOnly: loading,
+                endAdornment: (
+                  <React.Fragment>
+                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </React.Fragment>
+                ),
+              }}
+              error={!!props.error}
+            />
+          );
+        }}
+        renderOption={(option, { selected }) => {
+          if (!isMultiple) return getOptionLabel(option);
+          return (
+            <React.Fragment>
+              <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
+              {getOptionLabel(option)}
+            </React.Fragment>
+          );
+        }}
+      />
+      {isMultiple && props.isFilter && (
+        <FormControl>
+          <FormControlLabel
+            id={props.field.name + "empty"}
+            label={"Empty " + LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
+            control={<Checkbox checked={valueEmpty} onChange={handleChangeEmpty} name={props.field.name + 'Empty'} />}
           />
-        );
-      }}
-      renderOption={(option, { selected }) => {
-        if (!isMultiple) return getOptionLabel(option);
-        return (
-          <React.Fragment>
-            <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
-            {getOptionLabel(option)}
-          </React.Fragment>
-        );
-      }}
-    />
+        </FormControl>
+      )}
+    </div>
   );
 }

@@ -4,7 +4,7 @@ export class PageReference {
    */
   route!: string;
 
-  pageSize?: number = 10;
+  limit?: number = 20;
 
   sortField?: string;
 

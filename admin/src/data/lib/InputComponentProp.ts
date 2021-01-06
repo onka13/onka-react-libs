@@ -27,6 +27,8 @@ export class InputComponentProp extends ComponentPropBase {
 
   handleChanges!: (values: HandleChangeType[]) => void;
 
+  isFilter!: boolean;
+
   public constructor(init?: Partial<InputComponentProp>) {
     super(init);
     Object.assign(this, init);

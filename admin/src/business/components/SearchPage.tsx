@@ -40,6 +40,7 @@ import { TablePaginationActions } from './TablePaginationActions';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
 import { HandleChangeType } from '../helpers/UseForm';
+import { useFilterView } from './useFilterView';
 
 interface ISearchPage {
   pageConfig: PageConfig;
@@ -82,7 +83,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export function SearchPage(props: ISearchPage) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
-  let filterFields = props.filterFields;
   let gridFields = props.gridFields;
   const match = useRouteMatch();
   const history = useHistory();
@@ -294,70 +294,25 @@ export function SearchPage(props: ISearchPage) {
     };
   }, []);
 
-  const handleChanges = (values: HandleChangeType[]) => {
-    var dataCloned = { ...getRequest() };
-    for (let i = 0; i < values.length; i++) {
-      const item = values[i];
-      LibService.instance().setValue(dataCloned, item.name, item.value);
-    }
-    dataCloned.pagination.page = 1;
-    setRequest(dataCloned);
-    loadDataTimer();
-  };
-
-  const onChange = (field: PageField, value: any) => {
-    var request = getRequest();
-    console.log('filter onChange value', value);
-    console.log('filter onChange request.filter', request.filter);
-
-    var path = LibService.instance().getPath(field.prefix, field.name);
-    if (field.reference) {
-      var refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-      LibService.instance().setValue(request.filter, refPath, value);
-      LibService.instance().setValue(request.filter, path, value instanceof Array ? value?.map((x) => x.id) : value?.id);
-    } else {
-      LibService.instance().setValue(request.filter, path, value);
-    }
+  function onFilterChanged(data: any) {
+    console.log('onFilterChanged', data);
+    const request = getRequest();
+    request.filter = data;
     request.pagination.page = 1;
     setRequest(request);
     loadDataTimer();
-  };
+  }
 
-  const filterComponents = (fields: PageField[]) => {
-    var request = getRequest();
-    console.log('filterComponents', request.filter);
-    return (
-      <div className="list-search">
-        {!isHideFilters &&
-          fields.map((field, i) => {
-            var path = LibService.instance().getPath(field.prefix, field.name);
-            if (UIManager.instance().isHideDefaultFilters()) {
-              if (Object.keys(defaultValues).indexOf(field.name) != -1) return null;
-            }
-            return (
-              <div key={i} className="list-search-fields">
-                {React.createElement(
-                  field.filterComponent || allInputs.InputComponent,
-                  new InputComponentProp({
-                    key: i,
-                    pageConfig,
-                    fields: fields,
-                    field: field,
-                    data: request.filter,
-                    rowData: LibService.instance().getValue(request.filter, path),
-                    onChange: (value: any) => onChange(field, value),
-                    className: 'filter-field',
-                    handleChanges: handleChanges
-                  })
-                )}
-              </div>
-            );
-          })}
-      </div>
-    );
-  };
+  const FilterView = useFilterView({
+    defaultValues: UIManager.instance().getDefaultValues(),
+    values: getRequest().filter,
+    filterFields: pageConfig.filterFields,
+    onLoadData: onFilterChanged,
+    pageConfig: pageConfig,
+  });
 
   console.log('SearchPage render', getRequest());
+
   return (
     <div className="list-container">
       <div className="list-actions">
@@ -398,7 +353,7 @@ export function SearchPage(props: ISearchPage) {
         </div>
       </div>
       <Paper className={classes.paper}>
-        {filterComponents(filterFields)}
+        {FilterView}
         {status == 'loading' && <div className="p20">{UIManager.instance().renderLoading()}</div>}
         {status == 'done' && (
           <TableContainer>

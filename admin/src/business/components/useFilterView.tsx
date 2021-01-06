@@ -79,6 +79,7 @@ export function useFilterView(props: IFilterView) {
                     rowData: LibService.instance().getValue(request, path),
                     onChange: (value: any) => onChange(field, value),
                     className: 'filter-field',
+                    isFilter: true,
                     handleChanges: handleChanges
                   })
                 )}
