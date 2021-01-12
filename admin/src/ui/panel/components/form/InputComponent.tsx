@@ -1,14 +1,22 @@
 import { TextField } from '@material-ui/core';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { LibService } from '../../../../business/services/LibService';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function InputComponent(props: InputComponentProp) {
   //console.log('InputComponent', props);
-  const handleChange = (e: any) => {
-    props.onChange(e.target.value);
-  };
   const [value, setValue] = useState('');
+  let timer = useRef<ReturnType<typeof setTimeout>>();
+  function loadDataTimer(value: string) {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      props.onChange(value);
+    }, 200);
+  }
+  const handleChange = (e: any) => {
+    setValue(e.target.value);
+    loadDataTimer(e.target.value);
+  };
   useEffect(() => {
     setValue(props.rowData || '');
   }, [props.rowData]);

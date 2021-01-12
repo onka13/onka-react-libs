@@ -33,7 +33,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
   const [value, setValue] = useState<any>(() => getValueByData());
   const getOptionLabel = (option: any) => {
-    return option[props.field.reference.filterField] || '';
+    return (option ? option[props.field.reference.filterField] : null) || '';
   };
   const [inputValue, setInputValue] = useState(isMultiple ? '' : getOptionLabel(value));
 
