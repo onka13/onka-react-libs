@@ -7,11 +7,11 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export function EditorComponent(props: InputComponentProp) {
   const refEditor = useRef<any>();
-  const [value, setValue] = useState('');
   const onReady = (editor: any) => {
     console.log('onReady');
 
     refEditor.current = editor;
+    //refEditor.current.setData(props.rowData || '');
   };
   const onChange = (e: any, editor: any) => {
     const data = editor.getData();
@@ -28,11 +28,11 @@ export function EditorComponent(props: InputComponentProp) {
       }, 1000);
     }
   }, [props.rowData]);
-  if (props.rowData === undefined) return null;
-  //console.log(
+  if (props.isEdit && props.rowData === undefined) return null;
+  // console.log(
   //  'plugins',
   //  ClassicEditor.builtinPlugins.map((plugin: any) => plugin.pluginName)
-  //);
+  // );
   return (
     <div>
       <CKEditor

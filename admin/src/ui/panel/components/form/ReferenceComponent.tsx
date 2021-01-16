@@ -52,6 +52,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       return;
     }
     setValue(getValueByData());
+    setInputValue(getOptionLabel(getValueByData()));
     if (isMultiple && props.isFilter) setValueEmpty(props.data ? props.data[props.field.name + 'Empty'] : false);
   }, [props.rowData]);
 
@@ -178,8 +179,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       {isMultiple && props.isFilter && (
         <FormControl>
           <FormControlLabel
-            id={props.field.name + "empty"}
-            label={"Empty " + LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
+            id={props.field.name + 'empty'}
+            label={'Empty ' + LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
             control={<Checkbox checked={valueEmpty} onChange={handleChangeEmpty} name={props.field.name + 'Empty'} />}
           />
         </FormControl>

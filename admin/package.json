@@ -89,9 +89,5 @@
   },
   "main": "dist/js/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/js/index.d.ts",
-  "publishConfig": {
-    "access": "public",
-    "tag": "prerelease"
-  }
+  "types": "dist/js/index.d.ts"
 }
