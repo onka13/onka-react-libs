@@ -26,7 +26,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const timer = useRef<number>(-1);
   const request = useRef<ApiSearchRequest>();
 
-  const dependField = (props.field.depends?.length > 0 ? props.field.depends?.map((x) => x.field)[0] : null) || null;
+  const dependField = (props.field.depends?.length > 0 ? props.field.depends.map((x) => x.field)[0] : null) || null;
 
   const getValueByData = () => {
     return (props.data ? props.data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
