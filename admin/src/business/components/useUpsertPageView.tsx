@@ -34,16 +34,16 @@ export function UpsertPageView(props: UpsertPageViewProp) {
   };
 
   const renderFields = function (fields: PageField[]) {
-    var xs: GridSize = 6;
+    var size: GridSize = 6;
     return (
       <Grid container spacing={3}>
         {fields.map((field) => {
           // @ts-ignore
-          xs = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
-          if (xs > 12 || xs < 1) xs = 6;
+          size = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
+          if (size > 12 || size < 1) size = 6;
           const path = LibService.instance().getPath(field.prefix, field.name);
           return (
-            <Grid item key={field.name} xs={xs}>
+            <Grid item key={field.name} md={size} xs={12}>
               {React.createElement(
                 (props.isEdit ? field.editComponent : field.createComponent) || allInputs.InputComponent,
                 new InputComponentProp({

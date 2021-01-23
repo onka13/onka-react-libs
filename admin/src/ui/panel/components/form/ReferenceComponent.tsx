@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TextField, CircularProgress, Checkbox, FormControl, FormControlLabel, FormHelperText } from '@material-ui/core';
+import { TextField, CircularProgress, Checkbox, FormControl, FormControlLabel, FormHelperText, Paper, Button, Popper, ButtonGroup } from '@material-ui/core';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import { Autocomplete, AutocompleteChangeReason } from '@material-ui/lab';
+import { Autocomplete, AutocompleteChangeReason, AutocompleteRenderGroupParams } from '@material-ui/lab';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { ApiSearchRequest } from '../../../../data/api/ApiRequest';
 import { LibService } from '../../../../business/services/LibService';
@@ -124,6 +124,30 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     const { reference, ...rest } = props.field;
     props.handleChanges([{ name: props.field.name + 'Empty', value: e.target.checked }]);
   };
+  const addAllClick = (e: any) => {
+    props.onChange(options);
+  };
+  const clearClick = (e: any) => {
+    props.onChange([]);
+  };
+  const MyPopper = function (popperProps: any) {
+    if (props.field.reference.limit !== 0) {
+      return <Popper {...popperProps} />;
+    }
+    return (
+      <Popper {...popperProps}>
+        <ButtonGroup color="primary" aria-label="outlined primary button group">
+          <Button color="primary" onClick={addAllClick}>
+            Add All
+          </Button>
+          <Button color="primary" onClick={clearClick}>
+            Clear
+          </Button>
+        </ButtonGroup>
+        {popperProps.children}
+      </Popper>
+    );
+  };
   return (
     <div style={{ display: 'inline-flex' }}>
       <Autocomplete
@@ -144,6 +168,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         inputValue={inputValue}
         onInputChange={onInputChange}
         disabled={(!!dependField && !props.data[dependField]) || !!valueEmpty}
+        PopperComponent={MyPopper}
         renderInput={(params) => {
           return (
             <TextField
