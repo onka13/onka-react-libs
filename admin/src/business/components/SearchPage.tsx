@@ -319,11 +319,6 @@ export function SearchPage(props: ISearchPage) {
         <div className="container-left">
           {!isHideActions && (
             <>
-              {pageConfig.export && (
-                <Button variant="outlined" color="default" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
-                  {LocaleService.instance().translate('lib.action.export')}
-                </Button>
-              )}
               {pageConfig.new && (
                 <Button
                   component={Link}
@@ -340,6 +335,15 @@ export function SearchPage(props: ISearchPage) {
         </div>
         <div></div>
         <div className="container-right">
+          {!isHideActions && (
+            <>
+              {pageConfig.export && (
+                <Button variant="outlined" color="default" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
+                  {LocaleService.instance().translate('lib.action.export')}
+                </Button>
+              )}
+            </>
+          )}
           {props.bulkActions &&
             selections.length > 0 &&
             props.bulkActions(

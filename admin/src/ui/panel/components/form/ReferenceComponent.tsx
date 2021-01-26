@@ -1,5 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TextField, CircularProgress, Checkbox, FormControl, FormControlLabel, FormHelperText, Paper, Button, Popper, ButtonGroup } from '@material-ui/core';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  TextField,
+  CircularProgress,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  Button,
+  Popper,
+  ButtonGroup,
+  ListSubheader,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  List,
+  makeStyles,
+  Box,
+} from '@material-ui/core';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { Autocomplete, AutocompleteChangeReason, AutocompleteRenderGroupParams } from '@material-ui/lab';
@@ -7,6 +23,20 @@ import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { ApiSearchRequest } from '../../../../data/api/ApiRequest';
 import { LibService } from '../../../../business/services/LibService';
 import { ApiBusinessLogic } from '../../../../business/services/ApiBusinessLogic';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import lodash from 'lodash';
+
+const useStyles = makeStyles({
+  accordionExpanded: {
+    margin: '0 !important',
+  },
+  accordionSummaryRoot: {
+    backgroundColor: '#efefef',
+  },
+  accordionSummaryContent: {
+    margin: '0 !important',
+  },
+});
 
 export function MultiReferenceComponent(props: InputComponentProp) {
   return <ReferenceComponentBase isMultiple={true} props={props} />;
@@ -19,6 +49,7 @@ const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
+  const classes = useStyles();
   const [options, setOptions] = useState<any>([]);
   const [loading, setLoading] = useState(() => {
     return false;
@@ -27,6 +58,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const request = useRef<ApiSearchRequest>();
 
   const dependField = (props.field.depends?.length > 0 ? props.field.depends.map((x) => x.field)[0] : null) || null;
+
+  const reference = props.field.reference;
+  const treeParentFieldId = reference.treeParentFieldId || '';
 
   const getValueByData = () => {
     return (props.data ? props.data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
@@ -124,32 +158,92 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     const { reference, ...rest } = props.field;
     props.handleChanges([{ name: props.field.name + 'Empty', value: e.target.checked }]);
   };
-  const addAllClick = (e: any) => {
-    props.onChange(options);
+
+  const MyPopper = useCallback(
+    function (popperProps: any) {
+      console.log('popperProps', popperProps);
+      if (!props.field.reference.addAllButton) {
+        return <Popper {...popperProps} />;
+      }
+      return (
+        <Popper {...popperProps}>
+          <ButtonGroup color="primary" aria-label="contained primary button group" style={{ backgroundColor: '#fff' }}>
+            <Button
+              color="primary"
+              onClick={(e) => {
+                props.onChange(options);
+              }}
+            >
+              Add All
+            </Button>
+          </ButtonGroup>
+          {popperProps.children}
+        </Popper>
+      );
+    },
+    [options]
+  );
+  const addAllSubItems = (parentId: any, isChecked: boolean) => {
+    console.log('parentId', parentId);
+    var subItems = options.filter((x: any) => x[treeParentFieldId] == parentId);
+    var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
+    props.onChange(newValue);
+    //props.handleChanges([{ name: props.field.name, value: newValue }]);
   };
-  const clearClick = (e: any) => {
-    props.onChange([]);
-  };
-  const MyPopper = function (popperProps: any) {
-    if (props.field.reference.limit !== 0) {
-      return <Popper {...popperProps} />;
-    }
-    return (
-      <Popper {...popperProps}>
-        <ButtonGroup color="primary" aria-label="outlined primary button group">
-          <Button color="primary" onClick={addAllClick}>
-            Add All
-          </Button>
-          <Button color="primary" onClick={clearClick}>
-            Clear
-          </Button>
-        </ButtonGroup>
-        {popperProps.children}
-      </Popper>
-    );
-  };
+  const renderGroup = useCallback(
+    function (params: AutocompleteRenderGroupParams) {
+      //console.log('renderGroup', params.group, params.children);
+      if (!params.group) return null;
+      const item = options[parseInt(params.key)];
+      return (
+        <Accordion
+          key={params.key}
+          defaultExpanded={true}
+          classes={{
+            expanded: classes.accordionExpanded,
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            classes={{
+              expanded: classes.accordionExpanded,
+              content: classes.accordionSummaryContent,
+              root: classes.accordionSummaryRoot,
+            }}
+          >
+            <FormControlLabel
+              onClick={(e: any) => {
+                e.stopPropagation();
+                console.log('event.target.value', e.target.checked);
+                addAllSubItems(item[treeParentFieldId], e.target.checked);
+              }}
+              onFocus={(event) => event.stopPropagation()}
+              control={<Checkbox />}
+              label={lodash.get(item, reference.treeParentFieldName || 'name')}
+            />
+          </AccordionSummary>
+          <AccordionDetails style={{ padding: 0, width: '100%' }}>
+            <List style={{ padding: 0 }}>{params.children}</List>
+          </AccordionDetails>
+        </Accordion>
+      );
+      /*return [
+      <ListSubheader key={params.key} component="div" style={{ backgroundColor: '#efefef' }}>
+        {params.group}
+      </ListSubheader>,
+      params.children,
+    ];*/
+    },
+    [options]
+  );
   return (
-    <div style={{ display: 'inline-flex' }}>
+    <div
+      style={
+        {
+          /*display: 'inline-flex'*/
+        }
+      }
+    >
       <Autocomplete
         id={props.field.name}
         value={value}
@@ -169,6 +263,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         onInputChange={onInputChange}
         disabled={(!!dependField && !props.data[dependField]) || !!valueEmpty}
         PopperComponent={MyPopper}
+        groupBy={treeParentFieldId ? (option) => option[treeParentFieldId] : undefined}
+        disableListWrap
+        renderGroup={renderGroup}
         renderInput={(params) => {
           return (
             <TextField

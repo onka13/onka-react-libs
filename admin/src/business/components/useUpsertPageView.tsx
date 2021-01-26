@@ -97,7 +97,7 @@ export function UpsertPageView(props: UpsertPageViewProp) {
           </CardContent>
           <CardActions>
             <Button type="submit" variant="contained" color="primary">
-              {LocaleService.instance().translate(props.isEdit ? 'lib.action.edit' : 'lib.action.save')}
+              {LocaleService.instance().translate('lib.action.save')}
             </Button>
           </CardActions>
         </Card>

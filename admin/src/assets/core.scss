@@ -191,6 +191,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
   }
   .list-search {
     padding: 10px;
@@ -200,6 +201,7 @@
     align-items: center;
     .list-search-fields {
       margin-right: 10px;
+      max-width: 300px;
       .search-form-field {
         margin-left: 10px;
       }

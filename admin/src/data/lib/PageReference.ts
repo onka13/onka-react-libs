@@ -14,6 +14,11 @@ export class PageReference {
   
   dataField!: string;
 
+  addAllButton?: boolean;
+
+  treeParentFieldId?: string;
+  treeParentFieldName?: string;
+
   public constructor(init?: Partial<PageReference>) {
     Object.assign(this, init);
   }

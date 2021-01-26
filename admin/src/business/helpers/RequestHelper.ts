@@ -52,7 +52,7 @@ export class RequestHelper {
         options.headers[key] = headers[key];
       }
     }
-    
+    var timeout = httpOptions.timeout;
     if (data && data.isFileUpload) {
       var formData = new FormData();
       for (const key in data) {
@@ -60,6 +60,7 @@ export class RequestHelper {
       }
       data = formData;
       options.headers["Content-Type"] = "multipart/form-data";
+      timeout = 0;
     }
     options = {
       ...{
@@ -67,7 +68,7 @@ export class RequestHelper {
         url: endpoint,
         baseURL: this.URL,
         data: data,
-        timeout: httpOptions.timeout,
+        timeout: timeout,
       },
       ...options,
     };
