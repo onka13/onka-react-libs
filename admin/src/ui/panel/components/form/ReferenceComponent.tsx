@@ -80,6 +80,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   }, [props.data[dependField]]);
 
   useEffect(() => {
+    console.log('props.rowData changed', props.rowData);
     if (!props.rowData) {
       setInputValue('');
       timer.current = -1;
@@ -161,7 +162,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
 
   const MyPopper = useCallback(
     function (popperProps: any) {
-      console.log('popperProps', popperProps);
+      //console.log('popperProps', popperProps);
       if (!props.field.reference.addAllButton) {
         return <Popper {...popperProps} />;
       }
@@ -183,18 +184,27 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     },
     [options]
   );
-  const addAllSubItems = (parentId: any, isChecked: boolean) => {
-    console.log('parentId', parentId);
+  const addAllSubItems =  useCallback((parentId: any, isChecked: boolean) => {
     var subItems = options.filter((x: any) => x[treeParentFieldId] == parentId);
     var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
     props.onChange(newValue);
     //props.handleChanges([{ name: props.field.name, value: newValue }]);
-  };
+  }, [value, options]);
   const renderGroup = useCallback(
     function (params: AutocompleteRenderGroupParams) {
       //console.log('renderGroup', params.group, params.children);
       if (!params.group) return null;
       const item = options[parseInt(params.key)];
+      const children = params.children instanceof Array && params.children ? params.children : [];
+      var isSelected = children.length > 0;
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        // @ts-ignore
+        if (!child.props['aria-selected']) {
+          isSelected = false;
+          break;
+        }
+      }
       return (
         <Accordion
           key={params.key}
@@ -211,19 +221,19 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
               root: classes.accordionSummaryRoot,
             }}
           >
-            <FormControlLabel
+            <Checkbox
               onClick={(e: any) => {
                 e.stopPropagation();
-                console.log('event.target.value', e.target.checked);
+                if (typeof e.target.checked != 'boolean') return;
                 addAllSubItems(item[treeParentFieldId], e.target.checked);
               }}
               onFocus={(event) => event.stopPropagation()}
-              control={<Checkbox />}
-              label={lodash.get(item, reference.treeParentFieldName || 'name')}
+              checked={isSelected}
             />
+            {lodash.get(item, reference.treeParentFieldName || 'name')}
           </AccordionSummary>
-          <AccordionDetails style={{ padding: 0, width: '100%' }}>
-            <List style={{ padding: 0 }}>{params.children}</List>
+          <AccordionDetails style={{ padding: 0 }}>
+            <List style={{ padding: 0, width: '100%' }}>{params.children}</List>
           </AccordionDetails>
         </Accordion>
       );
@@ -234,7 +244,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       params.children,
     ];*/
     },
-    [options]
+    [options, value]
   );
   return (
     <div
