@@ -1,5 +1,5 @@
-import axios, { Method, AxiosRequestConfig, AxiosPromise } from "axios";
-import { Parameters } from "../../data/lib/Types";
+import axios, { Method, AxiosRequestConfig, AxiosPromise } from 'axios';
+import { Parameters } from '../../data/lib/Types';
 
 /**
  * default http parameters
@@ -8,8 +8,8 @@ const httpOptions = {
   timeout: 60000,
   uploadTimeout: 300000,
   headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
   },
 };
 
@@ -37,7 +37,7 @@ export class RequestHelper {
    * @param parameters are the URL parameters to be sent with the request
    * @param headers headers
    */
-  request<T>(method: Method, endpoint: string, data?: any, parameters?: Parameters, headers?: Parameters, options?: AxiosRequestConfig) : AxiosPromise<T> {
+  request<T>(method: Method, endpoint: string, data?: any, parameters?: Parameters, headers?: Parameters, options?: AxiosRequestConfig): AxiosPromise<T> {
     if (!options) options = {};
     if (!options.params) options.params = {};
     if (!options.headers) options.headers = {};
@@ -54,12 +54,13 @@ export class RequestHelper {
     }
     var timeout = httpOptions.timeout;
     if (data && data.isFileUpload) {
-      var formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-      data = formData;
-      options.headers["Content-Type"] = "multipart/form-data";
+      // var formData = new FormData();
+      // for (const key in data) {
+      //   formData.append(key, data[key]);
+      // }
+      // data = formData;
+      data = this._convertModelToFormData(data, '');
+      options.headers['Content-Type'] = 'multipart/form-data';
       timeout = 0;
     }
     options = {
@@ -72,8 +73,34 @@ export class RequestHelper {
       },
       ...options,
     };
-    console.log("REQUEST", method, endpoint);
-    console.log("REQUEST OPTIONS", options);
+    console.log('REQUEST', method, endpoint);
+    console.log('REQUEST OPTIONS', options);
     return axios(options);
+  }
+
+  _getFormDataKey(key0: any, key1: any): string {
+    return !key0 ? key1 : `${key0}[${key1}]`;
+  }
+  _convertModelToFormData(model: any, key: string, frmData?: FormData): FormData {
+    let formData = frmData || new FormData();
+
+    if (!model) return formData;
+
+    if (model instanceof Date) {
+      formData.append(key, model.toISOString());
+    } else if (model instanceof Array) {
+      model.forEach((element: any, i: number) => {
+        this._convertModelToFormData(element, this._getFormDataKey(key, i), formData);
+      });
+    } else if (typeof model === 'object' && !(model instanceof File)) {
+      for (let propertyName in model) {
+        if (!model.hasOwnProperty(propertyName) || !model[propertyName]) continue;
+        this._convertModelToFormData(model[propertyName], this._getFormDataKey(key, propertyName), formData);
+      }
+    } else {
+      formData.append(key, model);
+    }
+
+    return formData;
   }
 }

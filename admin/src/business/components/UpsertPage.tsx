@@ -19,19 +19,19 @@ export function UpsertPage(props: UpsertPageProp) {
   const [status, setStatus] = useState<PageStatus>('none');
 
   const [count, setCount] = useState(0);
-  const forceUpdate = () => setCount(prev => prev + 1);
+  const forceUpdate = () => setCount((prev) => prev + 1);
   const refFormData = useRef<Parameters>(props.initialValues);
   const refErrors = useRef<Parameters>();
 
   const { validate } = useFormValidator({});
 
   const getErrors = () => refErrors.current || {};
-  const setErrors = (data: Parameters) => {    
+  const setErrors = (data: Parameters) => {
     refErrors.current = data;
     forceUpdate();
   };
   const getFormData = () => refFormData.current;
-  const setFormData = (data: Parameters) => {    
+  const setFormData = (data: Parameters) => {
     refFormData.current = data;
     forceUpdate();
   };
@@ -45,8 +45,8 @@ export function UpsertPage(props: UpsertPageProp) {
     var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, getFormData());
     UIManager.instance().displayLoading(false);
     var redirect = UIManager.instance().getRedirect() || 'edit';
-    if(isEdit && redirect == 'edit' && record.value?.id) {
-      setFormData(record.value);
+    if (isEdit && redirect == 'edit' && record.value?.id) {
+      setFormData({ ...getFormData(), ...record.value });
       return;
     }
     UIManager.instance().gotoPage(history, redirect, pageConfig, {
@@ -64,9 +64,9 @@ export function UpsertPage(props: UpsertPageProp) {
     if (errorList) {
       setErrors(errorList);
       return;
-    } else  {
+    } else {
       setErrors({});
-    }    
+    }
     onSubmit();
   };
 
