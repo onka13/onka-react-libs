@@ -2,8 +2,16 @@ import React from 'react';
 import Chip from '@material-ui/core/Chip';
 import { LibService } from '../../../../business/services/LibService';
 import { GridComponentProp } from '../../../../data/lib/GridComponentProp';
+import { makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles({
+  gridChips: {
+    
+  },
+});
 
 export function GridFieldComponent(props: GridComponentProp) {
+  const classes = useStyles();
   const field = props.gridField;
   var path = LibService.instance().getPath(field.prefix, field.name);
   var val;
@@ -20,6 +28,7 @@ export function GridFieldComponent(props: GridComponentProp) {
       } else {
         val = relatedData[field.reference.filterField];
       }
+      return <span className={classes.gridChips}>{val}</span>;
     }
   } else {
     val = LibService.instance().getValue(props.rowData, path);

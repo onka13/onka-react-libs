@@ -309,6 +309,7 @@ export function SearchPage(props: ISearchPage) {
     filterFields: pageConfig.filterFields,
     onLoadData: onFilterChanged,
     pageConfig: pageConfig,
+    isHideFilters: isHideFilters,
   });
 
   console.log('SearchPage render', getRequest());
@@ -356,8 +357,8 @@ export function SearchPage(props: ISearchPage) {
             )}
         </div>
       </div>
+      <Paper className={classes.paper}>{FilterView}</Paper>
       <Paper className={classes.paper}>
-        {FilterView}
         {status == 'loading' && <div className="p20">{UIManager.instance().renderLoading()}</div>}
         {status == 'done' && (
           <TableContainer>

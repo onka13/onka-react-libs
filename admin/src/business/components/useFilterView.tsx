@@ -13,6 +13,7 @@ export interface IFilterView {
   defaultValues: any;
   values: any;
   onLoadData: (data: any) => void;
+  isHideFilters?: boolean;
 }
 
 export function useFilterView(props: IFilterView) {
@@ -60,7 +61,7 @@ export function useFilterView(props: IFilterView) {
     console.log('useFilterView filterComponents', request);
     return (
       <div className="list-search">
-        {!UIManager.instance().isHideFilters() &&
+        {!props.isHideFilters &&
           fields.map((field, i) => {
             var path = LibService.instance().getPath(field.prefix, field.name);
             if (UIManager.instance().isHideDefaultFilters()) {
