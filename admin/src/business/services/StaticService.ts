@@ -48,7 +48,7 @@ export class StaticService {
    * Is super user
    */
   isSuper() {
-    return !!localStorage.getItem("isSuper");
+    return localStorage.getItem("isSuper") == "true";
   }
 
   /**

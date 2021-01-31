@@ -33,39 +33,60 @@ export function UpsertPageView(props: UpsertPageViewProp) {
     ]);
   };
 
-  const renderFields = function (fields: PageField[]) {
-    var size: GridSize = 6;
-    return (
-      <Grid container spacing={3}>
-        {fields.map((field) => {
-          // @ts-ignore
-          size = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
-          if (size > 12 || size < 1) size = 6;
-          const path = LibService.instance().getPath(field.prefix, field.name);
-          return (
-            <Grid item key={field.name} md={size} xs={12}>
-              {React.createElement(
-                (props.isEdit ? field.editComponent : field.createComponent) || allInputs.InputComponent,
-                new InputComponentProp({
-                  key: field.name,
-                  pageConfig: props.pageConfig,
-                  fields,
-                  field,
-                  data: props.formData,
-                  rowData: LibService.instance().getValue(props.formData, path),
-                  isEdit: props.isEdit,
-                  onChange: (value: any) => onChange(field, value),
-                  error: LibService.instance().getValue(props.errors, path),
-                  className: props.isEdit ? 'edit-field' : 'create-field',
-                  handleChanges: props.handleChanges
-                })
-              )}
-            </Grid>
-          );
-        })}
-      </Grid>
-    );
-  };
+  const FieldComponent = useCallback(
+    (fieldCompProps: { fields: PageField[]; field: PageField }) => {
+      const path = LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name);
+
+      const inputProps = new InputComponentProp({
+        key: fieldCompProps.field.name,
+        pageConfig: props.pageConfig,
+        fields: fieldCompProps.fields,
+        field: fieldCompProps.field,
+        data: props.formData,
+        rowData: LibService.instance().getValue(props.formData, path),
+        isEdit: props.isEdit,
+        onChange: (value: any) => onChange(fieldCompProps.field, value),
+        error: LibService.instance().getValue(props.errors, path),
+        className: props.isEdit ? 'edit-field' : 'create-field',
+        handleChanges: props.handleChanges,
+        formSubject: props.subject
+      });
+
+      if (props.isEdit && fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
+      if (!props.isEdit && fieldCompProps.field.createComponent) return <fieldCompProps.field.createComponent {...inputProps} />;
+      return <allInputs.InputComponent {...inputProps} />;
+    },
+    [props.pageConfig, props.errors]
+  );
+
+  const renderFields = useCallback(
+    function (fields: PageField[]) {
+      if (props.template) {
+        var items: Parameters = {};
+        fields.forEach((field) => {
+          items[field.name] = <FieldComponent key={field.name} fields={fields} field={field} />;
+        });
+        return props.template(items);
+      }
+      var size: GridSize = 6;
+      return (
+        <Grid container spacing={3}>
+          {fields.map((field) => {
+            // @ts-ignore
+            size = props.columnCount ? 12 / props.columnCount : field.fieldSize || 6;
+            if (size > 12 || size < 1) size = 6;
+            return (
+              <Grid item key={field.name} md={size} xs={12}>
+                <FieldComponent key={field.name} fields={fields} field={field} />
+              </Grid>
+            );
+          })}
+        </Grid>
+      );
+    },
+    [props.columnCount]
+  );
+
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
   };

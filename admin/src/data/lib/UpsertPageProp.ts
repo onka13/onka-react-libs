@@ -3,6 +3,7 @@ import { PageConfig } from './PageConfig';
 import { PagePropBase } from './PagePropBase';
 import { ServiceResult } from '../api/ServiceResult';
 import { Parameters } from './Types';
+import { UpsertPageTemplate } from './UpsertPageViewProp';
 
 export class UpsertPageProp extends PagePropBase {
   pageConfig!: PageConfig;
@@ -12,6 +13,7 @@ export class UpsertPageProp extends PagePropBase {
   onSubmit?: (data: Parameters) => void;
   isEdit?: boolean;
   onChange?: (values: Parameters) => void;
+  template?: UpsertPageTemplate;
   
   public constructor(init?: Partial<UpsertPageProp>) {
     super(init);

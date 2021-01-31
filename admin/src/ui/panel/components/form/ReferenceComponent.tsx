@@ -50,6 +50,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
   const classes = useStyles();
+  const [data, setData] = useState<any>({});
   const [options, setOptions] = useState<any>([]);
   const [loading, setLoading] = useState(() => {
     return false;
@@ -63,9 +64,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const treeParentFieldId = reference.treeParentFieldId || '';
 
   const getValueByData = () => {
-    return (props.data ? props.data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
+    return (data ? data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
   };
-  const [value, setValue] = useState<any>(() => getValueByData());
+  const [value, setValue] = useState<any>(isMultiple ? [] : {});
   const getOptionLabel = (option: any) => {
     return (option ? option[props.field.reference.filterField] : null) || '';
   };
@@ -74,22 +75,46 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   useEffect(() => {
     if (!dependField) return;
     timer.current = -1;
-    if (!props.data[dependField]) setInputValue('');
-    else if (props.data[dependField] != request.current?.filter[dependField]) setInputValue('');
+    if (!data[dependField]) setInputValue('');
+    else if (data[dependField] != request.current?.filter[dependField]) setInputValue('');
     // @ts-ignore
-  }, [props.data[dependField]]);
+  }, [data[dependField]]);
+
+  // useEffect(() => {
+  //   //console.log('props.rowData changed', props.rowData);
+  //   if (!props.rowData) {
+  //     setInputValue('');
+  //     timer.current = -1;
+  //     return;
+  //   }
+  //   setValue(getValueByData());
+  //   setInputValue(getOptionLabel(getValueByData()));
+  //   if (isMultiple && props.isFilter) setValueEmpty(props.data ? props.data[props.field.name + 'Empty'] : false);
+  // }, [props.rowData]);
+
+  const path = LibService.instance().getPath(props.field.prefix, props.field.name);
 
   useEffect(() => {
-    console.log('props.rowData changed', props.rowData);
-    if (!props.rowData) {
+    var subscription = props.formSubject.subscribe((data) => {
+      console.log('formSubject.subscribe reference: ', data);
+      setData(data);
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const rowData = LibService.instance().getValue(data, path);
+    if (!rowData) {
       setInputValue('');
       timer.current = -1;
       return;
     }
     setValue(getValueByData());
     setInputValue(getOptionLabel(getValueByData()));
-    if (isMultiple && props.isFilter) setValueEmpty(props.data ? props.data[props.field.name + 'Empty'] : false);
-  }, [props.rowData]);
+    if (isMultiple && props.isFilter) setValueEmpty(data ? data[props.field.name + 'Empty'] : false);
+  }, [getValueByData()]);
 
   const makeRequest = (term: String) => {
     if (timer.current) clearTimeout(timer.current);
@@ -105,7 +130,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       if (props.field.depends) {
         for (let i = 0; i < props.field.depends.length; i++) {
           const depend = props.field.depends[i];
-          req.filter[depend.name] = depend.field ? props.data[depend.field] : depend.value;
+          req.filter[depend.name] = depend.field ? data[depend.field] : depend.value;
         }
       }
       request.current = req;
@@ -184,12 +209,15 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     },
     [options]
   );
-  const addAllSubItems =  useCallback((parentId: any, isChecked: boolean) => {
-    var subItems = options.filter((x: any) => x[treeParentFieldId] == parentId);
-    var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
-    props.onChange(newValue);
-    //props.handleChanges([{ name: props.field.name, value: newValue }]);
-  }, [value, options]);
+  const addAllSubItems = useCallback(
+    (parentId: any, isChecked: boolean) => {
+      var subItems = options.filter((x: any) => x[treeParentFieldId] == parentId);
+      var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
+      props.onChange(newValue);
+      //props.handleChanges([{ name: props.field.name, value: newValue }]);
+    },
+    [value, options]
+  );
   const renderGroup = useCallback(
     function (params: AutocompleteRenderGroupParams) {
       //console.log('renderGroup', params.group, params.children);
@@ -246,6 +274,16 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     },
     [options, value]
   );
+  const groupBy = () => {
+    if (!treeParentFieldId) return;
+    return (option: any) => {
+      return option[treeParentFieldId];
+      //return option[treeParentFieldId] ? option[treeParentFieldId] : 'no-parent';
+    };
+  };
+
+  console.log('Reference render', props.field.name);
+
   return (
     <div
       style={
@@ -271,9 +309,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         fullWidth
         inputValue={inputValue}
         onInputChange={onInputChange}
-        disabled={(!!dependField && !props.data[dependField]) || !!valueEmpty}
+        disabled={(!!dependField && !data[dependField]) || !!valueEmpty}
         PopperComponent={MyPopper}
-        groupBy={treeParentFieldId ? (option) => option[treeParentFieldId] : undefined}
+        groupBy={groupBy()}
         disableListWrap
         renderGroup={renderGroup}
         renderInput={(params) => {

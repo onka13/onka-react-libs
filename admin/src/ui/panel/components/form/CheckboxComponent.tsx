@@ -8,9 +8,25 @@ export function CheckboxComponent(props: InputComponentProp) {
     props.onChange(e.target.checked);
   };
   const [value, setValue] = useState(false);
+  // useEffect(() => {
+  //   setValue(props.rowData || false);
+  // }, [props.rowData]);
+
+  const path = LibService.instance().getPath(props.field.prefix, props.field.name);
+
   useEffect(() => {
-    setValue(props.rowData || false);
-  }, [props.rowData]);
+    var subscription = props.formSubject.subscribe((data) => {
+      console.log('formSubject.subscribe checkbox: ', data);
+      const rowData = LibService.instance().getValue(data, path);
+      setValue(rowData || false);
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  console.log('CheckboxComponent', props.field.name, value);
+
   return (
     <FormControl error={!!props.error}>
       <FormControlLabel

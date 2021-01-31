@@ -10,6 +10,7 @@ import { useFormValidator } from '../helpers/UseFormValidator';
 import { HandleChangeType } from '../helpers/UseForm';
 import { UpsertPageView } from './useUpsertPageView';
 import { UpsertPageViewProp } from '../../data/lib/UpsertPageViewProp';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 export function UpsertPage(props: UpsertPageProp) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
@@ -24,6 +25,7 @@ export function UpsertPage(props: UpsertPageProp) {
   const refErrors = useRef<Parameters>();
 
   const { validate } = useFormValidator({});
+  const formSubject = useRef<Subject<Parameters>>(new Subject<Parameters>());
 
   const getErrors = () => refErrors.current || {};
   const setErrors = (data: Parameters) => {
@@ -33,7 +35,8 @@ export function UpsertPage(props: UpsertPageProp) {
   const getFormData = () => refFormData.current;
   const setFormData = (data: Parameters) => {
     refFormData.current = data;
-    forceUpdate();
+    //forceUpdate();
+    formSubject.current.next(data);
   };
 
   const onSubmit = async function () {
@@ -72,6 +75,7 @@ export function UpsertPage(props: UpsertPageProp) {
 
   const updateFormData = function (data: Parameters) {
     setFormData(data);
+    formSubject.current.next(data);
     props.onChange && props.onChange(data);
   };
 
@@ -110,7 +114,7 @@ export function UpsertPage(props: UpsertPageProp) {
     };
   }, []);
 
-  if (status == 'loading') return UIManager.instance().renderLoading();
+  //if (status == 'loading') return UIManager.instance().renderLoading();
 
   const viewProps: UpsertPageViewProp = {
     pageConfig: pageConfig,
@@ -120,9 +124,11 @@ export function UpsertPage(props: UpsertPageProp) {
     onChange: props.onChange,
     tabs: props.tabs,
     errors: getErrors(),
-    formData: getFormData(),
+    formData: [], //getFormData(),
+    subject: formSubject.current,
     handleChanges,
     handleSubmit,
+    template: props.template,
   };
   console.log('UpsertPage', viewProps);
   return <UpsertPageView {...viewProps} />;

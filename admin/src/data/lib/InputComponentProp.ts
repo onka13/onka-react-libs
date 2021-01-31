@@ -1,7 +1,8 @@
 import { HandleChangeType } from '../../business/helpers/UseForm';
 import { ComponentPropBase } from './ComponentPropBase';
 import { PageField } from './PageField';
-import { Option } from './Types';
+import { Option, Parameters } from './Types';
+import { Subject } from 'rxjs';
 
 export class InputComponentProp extends ComponentPropBase {
   /**
@@ -28,6 +29,8 @@ export class InputComponentProp extends ComponentPropBase {
   handleChanges!: (values: HandleChangeType[]) => void;
 
   isFilter!: boolean;
+
+  formSubject!: Subject<Parameters>;
 
   public constructor(init?: Partial<InputComponentProp>) {
     super(init);

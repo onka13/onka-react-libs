@@ -17,9 +17,25 @@ export function InputComponent(props: InputComponentProp) {
     setValue(e.target.value);
     loadDataTimer(e.target.value);
   };
+  // useEffect(() => {
+  //   setValue(props.rowData || '');
+  // }, [props.rowData]);
+
+  const path = LibService.instance().getPath(props.field.prefix, props.field.name);
+
   useEffect(() => {
-    setValue(props.rowData || '');
-  }, [props.rowData]);
+    var subscription = props.formSubject.subscribe((data) => {
+      console.log('formSubject.subscribe input: ', data);
+      const rowData = LibService.instance().getValue(data, path);
+      setValue(rowData || '');
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  console.log('InputComponent', props.field.name, value);
+
   return (
     <TextField
       id={props.field.name}

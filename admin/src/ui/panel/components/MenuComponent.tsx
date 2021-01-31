@@ -46,7 +46,6 @@ export function MenuComponent(props: IMenuProp) {
           if (route.config.menu == menuItem.menuKey) {
             if (!LibService.instance().hasAccess(route.config.moduleKey, route.config.pageKey, 'list')) return;
             menuItem.routes.push(route);
-            // TODO: check permission
             menuItem.hasAccess = true;
           }
         });
