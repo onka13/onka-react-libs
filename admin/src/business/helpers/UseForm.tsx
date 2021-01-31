@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Parameters, ParametersFunc, ParametersReturnFunc } from '../../data/lib/Types';
 import { PageField } from '../../data/lib/PageField';
 import { useFormValidator } from './UseFormValidator';
@@ -8,7 +8,8 @@ import { Subject, Subscription } from 'rxjs';
 export interface IUseFormProps {
   fields: PageField[];
   initialValues: any;
-  onSubmit: ParametersFunc;
+  onSubmit?: ParametersFunc;
+  onAfterChanges?: Function;
 }
 
 export type HandleChangeType = { name: string; value: any };
@@ -56,16 +57,16 @@ export function useForm(props: IUseFormProps): UseFormResponse {
       setErrors(errorList);
       return;
     }
-    props.onSubmit(getFormData());
+    props.onSubmit && props.onSubmit(getFormData());
   };
 
   const getValue = (path: string) => {
     return LibService.instance().getValue(getFormData(), path);
-  }
-  
+  };
+
   const getError = (path: string) => {
     return LibService.instance().getValue(getErrors(), path);
-  }
+  };
 
   const updateFormData = (data: Parameters) => {
     setFormData(data);
@@ -80,6 +81,7 @@ export function useForm(props: IUseFormProps): UseFormResponse {
       LibService.instance().setValue(dataCloned, item.name, item.value);
     }
     setFormData(dataCloned);
+    props.onAfterChanges && props.onAfterChanges();
   };
 
   const handleChange = (name: string) => (value: any) => {
@@ -111,6 +113,46 @@ export function useForm(props: IUseFormProps): UseFormResponse {
     getValue,
     getError,
     subscribeError,
-    unsubscribeError
+    unsubscribeError,
+  };
+}
+
+export interface IUseFormHelperProps {
+  form: UseFormResponse;
+  path: string;
+  defaultValue: any;
+  preSetValue?: (rowData: any, defaultValue: any) => any;
+}
+
+export interface UseFormHelperResponse {
+  value: any;
+  error: string;
+  setValue: (value: any) => void;
+}
+
+export function useFormHelper(props: IUseFormHelperProps): UseFormHelperResponse {
+  const [value, setValue] = useState(props.defaultValue);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    var subscription = props.form.subscribe((data) => {
+      const rowData = props.form.getValue(props.path);
+      if (props.preSetValue) setValue(props.preSetValue(rowData, props.defaultValue));
+      else setValue(rowData || props.defaultValue);
+    });
+    var subscriptionError = props.form.subscribeError((data) => {
+      const errorData = props.form.getError(props.path);
+      setError(errorData || '');
+    });
+    return () => {
+      props.form.unsubscribe(subscription);
+      props.form.unsubscribeError(subscriptionError);
+    };
+  }, []);
+
+  return {
+    value,
+    error,
+    setValue,
   };
 }

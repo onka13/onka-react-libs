@@ -10,16 +10,6 @@ export class ComponentPropBase {
    */
   pageConfig!: PageConfig;
 
-  /**
-   * Data
-   */
-  data!: any;
-  
-  /**
-   * Row Data
-   */
-  rowData!: any;
-
   readonly?: boolean;
 
   className?: string;

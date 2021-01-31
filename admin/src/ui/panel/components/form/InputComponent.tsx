@@ -1,11 +1,15 @@
 import { TextField } from '@material-ui/core';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
+import { useFormHelper } from '../../../../business/helpers/UseForm';
 import { LibService } from '../../../../business/services/LibService';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function InputComponent(props: InputComponentProp) {
-  const [value, setValue] = useState('');
-  const [error, setError] = useState('');
+  const formHelper = useFormHelper({
+    form: props.form,
+    path: props.path,
+    defaultValue: '',
+  });
   let timer = useRef<ReturnType<typeof setTimeout>>();
   function loadDataTimer(value: string) {
     if (timer.current) clearTimeout(timer.current);
@@ -14,34 +18,19 @@ export function InputComponent(props: InputComponentProp) {
     }, 200);
   }
   const handleChange = (e: any) => {
-    setValue(e.target.value);
+    formHelper.setValue(e.target.value);
     loadDataTimer(e.target.value);
   };
 
-  useEffect(() => {
-    var subscription = props.form.subscribe((data) => {
-      const rowData = props.form.getValue(props.path);
-      setValue(rowData || '');
-    });
-    var subscriptionError = props.form.subscribeError((data) => {
-      const rowData = props.form.getError(props.path);
-      setError(rowData || '');
-    });
-    return () => {
-      props.form.unsubscribe(subscription);
-      props.form.unsubscribeError(subscriptionError);
-    };
-  }, []);
-
-  console.log('InputComponent render', props.field.name, value);
+  console.log('InputComponent render', props.field.name, formHelper.value);
 
   return (
     <TextField
       id={props.field.name}
       label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
-      value={value}
-      error={!!error}
-      helperText={error}
+      value={formHelper.value}
+      error={!!formHelper.error}
+      helperText={formHelper.error}
       onChange={handleChange}
       multiline={props.isMultiline}
       fullWidth

@@ -50,11 +50,11 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
   const classes = useStyles();
-  const [data, setData] = useState<any>({});
   const [options, setOptions] = useState<any>([]);
   const [loading, setLoading] = useState(() => {
     return false;
   });
+  const [error, setError] = useState('');
   const timer = useRef<number>(-1);
   const request = useRef<ApiSearchRequest>();
 
@@ -64,6 +64,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const treeParentFieldId = reference.treeParentFieldId || '';
 
   const getValueByData = () => {
+    const data = props.form.getFormData();
     return (data ? data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
   };
   const [value, setValue] = useState<any>(isMultiple ? [] : {});
@@ -72,49 +73,62 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
   const [inputValue, setInputValue] = useState(isMultiple ? '' : getOptionLabel(value));
 
-  useEffect(() => {
-    if (!dependField) return;
-    timer.current = -1;
-    if (!data[dependField]) setInputValue('');
-    else if (data[dependField] != request.current?.filter[dependField]) setInputValue('');
-    // @ts-ignore
-  }, [data[dependField]]);
+  const handleChanges = (values: any) => {
+    var refPath = LibService.instance().getPath(props.field.prefix, props.field.reference.dataField);
+    props.form.handleChanges([
+      { name: refPath, value: values },
+      { name: props.path, value: values instanceof Array ? values?.map((x) => x.id) : values?.id },
+    ]);
+  };
 
   // useEffect(() => {
-  //   //console.log('props.rowData changed', props.rowData);
-  //   if (!props.rowData) {
-  //     setInputValue('');
-  //     timer.current = -1;
-  //     return;
-  //   }
-  //   setValue(getValueByData());
-  //   setInputValue(getOptionLabel(getValueByData()));
-  //   if (isMultiple && props.isFilter) setValueEmpty(props.data ? props.data[props.field.name + 'Empty'] : false);
-  // }, [props.rowData]);
+  //   if (!dependField) return;
+  //   timer.current = -1;
+  //   const data = props.form.getFormData();
+  //   if (!data) return;
+  //   if (!data[dependField]) setInputValue('');
+  //   else if (data[dependField] != request.current?.filter[dependField]) setInputValue('');
+  //   // @ts-ignore
+  // }, [data[dependField]]);
 
-  const path = LibService.instance().getPath(props.field.prefix, props.field.name);
+  // useEffect(() => {
+  //   const data = props.form.getFormData();
+  //   const rowData = props.form.getValue(props.path);
+
+  // }, [getValueByData()]);
 
   useEffect(() => {
-    var subscription = props.formSubject.subscribe((data) => {
-      console.log('formSubject.subscribe reference: ', data);
-      setData(data);
+    var subscription = props.form.subscribe((data) => {
+      const rowData = props.form.getValue(props.path);
+      if (!rowData) {
+        setInputValue('');
+        timer.current = -1;
+        return;
+      }
+
+      if (data && dependField) {
+        if (!data[dependField]) {
+          setInputValue('');
+          return;
+        } else if (data[dependField] != request.current?.filter[dependField]) {
+          setInputValue('');
+          return;
+        }
+      }
+
+      setValue(getValueByData());
+      setInputValue(getOptionLabel(getValueByData()));
+      if (isMultiple && props.isFilter) setValueEmpty(data ? data[props.field.name + 'Empty'] : false);
+    });
+    var subscriptionError = props.form.subscribeError((data) => {
+      const rowData = props.form.getError(props.path);
+      setError(rowData || '');
     });
     return () => {
-      subscription.unsubscribe();
+      props.form.unsubscribe(subscription);
+      props.form.unsubscribeError(subscriptionError);
     };
   }, []);
-
-  useEffect(() => {
-    const rowData = LibService.instance().getValue(data, path);
-    if (!rowData) {
-      setInputValue('');
-      timer.current = -1;
-      return;
-    }
-    setValue(getValueByData());
-    setInputValue(getOptionLabel(getValueByData()));
-    if (isMultiple && props.isFilter) setValueEmpty(data ? data[props.field.name + 'Empty'] : false);
-  }, [getValueByData()]);
 
   const makeRequest = (term: String) => {
     if (timer.current) clearTimeout(timer.current);
@@ -130,7 +144,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       if (props.field.depends) {
         for (let i = 0; i < props.field.depends.length; i++) {
           const depend = props.field.depends[i];
-          req.filter[depend.name] = depend.field ? data[depend.field] : depend.value;
+          req.filter[depend.name] = depend.field ? props.form.getFormData()[depend.field] : depend.value;
         }
       }
       request.current = req;
@@ -146,7 +160,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
   const onChange = (e: any, newValue: any, reason: AutocompleteChangeReason) => {
     setValue(newValue);
-    props.onChange(newValue);
+    handleChanges(newValue);
     if (!isMultiple && reason == 'select-option') {
       setInputValue(getOptionLabel(newValue));
       timer.current = -1;
@@ -155,7 +169,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       const element = props.fields[i];
       var depend = element.depends?.filter((x) => x.field == props.field.name);
       if (depend && depend.length > 0) {
-        props.handleChanges([
+        props.form.handleChanges([
           { name: element.name, value: null },
           { name: element.reference?.dataField, value: null },
         ]);
@@ -182,7 +196,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const handleChangeEmpty = (e: any) => {
     setValueEmpty(e.target.checked);
     const { reference, ...rest } = props.field;
-    props.handleChanges([{ name: props.field.name + 'Empty', value: e.target.checked }]);
+    props.form.handleChanges([{ name: props.field.name + 'Empty', value: e.target.checked }]);
   };
 
   const MyPopper = useCallback(
@@ -197,7 +211,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
             <Button
               color="primary"
               onClick={(e) => {
-                props.onChange(options);
+                handleChanges(options);
               }}
             >
               Add All
@@ -213,8 +227,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     (parentId: any, isChecked: boolean) => {
       var subItems = options.filter((x: any) => x[treeParentFieldId] == parentId);
       var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
-      props.onChange(newValue);
-      //props.handleChanges([{ name: props.field.name, value: newValue }]);
+      handleChanges(newValue);
     },
     [value, options]
   );
@@ -309,7 +322,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         fullWidth
         inputValue={inputValue}
         onInputChange={onInputChange}
-        disabled={(!!dependField && !data[dependField]) || !!valueEmpty}
+        disabled={(!!dependField && !props.form.getFormData()[dependField]) || !!valueEmpty}
         PopperComponent={MyPopper}
         groupBy={groupBy()}
         disableListWrap
@@ -332,7 +345,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
                   </React.Fragment>
                 ),
               }}
-              error={!!props.error}
+              error={!!error}
             />
           );
         }}

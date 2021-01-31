@@ -8,12 +8,22 @@ export class GridComponentProp extends ComponentPropBase {
   /**
    * Field
    */
-  gridField!: PageGridField;  
+  gridField!: PageGridField;
 
   /**
    * Fields
    */
-  gridFields!: PageGridField[];  
+  gridFields!: PageGridField[];
+
+  /**
+   * Data
+   */
+  data!: any;
+
+  /**
+   * Row Data
+   */
+  rowData!: any;
 
   public constructor(init?: Partial<GridComponentProp>) {
     super(init);

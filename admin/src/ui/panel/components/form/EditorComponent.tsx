@@ -4,9 +4,16 @@ import { LibService } from '../../../../business/services/LibService';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { useFormHelper } from '../../../../business/helpers/UseForm';
 
 export function EditorComponent(props: InputComponentProp) {
   const refEditor = useRef<any>();
+  const formHelper = useFormHelper({
+    form: props.form,
+    path: props.path,
+    defaultValue: '',
+  });
+  
   const onReady = (editor: any) => {
     console.log('onReady');
 
@@ -17,18 +24,19 @@ export function EditorComponent(props: InputComponentProp) {
     const data = editor.getData();
   };
   const onBlur = (e: any, editor: any) => {
-    props.onChange(editor.getData());
+    props.form.handleChanges([{ name: props.path, value: editor.getData() }]);
   };
   const onFocus = (e: any, editor: any) => {};
 
   useEffect(() => {
     if (!refEditor.current) {
       setTimeout(() => {
-        refEditor.current && refEditor.current.setData(props.rowData || '');
+        refEditor.current && refEditor.current.setData(formHelper.value || '');
       }, 1000);
     }
-  }, [props.rowData]);
-  if (props.isEdit && props.rowData === undefined) return null;
+  }, [formHelper.value]);
+
+  if (props.isEdit && formHelper.value === undefined) return null;
   // console.log(
   //  'plugins',
   //  ClassicEditor.builtinPlugins.map((plugin: any) => plugin.pluginName)

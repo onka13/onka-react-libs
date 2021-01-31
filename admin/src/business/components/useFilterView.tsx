@@ -5,7 +5,7 @@ import { allInputs } from '../../ui/panel/components/form/index';
 import { LibService } from '../services/LibService';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
-import { HandleChangeType } from '../helpers/UseForm';
+import { HandleChangeType, useForm } from '../helpers/UseForm';
 
 export interface IFilterView {
   pageConfig: PageConfig;
@@ -17,29 +17,22 @@ export interface IFilterView {
 }
 
 export function useFilterView(props: IFilterView) {
-  const refRequest = useRef({ ...props.defaultValues, ...props.values });
-  const getRequest = () => refRequest.current;
-  const setRequest = (val: any) => (refRequest.current = val);
-
   let timer = useRef<ReturnType<typeof setTimeout>>();
+
   function loadDataTimer() {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      props.onLoadData(getRequest());
+      props.onLoadData(form.getFormData());
     }, 1000);
   }
+  
+  const form = useForm({
+    fields: [],
+    initialValues: { ...props.defaultValues, ...props.values },
+    onAfterChanges: loadDataTimer,
+  });
 
-  const handleChanges = (values: HandleChangeType[]) => {
-    var dataCloned = { ...getRequest() };
-    for (let i = 0; i < values.length; i++) {
-      const item = values[i];
-      LibService.instance().setValue(dataCloned, item.name, item.value);
-    }
-    setRequest(dataCloned);
-    loadDataTimer();
-  };
-
-  const onChange = (field: PageField, value: any) => {
+  /*const onChange = (field: PageField, value: any) => {
     var request = getRequest();
     console.log('useFilterView onChange value', value);
     console.log('useFilterView onChange request', request);
@@ -54,16 +47,14 @@ export function useFilterView(props: IFilterView) {
     }
     setRequest(request);
     loadDataTimer();
-  };
+  };*/
 
-  const filterComponents = (fields: PageField[]) => {
-    var request = getRequest();
-    console.log('useFilterView filterComponents', request);
-    return (
+  console.log('useFilterView render', form.getFormData());
+  return (
+    <div>
       <div className="list-search">
         {!props.isHideFilters &&
-          fields.map((field, i) => {
-            var path = LibService.instance().getPath(field.prefix, field.name);
+          props.filterFields.map((field, i) => {
             if (UIManager.instance().isHideDefaultFilters()) {
               if (Object.keys(props.defaultValues).indexOf(field.name) != -1) return null;
             }
@@ -74,23 +65,18 @@ export function useFilterView(props: IFilterView) {
                   new InputComponentProp({
                     key: i,
                     pageConfig: props.pageConfig,
-                    fields: fields,
+                    fields: props.filterFields,
                     field: field,
-                    data: request,
-                    rowData: LibService.instance().getValue(request, path),
-                    onChange: (value: any) => onChange(field, value),
                     className: 'filter-field',
                     isFilter: true,
-                    handleChanges: handleChanges
+                    form: form,
+                    path: LibService.instance().getPath(field.prefix, field.name),
                   })
                 )}
               </div>
             );
           })}
       </div>
-    );
-  };
-
-  console.log('useFilterView render', getRequest());
-  return <div>{filterComponents(props.filterFields)}</div>;
+    </div>
+  );
 }
