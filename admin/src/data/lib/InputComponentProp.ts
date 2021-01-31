@@ -1,4 +1,4 @@
-import { HandleChangeType } from '../../business/helpers/UseForm';
+import { HandleChangeType, UseFormResponse } from '../../business/helpers/UseForm';
 import { ComponentPropBase } from './ComponentPropBase';
 import { PageField } from './PageField';
 import { Option, Parameters } from './Types';
@@ -9,10 +9,6 @@ export class InputComponentProp extends ComponentPropBase {
    * update or create
    */
   isEdit!: boolean;
-
-  onChange!: Function;
-
-  error?: string;
 
   isMultiline?: boolean;
 
@@ -26,11 +22,9 @@ export class InputComponentProp extends ComponentPropBase {
    */
   fields!: PageField[];
 
-  handleChanges!: (values: HandleChangeType[]) => void;
-
   isFilter!: boolean;
 
-  formSubject!: Subject<Parameters>;
+  form!: UseFormResponse;
 
   public constructor(init?: Partial<InputComponentProp>) {
     super(init);

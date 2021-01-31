@@ -24,6 +24,8 @@ export class OptionModel {
 }
 
 export type Parameters = { [x: string]: any };
+export type ParametersFunc = (data: Parameters) => void;
+export type ParametersReturnFunc = () => Parameters;
 
 export class PageFieldDepend
 {

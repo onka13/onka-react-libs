@@ -24,6 +24,8 @@ export class ComponentPropBase {
 
   className?: string;
 
+  path!: string;
+
   public constructor(init?: Partial<ComponentPropBase>) {
     Object.assign(this, init);
   }

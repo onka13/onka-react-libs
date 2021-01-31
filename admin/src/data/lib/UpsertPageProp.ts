@@ -2,7 +2,7 @@ import { PageField } from './PageField';
 import { PageConfig } from './PageConfig';
 import { PagePropBase } from './PagePropBase';
 import { ServiceResult } from '../api/ServiceResult';
-import { Parameters } from './Types';
+import {  ParametersFunc } from './Types';
 import { UpsertPageTemplate } from './UpsertPageViewProp';
 
 export class UpsertPageProp extends PagePropBase {
@@ -10,9 +10,9 @@ export class UpsertPageProp extends PagePropBase {
   fields?: PageField[];
   initialValues?: any;
   loadData?: () => Promise<ServiceResult<any>>;
-  onSubmit?: (data: Parameters) => void;
+  onSubmit?: ParametersFunc;
   isEdit?: boolean;
-  onChange?: (values: Parameters) => void;
+  onChange?: ParametersFunc;
   template?: UpsertPageTemplate;
   
   public constructor(init?: Partial<UpsertPageProp>) {

@@ -1,74 +1,116 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Parameters } from '../../data/lib/Types';
+import { useRef } from 'react';
+import { Parameters, ParametersFunc, ParametersReturnFunc } from '../../data/lib/Types';
 import { PageField } from '../../data/lib/PageField';
 import { useFormValidator } from './UseFormValidator';
 import { LibService } from '../services/LibService';
+import { Subject, Subscription } from 'rxjs';
 
 export interface IUseFormProps {
   fields: PageField[];
   initialValues: any;
-  onSubmit: (data:Parameters) => void;
-  onChange?: (values: Parameters) => void;
+  onSubmit: ParametersFunc;
 }
 
 export type HandleChangeType = { name: string; value: any };
 
 export interface UseFormResponse {
-  formData: Parameters;
-  updateFormData: (data: Parameters) => void;
+  getFormData: ParametersReturnFunc;
+  updateFormData: ParametersFunc;
   handleSubmit: (e: any) => void;
-  errors: Parameters;
+  getErrors: ParametersReturnFunc;
   handleChange: (name: string) => (value: any) => void;
   handleChanges: (values: HandleChangeType[]) => void;
+  subscribe: (func: ParametersFunc) => Subscription;
+  unsubscribe: (subs: Subscription) => void;
+  subscribeError: (func: ParametersFunc) => Subscription;
+  unsubscribeError: (subs: Subscription) => void;
+  getValue: (path: string) => any;
+  getError: (path: string) => any;
 }
 
 export function useForm(props: IUseFormProps): UseFormResponse {
   console.log('useForm', props);
-  const [formData, setFormData] = useState<Parameters>(() => props.initialValues);
-  const [errors, setErrors] = useState<Parameters>({});
+  const refFormData = useRef<Parameters>(props.initialValues);
+  const refErrors = useRef<Parameters>();
+  const formSubject = useRef<Subject<Parameters>>(new Subject<Parameters>());
+  const errorSubject = useRef<Subject<Parameters>>(new Subject<Parameters>());
+
+  const getErrors = () => refErrors.current || {};
+  const setErrors = (data: Parameters) => {
+    refErrors.current = data;
+    errorSubject.current.next(data);
+  };
+  const getFormData = () => refFormData.current;
+  const setFormData = (data: Parameters) => {
+    refFormData.current = data;
+    formSubject.current.next(data);
+  };
+
   const { validate } = useFormValidator({});
 
-  const handleSubmit = useCallback(function(e: any){
-    console.log("handleSubmit", formData);
+  const handleSubmit = (e: any) => {
+    console.log('handleSubmit', getFormData());
     e.preventDefault();
-    var errorList = validate(props.fields, formData);
+    var errorList = validate(props.fields, getFormData());
     if (errorList) {
       setErrors(errorList);
       return;
     }
-    props.onSubmit(formData);
-  }, [formData]);
+    props.onSubmit(getFormData());
+  };
 
-  const updateFormData = useCallback(function(data: Parameters) {
+  const getValue = (path: string) => {
+    return LibService.instance().getValue(getFormData(), path);
+  }
+  
+  const getError = (path: string) => {
+    return LibService.instance().getValue(getErrors(), path);
+  }
+
+  const updateFormData = (data: Parameters) => {
     setFormData(data);
-    props.onChange && props.onChange(data);
-  }, [formData]);
+    formSubject.current.next(data);
+  };
 
-  const handleChanges = useCallback((values: HandleChangeType[]) => {
-    console.log("handleChanges formData", formData);  
-    var dataCloned = { ...formData };
+  const handleChanges = (values: HandleChangeType[]) => {
+    console.log('handleChanges formData', getFormData());
+    var dataCloned = { ...getFormData() };
     for (let i = 0; i < values.length; i++) {
       const item = values[i];
       LibService.instance().setValue(dataCloned, item.name, item.value);
     }
     setFormData(dataCloned);
-    console.log("handleChanges dataCloned", dataCloned);    
-  }, [formData]);
+  };
 
-  const handleChange =  useCallback((name: string) => (value: any) => {
+  const handleChange = (name: string) => (value: any) => {
     handleChanges([{ name, value }]);
-  }, []);
+  };
 
-  useEffect(() => {
-    console.log('useForm effect', formData);
-  }, []);
+  const subscribe = (func: ParametersFunc) => {
+    return formSubject.current.subscribe(func);
+  };
+  const unsubscribe = (subs: Subscription) => {
+    subs.unsubscribe();
+  };
+  const subscribeError = (func: ParametersFunc) => {
+    return errorSubject.current.subscribe(func);
+  };
+  const unsubscribeError = (subs: Subscription) => {
+    subs.unsubscribe();
+  };
 
   return {
-    formData,
+    getFormData,
     updateFormData,
     handleSubmit,
-    errors,
     handleChange,
     handleChanges,
+    getErrors,
+    subscribe,
+    unsubscribe,
+    getValue,
+    getError,
+    subscribeError,
+    unsubscribeError
   };
 }

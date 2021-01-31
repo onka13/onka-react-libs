@@ -1,62 +1,48 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
-import { UIManager } from '../services/UIManager';
 import { allInputs } from '../../ui/panel/components/form';
-import { LibService } from '../services/LibService';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { Parameters } from '../../data/lib/Types';
-import { HandleChangeType, useForm } from '../helpers/UseForm';
 import { LocaleService } from '../services/LocaleService';
 import { UpsertPageViewProp } from '../../data/lib/UpsertPageViewProp';
 import { PageField } from '../../data/lib/PageField';
-import { useFormValidator } from '../helpers/UseFormValidator';
-
-class useUpsertPageViewResponse {
-  UpsertPageView!: JSX.Element;
-  updateFormData!: (data: Parameters) => void;
-  formData!: Parameters;
-}
+import { LibService } from '../services/LibService';
 
 export function UpsertPageView(props: UpsertPageViewProp) {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const onChange = (field: PageField, value: any) => {
-    const path = LibService.instance().getPath(field.prefix, field.name);
-    if (!field.reference) {
-      props.handleChanges([{ name: path, value }]);
-      return;
-    }
-    const refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
-    props.handleChanges([
-      { name: refPath, value },
-      { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
-    ]);
-  };
+  // const onChange = (field: PageField, value: any) => {
+  //   const path = LibService.instance().getPath(field.prefix, field.name);
+  //   if (!field.reference) {
+  //     props.handleChanges([{ name: path, value }]);
+  //     return;
+  //   }
+  //   const refPath = LibService.instance().getPath(field.prefix, field.reference.dataField);
+  //   props.handleChanges([
+  //     { name: refPath, value },
+  //     { name: path, value: value instanceof Array ? value?.map((x) => x.id) : value?.id },
+  //   ]);
+  // };
 
   const FieldComponent = useCallback(
     (fieldCompProps: { fields: PageField[]; field: PageField }) => {
-      const path = LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name);
 
       const inputProps = new InputComponentProp({
         key: fieldCompProps.field.name,
         pageConfig: props.pageConfig,
         fields: fieldCompProps.fields,
         field: fieldCompProps.field,
-        data: props.formData,
-        rowData: LibService.instance().getValue(props.formData, path),
         isEdit: props.isEdit,
-        onChange: (value: any) => onChange(fieldCompProps.field, value),
-        error: LibService.instance().getValue(props.errors, path),
         className: props.isEdit ? 'edit-field' : 'create-field',
-        handleChanges: props.handleChanges,
-        formSubject: props.subject
+        form: props.form,
+        path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name)
       });
 
       if (props.isEdit && fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
       if (!props.isEdit && fieldCompProps.field.createComponent) return <fieldCompProps.field.createComponent {...inputProps} />;
       return <allInputs.InputComponent {...inputProps} />;
     },
-    [props.pageConfig, props.errors]
+    [props.pageConfig]
   );
 
   const renderFields = useCallback(
@@ -93,7 +79,7 @@ export function UpsertPageView(props: UpsertPageViewProp) {
 
   return (
     <div className="upsert-container">
-      <form onSubmit={props.handleSubmit}>
+      <form onSubmit={props.form.handleSubmit}>
         <Card>
           <CardHeader></CardHeader>
           <CardContent>
