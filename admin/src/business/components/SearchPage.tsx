@@ -94,7 +94,7 @@ export function SearchPage(props: ISearchPage) {
     filter: defaultValues,
     pagination: {
       page: UIManager.instance().getPageNumber(),
-      perPage: 20,
+      perPage: 50,
     },
     sort: {
       field: 'id',
@@ -140,7 +140,7 @@ export function SearchPage(props: ISearchPage) {
   function loadDataTimer(fromUrlChangeEvent: boolean = false) {
     if (!fromUrlChangeEvent) {
       var request = getRequest();
-      UIManager.instance().changeQueryParams(history, { page: request.pagination.page, defaultValues: JSON.stringify(request.filter) });
+      UIManager.instance().changeQueryParams(history, { page: request.pagination.page, perPage: request.pagination.perPage, defaultValues: JSON.stringify(request.filter) });
       return;
     }
     if (timer.current) clearTimeout(timer.current);
@@ -498,7 +498,7 @@ export function SearchPage(props: ISearchPage) {
         )}
         {!props.noPaging && status == 'done' && total > 0 && (
           <TablePagination
-            rowsPerPageOptions={[10, 20, 50]}
+            rowsPerPageOptions={[10, 20, 50, 100]}
             component="div"
             count={total}
             rowsPerPage={getRequest().pagination.perPage}
