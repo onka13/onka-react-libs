@@ -58,6 +58,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const [error, setError] = useState('');
   const timer = useRef<number>(-1);
   const request = useRef<ApiSearchRequest>();
+  const refDepend = useRef<any>();
   const [valueEmpty, setValueEmpty] = useState(false);
 
   const dependField = (props.field.depends?.length > 0 ? props.field.depends.map((x) => x.field)[0] : null) || null;
@@ -84,33 +85,27 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
 
   useEffect(() => {
-    var subscription = props.form.subscribe((data) => {      
+    var subscription = props.form.subscribe((data) => {
       const rowData = props.form.getValue(props.path);
-      console.log('Reference observer', props.field.name, rowData);
       setDisabled((!!dependField && !props.form.getFormData()[dependField]) || !!valueEmpty);
       if (!rowData) {
-        console.log('Reference observer1', props.field.name);
         setInputValue('');
         timer.current = -1;
         return;
       }
 
-      console.log('Reference observer4', props.field.name);
       setValue(getValueByData());
       if (isMultiple && props.isFilter) setValueEmpty(data ? data[props.field.name + 'Empty'] : false);
 
-      if (data && dependField) {         
-        if (!data[dependField]) {
-          console.log('Reference observer2', props.field.name);
-          setInputValue('');
-          return;
-        } else if (data[dependField] != request.current?.filter[dependField]) {
-          console.log('Reference observer3', props.field.name);
+      if (data && dependField) {
+        var dependIsChanged = data[dependField] != refDepend.current;
+        refDepend.current = data[dependField];
+        if (!data[dependField] || dependIsChanged) {
           setInputValue('');
           return;
         }
       }
-      
+
       setInputValue(getOptionLabel(getValueByData()));
     });
     var subscriptionError = props.form.subscribeError((data) => {
@@ -185,7 +180,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       setInputValue(value);
     }
   };
-  
+
   const handleChangeEmpty = (e: any) => {
     setValueEmpty(e.target.checked);
     const { reference, ...rest } = props.field;
@@ -204,7 +199,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
             <Button
               color="primary"
               onClick={(e) => {
-                handleChanges(options);
+                addAllItems();
               }}
             >
               Add All
@@ -217,18 +212,39 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     [options]
   );
   const addAllSubItems = useCallback(
-    (parentId: any, isChecked: boolean) => {
-      var subItems = options.filter((x: any) => x[treeParentFieldId] == parentId);
+    (item: any, isChecked: boolean) => {
+      var subItems = options.filter((x: any) => x[treeParentFieldId] == item[treeParentFieldId] || (reference.parentIsAddable && x.id == item[treeParentFieldId]));
       var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
       handleChanges(newValue);
     },
     [value, options]
   );
+  const addAllItems = useCallback(() => {
+    if (reference.parentIsAddable) {
+      handleChanges(options);
+      return;
+    }
+    const allItems = options.filter((option: any) => {
+      if (option[treeParentFieldId]) return true;
+      var hasSubItems = options.some((x: any) => x[treeParentFieldId] == option.id);
+      if (hasSubItems) return false;
+      return true;
+    });
+    handleChanges(allItems);
+  }, [options]);
   const renderGroup = useCallback(
     function (params: AutocompleteRenderGroupParams) {
-      //console.log('renderGroup', params.group, params.children);
+      //console.log('renderGroup', params.key, params.group, params.children);
       if (!params.group) return null;
       const item = options[parseInt(params.key)];
+      if (params.group == 'no-parent') {
+        return (
+          <List key={item.id} style={{ padding: 0, width: '100%' }}>
+            {params.children}
+          </List>
+        );
+      }
+
       const children = params.children instanceof Array && params.children ? params.children : [];
       var isSelected = children.length > 0;
       for (let i = 0; i < children.length; i++) {
@@ -241,7 +257,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       }
       return (
         <Accordion
-          key={params.key}
+          key={item.id + params.key}
           defaultExpanded={true}
           classes={{
             expanded: classes.accordionExpanded,
@@ -259,12 +275,12 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
               onClick={(e: any) => {
                 e.stopPropagation();
                 if (typeof e.target.checked != 'boolean') return;
-                addAllSubItems(item[treeParentFieldId], e.target.checked);
+                addAllSubItems(item, e.target.checked);
               }}
               onFocus={(event) => event.stopPropagation()}
               checked={isSelected}
             />
-            {lodash.get(item, reference.treeParentFieldName || 'name')}
+            <div style={{ marginTop: 9 }}>{lodash.get(item, reference.treeParentFieldName || 'name')}</div>
           </AccordionSummary>
           <AccordionDetails style={{ padding: 0 }}>
             <List style={{ padding: 0, width: '100%' }}>{params.children}</List>
@@ -283,8 +299,12 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const groupBy = () => {
     if (!treeParentFieldId) return;
     return (option: any) => {
-      return option[treeParentFieldId];
-      //return option[treeParentFieldId] ? option[treeParentFieldId] : 'no-parent';
+      //return option[treeParentFieldId];
+      if (option[treeParentFieldId]) return option[treeParentFieldId];
+      if (!reference.displayParentWithNoChild) return undefined;
+      var hasSubItems = options.some((x: any) => x[treeParentFieldId] == option.id);
+      if (hasSubItems) return undefined;
+      return 'no-parent';
     };
   };
 

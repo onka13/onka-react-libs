@@ -19,6 +19,9 @@ export class PageReference {
   treeParentFieldId?: string;
   treeParentFieldName?: string;
 
+  displayParentWithNoChild?: boolean;
+  parentIsAddable?: boolean;
+
   public constructor(init?: Partial<PageReference>) {
     Object.assign(this, init);
   }

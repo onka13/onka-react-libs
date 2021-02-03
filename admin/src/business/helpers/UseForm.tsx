@@ -69,6 +69,7 @@ export function useForm(props: IUseFormProps): UseFormResponse {
   };
 
   const updateFormData = (data: Parameters) => {
+    if (!data) data = {};
     setFormData(data);
     formSubject.current.next(data);
   };
@@ -100,6 +101,10 @@ export function useForm(props: IUseFormProps): UseFormResponse {
   const unsubscribeError = (subs: Subscription) => {
     subs.unsubscribe();
   };
+
+  useEffect(() => {
+    if (props.initialValues) updateFormData(props.initialValues);
+  }, []);
 
   return {
     getFormData,
