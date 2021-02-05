@@ -187,4 +187,10 @@ export class UIManager {
   getPageNumber(): number {
     return this.getQueryParam('page') || 1;
   }
+  getSort(): string {
+    return this.getQueryParam('sort') || 'id';
+  }
+  getSortOrder(): string {
+    return this.getQueryParam('sortOrder') || 'ASC';
+  }
 }

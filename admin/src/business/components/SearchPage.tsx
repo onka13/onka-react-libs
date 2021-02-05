@@ -97,8 +97,8 @@ export function SearchPage(props: ISearchPage) {
       perPage: 50,
     },
     sort: {
-      field: 'id',
-      order: 'ASC',
+      field: UIManager.instance().getSort(),
+      order: UIManager.instance().getSortOrder(),
     },
   });
   // const [request, setRequest] = useState<ApiSearchRequest>({
@@ -126,6 +126,8 @@ export function SearchPage(props: ISearchPage) {
     var request = getRequest();
     request.filter = UIManager.instance().getDefaultValues();
     request.pagination.page = UIManager.instance().getPageNumber();
+    request.sort.field = UIManager.instance().getSort();
+    request.sort.order = UIManager.instance().getSortOrder();
     //console.log('SearchPage URL Changed filter', request.filter);
     //console.log('SearchPage URL Changed page', request.pagination.page);
     setRequest(request);
@@ -140,7 +142,13 @@ export function SearchPage(props: ISearchPage) {
   function loadDataTimer(fromUrlChangeEvent: boolean = false) {
     if (!fromUrlChangeEvent) {
       var request = getRequest();
-      UIManager.instance().changeQueryParams(history, { page: request.pagination.page, perPage: request.pagination.perPage, defaultValues: JSON.stringify(request.filter) });
+      UIManager.instance().changeQueryParams(history, {
+        page: request.pagination.page,
+        perPage: request.pagination.perPage,
+        sort: request.sort.field,
+        sortOrder: request.sort.order,
+        defaultValues: JSON.stringify(request.filter),
+      });
       return;
     }
     if (timer.current) clearTimeout(timer.current);
