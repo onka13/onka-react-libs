@@ -53,6 +53,8 @@ interface ISearchPage {
   noPaging?: boolean;
   initialData?: any;
   disableOnload?: boolean;
+  defaultSort?: string;
+  defaultSortOrder?: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -97,8 +99,8 @@ export function SearchPage(props: ISearchPage) {
       perPage: 50,
     },
     sort: {
-      field: UIManager.instance().getSort(),
-      order: UIManager.instance().getSortOrder(),
+      field: UIManager.instance().getSort(props.defaultSort),
+      order: UIManager.instance().getSortOrder(props.defaultSortOrder),
     },
   });
   // const [request, setRequest] = useState<ApiSearchRequest>({
@@ -126,8 +128,8 @@ export function SearchPage(props: ISearchPage) {
     var request = getRequest();
     request.filter = UIManager.instance().getDefaultValues();
     request.pagination.page = UIManager.instance().getPageNumber();
-    request.sort.field = UIManager.instance().getSort();
-    request.sort.order = UIManager.instance().getSortOrder();
+    request.sort.field = UIManager.instance().getSort(props.defaultSort);
+    request.sort.order = UIManager.instance().getSortOrder(props.defaultSortOrder);
     //console.log('SearchPage URL Changed filter', request.filter);
     //console.log('SearchPage URL Changed page', request.pagination.page);
     setRequest(request);
