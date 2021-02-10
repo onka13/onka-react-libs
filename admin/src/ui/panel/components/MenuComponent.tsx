@@ -40,6 +40,7 @@ export function MenuComponent(props: IMenuProp) {
     var clonedMenus = props.menus.filter((x) => true);
     // init menus with permission
     clonedMenus.forEach((menuItem) => {
+      menuItem.routes = [];
       props.routes.forEach((routes) => {
         routes.forEach((route) => {
           if (route.config.hideMenu) return;
