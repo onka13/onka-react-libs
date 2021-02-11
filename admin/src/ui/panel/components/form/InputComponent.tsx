@@ -35,7 +35,7 @@ export function InputComponent(props: InputComponentProp) {
       multiline={props.isMultiline}
       fullWidth
       InputProps={{
-        readOnly: props.field.isReadOnly,
+        readOnly: props.isEdit ? props.field.isReadOnlyEdit : props.field.isReadOnlyCreate,
       }}
     />
   );

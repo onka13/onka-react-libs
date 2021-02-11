@@ -60,6 +60,8 @@ export class PageField extends PageFieldBase {
    * Is ReadOnly
    */
   isReadOnly!: boolean;
+  isReadOnlyEdit!: boolean;
+  isReadOnlyCreate!: boolean;
 
   depends!: PageFieldDepend[];
 
