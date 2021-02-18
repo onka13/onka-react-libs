@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Parameters, ParametersFunc, ParametersReturnFunc } from '../../data/lib/Types';
+import { ParametersArray, Parameters, ParametersFunc, ParametersT } from '../../data/lib/Types';
 import { PageField } from '../../data/lib/PageField';
 import { useFormValidator } from './UseFormValidator';
 import { LibService } from '../services/LibService';
 import { Subject, Subscription } from 'rxjs';
 
 export interface IUseFormProps {
+  formKey: string;
   fields: PageField[];
   initialValues: any;
   onSubmit?: ParametersFunc;
@@ -15,98 +16,104 @@ export interface IUseFormProps {
 export type HandleChangeType = { name: string; value: any };
 
 export interface UseFormResponse {
-  getFormData: ParametersReturnFunc;
-  updateFormData: ParametersFunc;
-  handleSubmit: (e: any) => void;
-  getErrors: ParametersReturnFunc;
-  handleChange: (name: string) => (value: any) => void;
-  handleChanges: (values: HandleChangeType[]) => void;
-  subscribe: (func: ParametersFunc) => Subscription;
+  getFormData: (formKey: string) => Parameters;
+  updateFormData: (formKey: string, data: Parameters) => void;
+  handleSubmit: (formKey: string, e: any) => void;
+  getErrors: (formKey: string) => Parameters;
+  handleChange: (formKey: string, name: string) => (value: any) => void;
+  handleChanges: (formKey: string, values: HandleChangeType[]) => void;
+  subscribe: (formKey: string, func: ParametersFunc) => Subscription;
   unsubscribe: (subs: Subscription) => void;
-  subscribeError: (func: ParametersFunc) => Subscription;
+  subscribeError: (formKey: string, func: ParametersFunc) => Subscription;
   unsubscribeError: (subs: Subscription) => void;
-  getValue: (path: string) => any;
-  getError: (path: string) => any;
+  getValue: (formKey: string, path: string) => any;
+  getError: (formKey: string, path: string) => any;
+  initForm: (props: IUseFormProps) => void;
 }
 
-export function useForm(props: IUseFormProps): UseFormResponse {
-  console.log('useForm', props);
-  const refFormData = useRef<Parameters>(props.initialValues);
-  const refErrors = useRef<Parameters>();
-  const formSubject = useRef<Subject<Parameters>>(new Subject<Parameters>());
-  const errorSubject = useRef<Subject<Parameters>>(new Subject<Parameters>());
+export function useForm(): UseFormResponse {
+  const refProps = useRef<ParametersArray>({});
+  const refFormData = useRef<ParametersArray>({});
+  const refErrors = useRef<ParametersArray>({});
+  const formSubject = useRef<ParametersT<Subject<Parameters>>>({});
+  const errorSubject = useRef<ParametersT<Subject<Parameters>>>({});
 
-  const getErrors = () => refErrors.current || {};
-  const setErrors = (data: Parameters) => {
-    refErrors.current = data;
-    errorSubject.current.next(data);
+  const initForm = (props: IUseFormProps) => {
+    if (refFormData.current[props.formKey]) return;
+    refProps.current[props.formKey] = props;
+    refFormData.current[props.formKey] = props.initialValues;
+    errorSubject.current[props.formKey] = new Subject<Parameters>();
+    if (props.initialValues) updateFormData(props.formKey, props.initialValues);
   };
-  const getFormData = () => refFormData.current;
-  const setFormData = (data: Parameters) => {
-    refFormData.current = data;
-    formSubject.current.next(data);
+
+  const getErrors = (formKey: string) => refErrors.current[formKey] || {};
+  const setErrors = (formKey: string, data: Parameters) => {
+    refErrors.current[formKey] = data;
+    errorSubject.current[formKey].next(data);
+  };
+  const getFormData = (formKey: string) => refFormData.current[formKey];
+  const setFormData = (formKey: string, data: Parameters) => {
+    refFormData.current[formKey] = data;
+    formSubject.current[formKey].next(data);
   };
 
   const { validate } = useFormValidator({});
 
-  const handleSubmit = (e: any) => {
-    console.log('handleSubmit', getFormData());
+  const handleSubmit = (formKey: string, e: any) => {
     e.preventDefault();
-    var errorList = validate(props.fields, getFormData());
+    var errorList = validate(refProps.current[formKey].fields, getFormData(formKey));
     if (errorList) {
-      setErrors(errorList);
+      setErrors(formKey, errorList);
       return;
     }
-    props.onSubmit && props.onSubmit(getFormData());
+    refProps.current[formKey].onSubmit && refProps.current[formKey].onSubmit(getFormData(formKey));
   };
 
-  const getValue = (path: string) => {
-    return LibService.instance().getValue(getFormData(), path);
+  const getValue = (formKey: string, path: string) => {
+    return LibService.instance().getValue(getFormData(formKey), path);
   };
 
-  const getError = (path: string) => {
-    return LibService.instance().getValue(getErrors(), path);
+  const getError = (formKey: string, path: string) => {
+    return LibService.instance().getValue(getErrors(formKey), path);
   };
 
-  const updateFormData = (data: Parameters) => {
+  const updateFormData = (formKey: string, data: Parameters) => {
     if (!data) data = {};
-    setFormData(data);
-    formSubject.current.next(data);
+    setFormData(formKey, data);
+    formSubject.current[formKey].next(data);
   };
 
-  const handleChanges = (values: HandleChangeType[]) => {
-    console.log('handleChanges formData', getFormData());
-    var dataCloned = { ...getFormData() };
+  const handleChanges = (formKey: string, values: HandleChangeType[]) => {
+    var dataCloned = { ...getFormData(formKey) };
     for (let i = 0; i < values.length; i++) {
       const item = values[i];
       LibService.instance().setValue(dataCloned, item.name, item.value);
     }
-    setFormData(dataCloned);
-    props.onAfterChanges && props.onAfterChanges();
+    setFormData(formKey, dataCloned);
+    refProps.current[formKey].onAfterChanges && refProps.current[formKey].onAfterChanges();
   };
 
-  const handleChange = (name: string) => (value: any) => {
-    handleChanges([{ name, value }]);
+  const handleChange = (formKey: string, name: string) => (value: any) => {
+    handleChanges(formKey, [{ name, value }]);
   };
 
-  const subscribe = (func: ParametersFunc) => {
-    return formSubject.current.subscribe(func);
+  const subscribe = (formKey: string, func: ParametersFunc) => {
+    return formSubject.current[formKey].subscribe(func);
   };
   const unsubscribe = (subs: Subscription) => {
     subs.unsubscribe();
   };
-  const subscribeError = (func: ParametersFunc) => {
-    return errorSubject.current.subscribe(func);
+  const subscribeError = (formKey: string, func: ParametersFunc) => {
+    return errorSubject.current[formKey].subscribe(func);
   };
   const unsubscribeError = (subs: Subscription) => {
     subs.unsubscribe();
   };
 
-  useEffect(() => {
-    if (props.initialValues) updateFormData(props.initialValues);
-  }, []);
+  useEffect(() => {}, []);
 
   return {
+    initForm,
     getFormData,
     updateFormData,
     handleSubmit,
@@ -123,6 +130,7 @@ export function useForm(props: IUseFormProps): UseFormResponse {
 }
 
 export interface IUseFormHelperProps {
+  formKey: string,
   form: UseFormResponse;
   path: string;
   defaultValue: any;
@@ -140,13 +148,13 @@ export function useFormHelper(props: IUseFormHelperProps): UseFormHelperResponse
   const [error, setError] = useState('');
 
   useEffect(() => {
-    var subscription = props.form.subscribe((data) => {
-      const rowData = props.form.getValue(props.path);
+    var subscription = props.form.subscribe(props.formKey, (data) => {
+      const rowData = props.form.getValue(props.formKey, props.path);
       if (props.preSetValue) setValue(props.preSetValue(rowData, props.defaultValue));
       else setValue(rowData || props.defaultValue);
     });
-    var subscriptionError = props.form.subscribeError((data) => {
-      const errorData = props.form.getError(props.path);
+    var subscriptionError = props.form.subscribeError(props.formKey, (data) => {
+      const errorData = props.form.getError(props.formKey, props.path);
       setError(errorData || '');
     });
     return () => {

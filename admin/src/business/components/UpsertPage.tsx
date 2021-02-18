@@ -9,6 +9,7 @@ import { UpsertPageProp } from '../../data/lib/UpsertPageProp';
 import { useForm } from '../helpers/UseForm';
 import { UpsertPageView } from './useUpsertPageView';
 import { UpsertPageViewProp } from '../../data/lib/UpsertPageViewProp';
+import { stringify } from 'querystring';
 
 export function UpsertPage(props: UpsertPageProp) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
@@ -16,18 +17,19 @@ export function UpsertPage(props: UpsertPageProp) {
   const { id } = useParams<{ id: any }>();
   const isEdit = !!id || !!props.isEdit;
   const [, setStatus] = useState<PageStatus>('none');
+  const formKey = props.pageConfig.route;
 
   const onSubmit = async function () {
     if (props.onSubmit) {
-      props.onSubmit(form.getFormData());
+      props.onSubmit(form.getFormData(formKey));
       return;
     }
     UIManager.instance().displayLoading(true);
-    var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, form.getFormData());
+    var record = await new ApiBusinessLogic().upsert(isEdit, pageConfig.route, form.getFormData(formKey));
     UIManager.instance().displayLoading(false);
     var redirect = UIManager.instance().getRedirect() || 'edit';
     if (isEdit && redirect == 'edit' && record.value?.id) {
-      form.updateFormData({ ...form.getFormData(), ...record.value });
+      form.updateFormData(formKey, { ...form.getFormData(formKey), ...record.value });
       return;
     }
     UIManager.instance().gotoPage(history, redirect, pageConfig, {
@@ -36,17 +38,19 @@ export function UpsertPage(props: UpsertPageProp) {
     });
   };
 
-  const form = useForm({
+  const form = useForm();
+  form.initForm({
+    formKey: formKey,
     fields: (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [],
     initialValues: props.initialValues,
     onSubmit: onSubmit,
-  });
+  })
 
   const loadData = function () {
     setStatus('loading');
     (props.loadData ? props.loadData() : new ApiBusinessLogic().get(pageConfig.route, id))
       .then((response) => {        
-        form.updateFormData(response.value);
+        form.updateFormData(formKey, response.value);
         setStatus('done');
       })
       .catch((reason) => {
@@ -70,6 +74,7 @@ export function UpsertPage(props: UpsertPageProp) {
   //if (status == 'loading') return UIManager.instance().renderLoading();
 
   const viewProps: UpsertPageViewProp = {
+    formKey,
     pageConfig: pageConfig,
     columnCount: props.columnCount,
     fields: props.fields,

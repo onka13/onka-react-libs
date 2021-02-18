@@ -6,6 +6,7 @@ import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function InputComponent(props: InputComponentProp) {
   const formHelper = useFormHelper({
+    formKey: props.formKey, 
     form: props.form,
     path: props.path,
     defaultValue: '',
@@ -14,7 +15,7 @@ export function InputComponent(props: InputComponentProp) {
   function loadDataTimer(value: string) {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      props.form.handleChanges([{ name: props.path, value: value }]);
+      props.form.handleChanges(props.formKey, [{ name: props.path, value: value }]);
     }, 200);
   }
   const handleChange = (e: any) => {

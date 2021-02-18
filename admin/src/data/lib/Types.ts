@@ -24,6 +24,8 @@ export class OptionModel {
 }
 
 export type Parameters = { [x: string]: any };
+export type ParametersArray = { [x: string]: Parameters };
+export type ParametersT<T> = { [x: string]: T };
 export type ParametersFunc = (data: Parameters) => void;
 export type ParametersReturnFunc = () => Parameters;
 

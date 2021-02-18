@@ -16,6 +16,8 @@ export class ComponentPropBase {
 
   path!: string;
 
+  formKey!: string;
+
   public constructor(init?: Partial<ComponentPropBase>) {
     Object.assign(this, init);
   }

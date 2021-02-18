@@ -2,7 +2,7 @@ import { PageField } from './PageField';
 import { PageConfig } from './PageConfig';
 import { PagePropBase } from './PagePropBase';
 import { ServiceResult } from '../api/ServiceResult';
-import {  ParametersFunc } from './Types';
+import { ParametersFunc } from './Types';
 import { UpsertPageTemplate } from './UpsertPageViewProp';
 
 export class UpsertPageProp extends PagePropBase {
@@ -14,7 +14,7 @@ export class UpsertPageProp extends PagePropBase {
   isEdit?: boolean;
   onChange?: ParametersFunc;
   template?: UpsertPageTemplate;
-  
+
   public constructor(init?: Partial<UpsertPageProp>) {
     super(init);
     Object.assign(this, init);

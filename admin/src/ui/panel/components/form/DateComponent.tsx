@@ -6,9 +6,10 @@ import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 
 export function DateComponent(props: InputComponentProp) {
   const handleChange = (e: any) => {
-    props.form.handleChanges([{ name: props.path, value: e.target.value }]);
+    props.form.handleChanges(props.formKey, [{ name: props.path, value: e.target.value }]);
   };
   const formHelper = useFormHelper({
+    formKey: props.formKey, 
     form: props.form,
     path: props.path,
     defaultValue: '',

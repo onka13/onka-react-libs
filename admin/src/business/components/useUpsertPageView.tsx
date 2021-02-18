@@ -79,7 +79,7 @@ export function UpsertPageView(props: UpsertPageViewProp) {
 
   return (
     <div className="upsert-container">
-      <form onSubmit={props.form.handleSubmit}>
+      <form onSubmit={e => props.form.handleSubmit(props.formKey, e)}>
         <Card>
           <CardHeader></CardHeader>
           <CardContent>

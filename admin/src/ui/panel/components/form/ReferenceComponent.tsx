@@ -67,7 +67,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const treeParentFieldId = reference.treeParentFieldId || '';
 
   const getValueByData = () => {
-    const data = props.form.getFormData();
+    const data = props.form.getFormData(props.formKey);
     return (data ? data[props.field.reference.dataField] : null) || (isMultiple ? [] : {});
   };
   const [value, setValue] = useState<any>(isMultiple ? [] : {});
@@ -78,16 +78,16 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
 
   const handleChanges = (values: any) => {
     var refPath = LibService.instance().getPath(props.field.prefix, props.field.reference.dataField);
-    props.form.handleChanges([
+    props.form.handleChanges(props.formKey, [
       { name: refPath, value: values },
       { name: props.path, value: values instanceof Array ? values?.map((x) => x.id) : values?.id },
     ]);
   };
 
   useEffect(() => {
-    var subscription = props.form.subscribe((data) => {
-      const rowData = props.form.getValue(props.path);
-      setDisabled((!!dependField && !props.form.getFormData()[dependField]) || !!valueEmpty);
+    var subscription = props.form.subscribe(props.formKey, (data) => {
+      const rowData = props.form.getValue(props.formKey, props.path);
+      setDisabled((!!dependField && !props.form.getFormData(props.formKey)[dependField]) || !!valueEmpty);
       if (!rowData) {
         setInputValue('');
         timer.current = -1;
@@ -108,8 +108,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
 
       setInputValue(getOptionLabel(getValueByData()));
     });
-    var subscriptionError = props.form.subscribeError((data) => {
-      const rowData = props.form.getError(props.path);
+    var subscriptionError = props.form.subscribeError(props.formKey, (data) => {
+      const rowData = props.form.getError(props.formKey, props.path);
       setError(rowData || '');
     });
     return () => {
@@ -132,7 +132,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       if (props.field.depends) {
         for (let i = 0; i < props.field.depends.length; i++) {
           const depend = props.field.depends[i];
-          req.filter[depend.name] = depend.field ? props.form.getFormData()[depend.field] : depend.value;
+          req.filter[depend.name] = depend.field ? props.form.getFormData(props.formKey)[depend.field] : depend.value;
         }
       }
       request.current = req;
@@ -157,7 +157,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       const element = props.fields[i];
       var depend = element.depends?.filter((x) => x.field == props.field.name);
       if (depend && depend.length > 0) {
-        props.form.handleChanges([
+        props.form.handleChanges(props.formKey, [
           { name: element.name, value: null },
           { name: element.reference?.dataField, value: null },
         ]);
@@ -184,7 +184,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const handleChangeEmpty = (e: any) => {
     setValueEmpty(e.target.checked);
     const { reference, ...rest } = props.field;
-    props.form.handleChanges([{ name: props.field.name + 'Empty', value: e.target.checked }]);
+    props.form.handleChanges(props.formKey, [{ name: props.field.name + 'Empty', value: e.target.checked }]);
   };
 
   const MyPopper = useCallback(

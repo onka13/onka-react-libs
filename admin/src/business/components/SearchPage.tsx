@@ -39,13 +39,14 @@ import { PageGridField } from '../../data/lib/PageGridFields';
 import { TablePaginationActions } from './TablePaginationActions';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
-import { HandleChangeType } from '../helpers/UseForm';
+import { HandleChangeType, useForm } from '../helpers/UseForm';
 import { useFilterView } from './useFilterView';
 
 interface ISearchPage {
   pageConfig: PageConfig;
   gridFields: PageGridField[];
   filterFields: PageField[];
+  fields: PageField[];
   rowActions?: (props: GridRowExtraActionProp) => JSX.Element;
   bulkActions?: (props: GridBulkActionProp) => JSX.Element;
   hideActions?: boolean;
@@ -322,6 +323,207 @@ export function SearchPage(props: ISearchPage) {
     isHideFilters: isHideFilters,
   });
 
+  const renderSearchBody = () => {
+    return (
+      <TableBody>
+        {data.map((item: any, i: number) => {
+          var isItemSelected = isSelected(data[i]);
+          return (
+            <TableRow
+              hover
+              //onClick={(event) => handleClick(event, row.name)}
+              //role="checkbox"
+              aria-checked={isItemSelected}
+              tabIndex={-1}
+              key={item.id}
+              selected={isItemSelected}
+            >
+              {isSelectField && (
+                <TableCell>
+                  <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
+                    {LocaleService.instance().translate('lib.action.select')}
+                  </Button>
+                </TableCell>
+              )}
+              {props.bulkActions && (
+                <TableCell padding="checkbox">
+                  <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
+                </TableCell>
+              )}
+              {gridFields.map((gridField, j) => {
+                return (
+                  <TableCell key={j}>
+                    {React.createElement(
+                      gridField.gridComponent || allInputs.GridFieldComponent,
+                      new GridComponentProp({
+                        key: j,
+                        pageConfig,
+                        gridFields,
+                        gridField,
+                        data,
+                        rowData: data[i],
+                      })
+                    )}
+                  </TableCell>
+                );
+              })}
+              <TableCell align="right">
+                {!isHideActions && (
+                  <div>
+                    {props.rowActions &&
+                      props.rowActions(
+                        new GridRowExtraActionProp({
+                          key: i,
+                          pageConfig,
+                          gridFields,
+                          data,
+                          rowData: data[i],
+                        })
+                      )}
+                    {pageConfig.delete && (
+                      <Button
+                        size="small"
+                        variant="text"
+                        color="secondary"
+                        startIcon={<DeleteIcon />}
+                        onClick={(e: any) => {
+                          e.preventDefault();
+                          deleteItem(data[i]['id']);
+                        }}
+                      >
+                        {LocaleService.instance().translate('lib.action.delete')}
+                      </Button>
+                    )}
+                    {pageConfig.edit && (
+                      <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                        {LocaleService.instance().translate('lib.action.edit')}
+                      </Button>
+                    )}
+                    {pageConfig.get && (
+                      <Button
+                        component={Link}
+                        to={match.url + '/detail/' + data[i]['id']}
+                        size="small"
+                        variant="text"
+                        color="secondary"
+                        startIcon={<DetailIcon />}
+                      >
+                        {LocaleService.instance().translate('lib.action.show')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    );
+  };
+
+  const form = useForm();
+
+  const onSubmit = async function (formKey: string, e: any) {};
+
+  const FieldComponent = useCallback(
+    (fieldCompProps: { fields: PageField[]; field: PageField }) => {
+      const inputProps = new InputComponentProp({
+        key: fieldCompProps.field.name,
+        pageConfig: props.pageConfig,
+        fields: fieldCompProps.fields,
+        field: fieldCompProps.field,
+        isEdit: true,
+        className: 'inline-edit-field',
+        form: form,
+        path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name),
+      });
+
+      if (fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
+      return <allInputs.InputComponent {...inputProps} />;
+    },
+    [props.pageConfig]
+  );
+
+  const renderInlineEditBody = () => {
+    return (
+      <TableBody>
+        {data.map((item: any, i: number) => {
+          var isItemSelected = isSelected(data[i]);
+          const formKey = item.id;
+          return (
+            <form onSubmit={(e) => onSubmit(formKey, e)}>
+              <TableRow hover aria-checked={isItemSelected} tabIndex={-1} key={item.id} selected={isItemSelected}>
+                {isSelectField && (
+                  <TableCell>
+                    <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
+                      {LocaleService.instance().translate('lib.action.select')}
+                    </Button>
+                  </TableCell>
+                )}
+                {props.bulkActions && (
+                  <TableCell padding="checkbox">
+                    <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
+                  </TableCell>
+                )}
+                {gridFields.map((gridField, j) => {
+                  const field = props.fields?.filter((x) => x.name == gridField.name)[0];
+                  return (
+                    <TableCell key={j}>
+                      <FieldComponent key={gridField.name} fields={props.fields} field={field} />
+
+                      {/* {React.createElement(
+                        gridField.gridComponent || allInputs.GridFieldComponent,
+                        new GridComponentProp({
+                          key: j,
+                          pageConfig,
+                          gridFields,
+                          gridField,
+                          data,
+                          rowData: data[i],
+                        })
+                      )} */}
+                    </TableCell>
+                  );
+                })}
+                <TableCell align="right">
+                  <div>
+                    <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                      {LocaleService.instance().translate('lib.action.save')}
+                    </Button>
+                    {props.rowActions &&
+                      props.rowActions(
+                        new GridRowExtraActionProp({
+                          key: i,
+                          pageConfig,
+                          gridFields,
+                          data,
+                          rowData: data[i],
+                        })
+                      )}
+                    {pageConfig.delete && (
+                      <Button
+                        size="small"
+                        variant="text"
+                        color="secondary"
+                        startIcon={<DeleteIcon />}
+                        onClick={(e: any) => {
+                          e.preventDefault();
+                          deleteItem(data[i]['id']);
+                        }}
+                      >
+                        {LocaleService.instance().translate('lib.action.delete')}
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            </form>
+          );
+        })}
+      </TableBody>
+    );
+  };
+
   console.log('SearchPage render', getRequest());
 
   return (
@@ -378,7 +580,7 @@ export function SearchPage(props: ISearchPage) {
                   {isSelectField && <TableCell></TableCell>}
                   {props.bulkActions && (
                     <TableCell padding="checkbox">
-                      <Checkbox checked={isAllSelected()} onChange={masterToggle()} inputProps={{ 'aria-label': 'select all desserts' }} />
+                      <Checkbox checked={isAllSelected()} onChange={masterToggle()} inputProps={{ 'aria-label': 'select all' }} />
                     </TableCell>
                   )}
                   {gridFields.map((field, index) => {
@@ -403,106 +605,7 @@ export function SearchPage(props: ISearchPage) {
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {data.map((item: any, i: number) => {
-                  var isItemSelected = isSelected(data[i]);
-                  return (
-                    <TableRow
-                      hover
-                      //onClick={(event) => handleClick(event, row.name)}
-                      //role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={item.id}
-                      selected={isItemSelected}
-                    >
-                      {isSelectField && (
-                        <TableCell>
-                          <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
-                            {LocaleService.instance().translate('lib.action.select')}
-                          </Button>
-                        </TableCell>
-                      )}
-                      {props.bulkActions && (
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
-                        </TableCell>
-                      )}
-                      {gridFields.map((gridField, j) => {
-                        return (
-                          <TableCell key={j}>
-                            {React.createElement(
-                              gridField.gridComponent || allInputs.GridFieldComponent,
-                              new GridComponentProp({
-                                key: j,
-                                pageConfig,
-                                gridFields,
-                                gridField,
-                                data,
-                                rowData: data[i],
-                              })
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                      <TableCell align="right">
-                        {!isHideActions && (
-                          <div>
-                            {props.rowActions &&
-                              props.rowActions(
-                                new GridRowExtraActionProp({
-                                  key: i,
-                                  pageConfig,
-                                  gridFields,
-                                  data,
-                                  rowData: data[i],
-                                })
-                              )}
-                            {pageConfig.delete && (
-                              <Button
-                                size="small"
-                                variant="text"
-                                color="secondary"
-                                startIcon={<DeleteIcon />}
-                                onClick={(e: any) => {
-                                  e.preventDefault();
-                                  deleteItem(data[i]['id']);
-                                }}
-                              >
-                                {LocaleService.instance().translate('lib.action.delete')}
-                              </Button>
-                            )}
-                            {pageConfig.edit && (
-                              <Button
-                                component={Link}
-                                to={match.url + '/edit/' + data[i]['id']}
-                                size="small"
-                                variant="text"
-                                color="secondary"
-                                startIcon={<EditIcon />}
-                              >
-                                {LocaleService.instance().translate('lib.action.edit')}
-                              </Button>
-                            )}
-                            {pageConfig.get && (
-                              <Button
-                                component={Link}
-                                to={match.url + '/detail/' + data[i]['id']}
-                                size="small"
-                                variant="text"
-                                color="secondary"
-                                startIcon={<DetailIcon />}
-                              >
-                                {LocaleService.instance().translate('lib.action.show')}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
+              {renderInlineEditBody()}
             </Table>
           </TableContainer>
         )}

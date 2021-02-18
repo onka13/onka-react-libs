@@ -5,7 +5,7 @@ import { allInputs } from '../../ui/panel/components/form/index';
 import { LibService } from '../services/LibService';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
-import { HandleChangeType, useForm } from '../helpers/UseForm';
+import { useForm } from '../helpers/UseForm';
 
 export interface IFilterView {
   pageConfig: PageConfig;
@@ -18,15 +18,18 @@ export interface IFilterView {
 
 export function useFilterView(props: IFilterView) {
   let timer = useRef<ReturnType<typeof setTimeout>>();
+  const formKey = props.pageConfig.route;
 
   function loadDataTimer() {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      props.onLoadData(form.getFormData());
+      props.onLoadData(form.getFormData(formKey));
     }, 1000);
   }
-  
-  const form = useForm({
+
+  const form = useForm();
+  form.initForm({
+    formKey: formKey,
     fields: [],
     initialValues: { ...props.defaultValues, ...props.values },
     onAfterChanges: loadDataTimer,
@@ -49,7 +52,7 @@ export function useFilterView(props: IFilterView) {
     loadDataTimer();
   };*/
 
-  console.log('useFilterView render', form.getFormData());
+  console.log('useFilterView render');
   return (
     <div>
       <div className="list-search">

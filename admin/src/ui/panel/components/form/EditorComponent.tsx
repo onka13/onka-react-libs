@@ -9,6 +9,7 @@ import { useFormHelper } from '../../../../business/helpers/UseForm';
 export function EditorComponent(props: InputComponentProp) {
   const refEditor = useRef<any>();
   const formHelper = useFormHelper({
+    formKey: props.formKey, 
     form: props.form,
     path: props.path,
     defaultValue: '',
@@ -24,7 +25,7 @@ export function EditorComponent(props: InputComponentProp) {
     const data = editor.getData();
   };
   const onBlur = (e: any, editor: any) => {
-    props.form.handleChanges([{ name: props.path, value: editor.getData() }]);
+    props.form.handleChanges(props.formKey, [{ name: props.path, value: editor.getData() }]);
   };
   const onFocus = (e: any, editor: any) => {};
 

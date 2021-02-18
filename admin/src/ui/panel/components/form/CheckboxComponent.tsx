@@ -6,9 +6,10 @@ import { useFormHelper } from '../../../../business/helpers/UseForm';
 
 export function CheckboxComponent(props: InputComponentProp) {
   const handleChange = (e: any) => {
-    props.form.handleChanges([{ name: props.path, value: e.target.checked }]);
+    props.form.handleChanges(props.formKey, [{ name: props.path, value: e.target.checked }]);
   };
   const formHelper = useFormHelper({
+    formKey: props.formKey, 
     form: props.form,
     path: props.path,
     defaultValue: false,
