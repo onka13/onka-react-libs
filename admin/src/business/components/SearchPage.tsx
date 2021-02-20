@@ -605,7 +605,7 @@ export function SearchPage(props: ISearchPage) {
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
-              {renderInlineEditBody()}
+              {renderSearchBody()}
             </Table>
           </TableContainer>
         )}

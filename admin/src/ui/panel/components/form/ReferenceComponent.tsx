@@ -85,8 +85,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
 
   useEffect(() => {
-    var subscription = props.form.subscribe(props.formKey, (data) => {
+    var subscription = props.form.subscribe(props.formKey, (data) => {      
       const rowData = props.form.getValue(props.formKey, props.path);
+      console.log('Reference subscribe', props.field.name, rowData, data);
       setDisabled((!!dependField && !props.form.getFormData(props.formKey)[dependField]) || !!valueEmpty);
       if (!rowData) {
         setInputValue('');
@@ -213,7 +214,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   );
   const addAllSubItems = useCallback(
     (item: any, isChecked: boolean) => {
-      var subItems = options.filter((x: any) => x[treeParentFieldId] == item[treeParentFieldId] || (reference.parentIsAddable && x.id == item[treeParentFieldId]));
+      var subItems = options.filter(
+        (x: any) => x[treeParentFieldId] == item[treeParentFieldId] || (reference.parentIsAddable && x.id == item[treeParentFieldId])
+      );
       var newValue = isChecked ? [...value, ...subItems] : value.filter((x: any) => subItems.filter((y: any) => y.id == x.id).length == 0);
       handleChanges(newValue);
     },

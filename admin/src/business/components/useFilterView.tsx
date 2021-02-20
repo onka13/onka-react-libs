@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { PageConfig } from '../../data/lib/PageConfig';
 import { UIManager } from '../services/UIManager';
 import { allInputs } from '../../ui/panel/components/form/index';
@@ -34,6 +34,10 @@ export function useFilterView(props: IFilterView) {
     initialValues: { ...props.defaultValues, ...props.values },
     onAfterChanges: loadDataTimer,
   });
+
+  useEffect(() => {
+    form.updateFormData(formKey, { ...props.defaultValues, ...props.values });
+  }, []);
 
   /*const onChange = (field: PageField, value: any) => {
     var request = getRequest();
@@ -74,6 +78,7 @@ export function useFilterView(props: IFilterView) {
                     isFilter: true,
                     form: form,
                     path: LibService.instance().getPath(field.prefix, field.name),
+                    formKey: formKey
                   })
                 )}
               </div>

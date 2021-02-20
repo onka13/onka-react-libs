@@ -35,7 +35,8 @@ export function UpsertPageView(props: UpsertPageViewProp) {
         isEdit: props.isEdit,
         className: props.isEdit ? 'edit-field' : 'create-field',
         form: props.form,
-        path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name)
+        path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name),
+        formKey: props.formKey
       });
 
       if (props.isEdit && fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;

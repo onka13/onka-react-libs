@@ -39,9 +39,11 @@ export function useForm(): UseFormResponse {
   const errorSubject = useRef<ParametersT<Subject<Parameters>>>({});
 
   const initForm = (props: IUseFormProps) => {
+    console.log('useForm init', props.formKey, props);
     if (refFormData.current[props.formKey]) return;
     refProps.current[props.formKey] = props;
     refFormData.current[props.formKey] = props.initialValues;
+    formSubject.current[props.formKey] = new Subject<Parameters>();
     errorSubject.current[props.formKey] = new Subject<Parameters>();
     if (props.initialValues) updateFormData(props.formKey, props.initialValues);
   };
