@@ -30,6 +30,7 @@ export interface UseFormResponse {
   getError: (formKey: string, path: string) => any;
   initForm: (props: IUseFormProps) => void;
   initInitialValues: (formKey: string) => void;
+  clear: () => void;
 }
 
 export function useForm(): UseFormResponse {
@@ -47,6 +48,14 @@ export function useForm(): UseFormResponse {
     formSubject.current[props.formKey] = new Subject<Parameters>();
     errorSubject.current[props.formKey] = new Subject<Parameters>();
     if (props.initialValues) updateFormData(props.formKey, props.initialValues);
+  };
+  const clear = () => {
+    console.log('useForm clear');
+    refProps.current = {};
+    refFormData.current = {};
+    refErrors.current = {};
+    formSubject.current = {};
+    errorSubject.current = {};
   };
 
   const initInitialValues = (formKey: string) => {
@@ -135,11 +144,12 @@ export function useForm(): UseFormResponse {
     getError,
     subscribeError,
     unsubscribeError,
+    clear
   };
 }
 
 export interface IUseFormHelperProps {
-  formKey: string,
+  formKey: string;
   form: UseFormResponse;
   path: string;
   defaultValue?: any;

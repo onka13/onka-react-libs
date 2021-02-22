@@ -46,6 +46,11 @@ export class PageConfig {
   edit!: boolean;
 
   /**
+   * Inline Editing
+   */
+  inlineEditing!: boolean;
+
+  /**
    * Is create enabled
    */
   new!: boolean;

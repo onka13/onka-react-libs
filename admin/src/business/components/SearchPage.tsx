@@ -173,6 +173,7 @@ export function SearchPage(props: ISearchPage) {
     new ApiBusinessLogic()
       .search(pageConfig.route, request)
       .then((response) => {
+        form?.clear();
         setTotal(response.total);
         setData(response.value);
         setStatus(response.value.length > 0 ? 'done' : 'no-data');
@@ -423,10 +424,10 @@ export function SearchPage(props: ISearchPage) {
 
   const form = useForm();
 
-  const onSubmit = async function (formKey: string, e: any) {
+  const onSubmitUpdateForm = async function (formKey: string, e: any) {
     e.preventDefault();
     UIManager.instance().displayLoading(true);
-    var record = await new ApiBusinessLogic().upsert(true, pageConfig.route, form.getFormData(formKey));
+    var record = await new ApiBusinessLogic().updateOnly(pageConfig.route, form.getFormData(formKey));
     UIManager.instance().displayLoading(false);
     if (record.value?.id) {
       form.updateFormData(formKey, { ...form.getFormData(formKey), ...record.value });
@@ -481,7 +482,7 @@ export function SearchPage(props: ISearchPage) {
               {gridFields.map((gridField, j) => {
                 const field = props.fields?.filter((x) => x.name == gridField.name)[0];
                 return (
-                  <TableCell key={j}>
+                  <TableCell key={j} className="inline-cell">
                     <FieldComponent key={gridField.name} fields={props.fields} field={field} formKey={formKey} />
 
                     {/* {React.createElement(
@@ -500,7 +501,7 @@ export function SearchPage(props: ISearchPage) {
               })}
               <TableCell align="right">
                 <div>
-                  <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmit(formKey, e)}>
+                  <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmitUpdateForm(formKey, e)}>
                     {LocaleService.instance().translate('lib.action.save')}
                   </Button>
                   {props.rowActions &&
@@ -622,7 +623,7 @@ export function SearchPage(props: ISearchPage) {
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
-              {renderSearchBody()}
+              {props.pageConfig.inlineEditing ? renderInlineEditBody() : renderSearchBody()}
             </Table>
           </TableContainer>
         )}

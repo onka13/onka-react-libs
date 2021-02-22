@@ -85,9 +85,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
 
   useEffect(() => {
-    var subscription = props.form.subscribe(props.formKey, (data) => {      
+    var subscription = props.form.subscribe(props.formKey, (data) => {
       const rowData = props.form.getValue(props.formKey, props.path);
-      console.log('Reference subscribe', props.field.name, rowData, data);
+      //console.log('Reference subscribe', props.field.name, rowData, data);
       setDisabled((!!dependField && !props.form.getFormData(props.formKey)[dependField]) || !!valueEmpty);
       if (!rowData) {
         setInputValue('');
@@ -315,16 +315,10 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     };
   };
 
-  console.log('Reference render', props.field.name, value, options);
+  //console.log('Reference render', props.field.name, value, options);
 
   return (
-    <div
-      style={
-        {
-          /*display: 'inline-flex'*/
-        }
-      }
-    >
+    <div>
       <Autocomplete
         id={props.field.name}
         value={value}

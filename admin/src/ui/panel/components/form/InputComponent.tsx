@@ -22,7 +22,7 @@ export function InputComponent(props: InputComponentProp) {
     loadDataTimer(e.target.value);
   };
 
-  console.log('InputComponent render', props.field.name, formHelper.value);
+  //console.log('InputComponent render', props.field.name, formHelper.value);
 
   return (
     <TextField

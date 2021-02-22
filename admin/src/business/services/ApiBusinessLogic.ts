@@ -57,6 +57,15 @@ export class ApiBusinessLogic {
   update(route: any, data: any): Promise<ServiceResult<any>> {
     return this.business.request<ServiceResult<any>>("POST", `${route}/update`, data);
   }
+  
+  /**
+   * Update entity
+   * @param route route
+   * @param data entity data
+   */
+  updateOnly(route: any, data: any): Promise<ServiceResult<any>> {
+    return this.business.request<ServiceResult<any>>("POST", `${route}/updateOnly`, data);
+  }
 
   /**
    * Update or Create entity

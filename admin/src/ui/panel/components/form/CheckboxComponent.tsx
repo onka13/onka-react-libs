@@ -15,7 +15,7 @@ export function CheckboxComponent(props: InputComponentProp) {
     defaultValue: false,
   });
 
-  console.log('CheckboxComponent render', props.field.name, formHelper.value);
+  //console.log('CheckboxComponent render', props.field.name, formHelper.value);
 
   return (
     <FormControl error={!!formHelper.error}>
