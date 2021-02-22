@@ -29,6 +29,7 @@ export interface UseFormResponse {
   getValue: (formKey: string, path: string) => any;
   getError: (formKey: string, path: string) => any;
   initForm: (props: IUseFormProps) => void;
+  initInitialValues: (formKey: string) => void;
 }
 
 export function useForm(): UseFormResponse {
@@ -46,6 +47,11 @@ export function useForm(): UseFormResponse {
     formSubject.current[props.formKey] = new Subject<Parameters>();
     errorSubject.current[props.formKey] = new Subject<Parameters>();
     if (props.initialValues) updateFormData(props.formKey, props.initialValues);
+  };
+
+  const initInitialValues = (formKey: string) => {
+    var initialValues = refProps.current[formKey]?.initialValues;
+    if (initialValues) updateFormData(formKey, initialValues);
   };
 
   const getErrors = (formKey: string) => refErrors.current[formKey] || {};
@@ -116,6 +122,7 @@ export function useForm(): UseFormResponse {
 
   return {
     initForm,
+    initInitialValues,
     getFormData,
     updateFormData,
     handleSubmit,
@@ -135,7 +142,7 @@ export interface IUseFormHelperProps {
   formKey: string,
   form: UseFormResponse;
   path: string;
-  defaultValue: any;
+  defaultValue?: any;
   preSetValue?: (rowData: any, defaultValue: any) => any;
 }
 
@@ -159,6 +166,7 @@ export function useFormHelper(props: IUseFormHelperProps): UseFormHelperResponse
       const errorData = props.form.getError(props.formKey, props.path);
       setError(errorData || '');
     });
+    props.form.initInitialValues(props.formKey);
     return () => {
       props.form.unsubscribe(subscription);
       props.form.unsubscribeError(subscriptionError);

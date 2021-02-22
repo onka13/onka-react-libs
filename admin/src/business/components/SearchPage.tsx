@@ -423,10 +423,18 @@ export function SearchPage(props: ISearchPage) {
 
   const form = useForm();
 
-  const onSubmit = async function (formKey: string, e: any) {};
+  const onSubmit = async function (formKey: string, e: any) {
+    e.preventDefault();
+    UIManager.instance().displayLoading(true);
+    var record = await new ApiBusinessLogic().upsert(true, pageConfig.route, form.getFormData(formKey));
+    UIManager.instance().displayLoading(false);
+    if (record.value?.id) {
+      form.updateFormData(formKey, { ...form.getFormData(formKey), ...record.value });
+    }
+  };
 
   const FieldComponent = useCallback(
-    (fieldCompProps: { fields: PageField[]; field: PageField }) => {
+    (fieldCompProps: { fields: PageField[]; field: PageField; formKey: string }) => {
       const inputProps = new InputComponentProp({
         key: fieldCompProps.field.name,
         pageConfig: props.pageConfig,
@@ -436,6 +444,7 @@ export function SearchPage(props: ISearchPage) {
         className: 'inline-edit-field',
         form: form,
         path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name),
+        formKey: fieldCompProps.formKey,
       });
 
       if (fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
@@ -450,28 +459,32 @@ export function SearchPage(props: ISearchPage) {
         {data.map((item: any, i: number) => {
           var isItemSelected = isSelected(data[i]);
           const formKey = item.id;
+          form.initForm({
+            formKey: formKey,
+            fields: props.fields,
+            initialValues: { ...item },
+          });
           return (
-            <form onSubmit={(e) => onSubmit(formKey, e)}>
-              <TableRow hover aria-checked={isItemSelected} tabIndex={-1} key={item.id} selected={isItemSelected}>
-                {isSelectField && (
-                  <TableCell>
-                    <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
-                      {LocaleService.instance().translate('lib.action.select')}
-                    </Button>
-                  </TableCell>
-                )}
-                {props.bulkActions && (
-                  <TableCell padding="checkbox">
-                    <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
-                  </TableCell>
-                )}
-                {gridFields.map((gridField, j) => {
-                  const field = props.fields?.filter((x) => x.name == gridField.name)[0];
-                  return (
-                    <TableCell key={j}>
-                      <FieldComponent key={gridField.name} fields={props.fields} field={field} />
+            <TableRow hover aria-checked={isItemSelected} tabIndex={-1} key={item.id} selected={isItemSelected}>
+              {isSelectField && (
+                <TableCell>
+                  <Button variant="contained" color="inherit" size="small" onClick={closeDialog(data[i])}>
+                    {LocaleService.instance().translate('lib.action.select')}
+                  </Button>
+                </TableCell>
+              )}
+              {props.bulkActions && (
+                <TableCell padding="checkbox">
+                  <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
+                </TableCell>
+              )}
+              {gridFields.map((gridField, j) => {
+                const field = props.fields?.filter((x) => x.name == gridField.name)[0];
+                return (
+                  <TableCell key={j}>
+                    <FieldComponent key={gridField.name} fields={props.fields} field={field} formKey={formKey} />
 
-                      {/* {React.createElement(
+                    {/* {React.createElement(
                         gridField.gridComponent || allInputs.GridFieldComponent,
                         new GridComponentProp({
                           key: j,
@@ -482,42 +495,46 @@ export function SearchPage(props: ISearchPage) {
                           rowData: data[i],
                         })
                       )} */}
-                    </TableCell>
-                  );
-                })}
-                <TableCell align="right">
-                  <div>
-                    <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
-                      {LocaleService.instance().translate('lib.action.save')}
-                    </Button>
-                    {props.rowActions &&
-                      props.rowActions(
-                        new GridRowExtraActionProp({
-                          key: i,
-                          pageConfig,
-                          gridFields,
-                          data,
-                          rowData: data[i],
-                        })
-                      )}
-                    {pageConfig.delete && (
-                      <Button
-                        size="small"
-                        variant="text"
-                        color="secondary"
-                        startIcon={<DeleteIcon />}
-                        onClick={(e: any) => {
-                          e.preventDefault();
-                          deleteItem(data[i]['id']);
-                        }}
-                      >
-                        {LocaleService.instance().translate('lib.action.delete')}
-                      </Button>
+                  </TableCell>
+                );
+              })}
+              <TableCell align="right">
+                <div>
+                  <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmit(formKey, e)}>
+                    {LocaleService.instance().translate('lib.action.save')}
+                  </Button>
+                  {props.rowActions &&
+                    props.rowActions(
+                      new GridRowExtraActionProp({
+                        key: i,
+                        pageConfig,
+                        gridFields,
+                        data,
+                        rowData: data[i],
+                      })
                     )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            </form>
+                  {pageConfig.edit && (
+                      <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                        {LocaleService.instance().translate('lib.action.edit')}
+                      </Button>
+                    )}  
+                  {pageConfig.delete && (
+                    <Button
+                      size="small"
+                      variant="text"
+                      color="secondary"
+                      startIcon={<DeleteIcon />}
+                      onClick={(e: any) => {
+                        e.preventDefault();
+                        deleteItem(data[i]['id']);
+                      }}
+                    >
+                      {LocaleService.instance().translate('lib.action.delete')}
+                    </Button>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
           );
         })}
       </TableBody>

@@ -8,8 +8,7 @@ export function InputComponent(props: InputComponentProp) {
   const formHelper = useFormHelper({
     formKey: props.formKey, 
     form: props.form,
-    path: props.path,
-    defaultValue: '',
+    path: props.path
   });
   let timer = useRef<ReturnType<typeof setTimeout>>();
   function loadDataTimer(value: string) {
@@ -29,7 +28,7 @@ export function InputComponent(props: InputComponentProp) {
     <TextField
       id={props.field.name}
       label={LibService.instance().getFieldLabel(props.pageConfig, props.field.name)}
-      value={formHelper.value}
+      value={formHelper.value || ''}
       error={!!formHelper.error}
       helperText={formHelper.error}
       onChange={handleChange}

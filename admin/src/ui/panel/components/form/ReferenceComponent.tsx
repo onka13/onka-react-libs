@@ -113,6 +113,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       const rowData = props.form.getError(props.formKey, props.path);
       setError(rowData || '');
     });
+    props.form.initInitialValues(props.formKey);
     return () => {
       props.form.unsubscribe(subscription);
       props.form.unsubscribeError(subscriptionError);
@@ -210,8 +211,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         </Popper>
       );
     },
-    [options]
+    [value, options]
   );
+
   const addAllSubItems = useCallback(
     (item: any, isChecked: boolean) => {
       var subItems = options.filter(
@@ -222,6 +224,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     },
     [value, options]
   );
+
   const addAllItems = useCallback(() => {
     if (reference.parentIsAddable) {
       handleChanges(options);
@@ -234,7 +237,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       return true;
     });
     handleChanges(allItems);
-  }, [options]);
+  }, [value, options]);
+
   const renderGroup = useCallback(
     function (params: AutocompleteRenderGroupParams) {
       //console.log('renderGroup', params.key, params.group, params.children);
@@ -311,7 +315,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     };
   };
 
-  console.log('Reference render', props.field.name);
+  console.log('Reference render', props.field.name, value, options);
 
   return (
     <div
