@@ -70,6 +70,7 @@ export class RequestHelper {
         baseURL: this.URL,
         data: data,
         timeout: timeout,
+        withCredentials: true
       },
       ...options,
     };

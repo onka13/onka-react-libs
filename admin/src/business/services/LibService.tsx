@@ -140,7 +140,7 @@ export class LibService {
   }
 
   setValue(data: any, path: string, value: any) {
-    console.log('setValue', data, path, value);    
+    //console.log('setValue', data, path, value);    
     return set(data, path, value);
   }
 

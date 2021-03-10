@@ -186,7 +186,7 @@ export function SearchPage(props: ISearchPage) {
 
   function deleteItem(id: any) {
     UIManager.instance().confirm({}, (response) => {
-      if (!response.value) return;
+      if (!response || !response.value) return;
       new ApiBusinessLogic().delete(pageConfig.route, id).then((response) => {
         loadData();
       });

@@ -1,15 +1,15 @@
-import { BaseBusinessLogicService } from "./BaseBusinessLogic";
-import { StaticService } from "./StaticService";
+import { BaseBusinessLogicService } from './BaseBusinessLogic';
+import { StaticService } from './StaticService';
 
 /**
  * Account Business Logic, contains user account related functions
  */
 export class AccountBusinessLogic {
-  
   private business: BaseBusinessLogicService;
   private staticService: StaticService;
 
-  loginUrl = "AdminApi/public/login";
+  loginUrl = 'AdminApi/public/login';
+  logoutUrl = 'AdminApi/AdminUserSecure/logout';
 
   private constructor() {
     this.business = BaseBusinessLogicService.instance();
@@ -36,7 +36,10 @@ export class AccountBusinessLogic {
    */
   logout(): Promise<any> {
     this.staticService.logout();
-    return Promise.resolve();
+
+    return this.business.request<any>('POST', this.logoutUrl, {}).then((result) => {
+      return true;
+    });
   }
 
   /**
@@ -46,12 +49,12 @@ export class AccountBusinessLogic {
    */
   login(email: string, password: string): Promise<Boolean> {
     return this.business
-      .request<any>("POST", this.loginUrl, {
+      .request<any>('POST', this.loginUrl, {
         email,
         password,
       })
       .then((result) => {
-        if (!result.value || !result.value.token) throw Error("API problem. No token!");
+        if (!result.value || !result.value.token) throw Error('API problem. No token!');
         this.staticService.login(email, result.value);
         return true;
       });
