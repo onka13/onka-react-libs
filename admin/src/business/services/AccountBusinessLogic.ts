@@ -35,10 +35,10 @@ export class AccountBusinessLogic {
    * Logout user
    */
   logout(): Promise<any> {
-    this.staticService.logout();
-
     return this.business.request<any>('POST', this.logoutUrl, {}).then((result) => {
       return true;
+    }).finally(()=> {
+      this.staticService.logout();  
     });
   }
 

@@ -13,6 +13,10 @@ const httpOptions = {
   },
 };
 
+export const defaultRequestOptions: AxiosRequestConfig = {
+  withCredentials: true
+};
+
 /**
  * A httpClient helper
  */
@@ -63,15 +67,15 @@ export class RequestHelper {
       options.headers['Content-Type'] = 'multipart/form-data';
       timeout = 0;
     }
-    options = {
+    options = {      
       ...{
         method: method,
         url: endpoint,
         baseURL: this.URL,
         data: data,
         timeout: timeout,
-        withCredentials: true
       },
+      ...defaultRequestOptions,
       ...options,
     };
     console.log('REQUEST', method, endpoint);

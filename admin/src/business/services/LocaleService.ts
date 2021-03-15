@@ -1,6 +1,5 @@
 import * as lodash from 'lodash';
 import * as en from '../../assets/l10n/en.json';
-import * as tr from '../../assets/l10n/tr.json';
 
 import { ConfigService } from './ConfigService';
 import { StaticService } from './StaticService';
@@ -29,7 +28,6 @@ export class LocaleService {
    */
   langList: LanguagelistType = {
     en: () => Promise.resolve(en),
-    tr: () => Promise.resolve(tr),
   };
 
   private constructor() {
@@ -55,10 +53,12 @@ export class LocaleService {
    */
   changeLang(lang: string | any): Promise<any> {
     if (!lang) lang = 'en';
-    //console.log('LocaleService changeLang', lang);
+    console.log('LocaleService changeLang', lang);
     StaticService.instance().setCurrentLang(lang);
+    if(!this.langList[lang]) lang = 'en';
     const part1 = this.langList[lang];
     const part2 = ConfigService.instance().getLangList()[lang];
+    if(!part1) return Promise.reject();
     return part1()
       .then((data) => {
         //console.log('changeLang1', data.default);

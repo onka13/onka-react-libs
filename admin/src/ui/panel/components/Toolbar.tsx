@@ -26,6 +26,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import LanguageIcon from '@material-ui/icons/Language';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { Refresh } from '@material-ui/icons';
+import { ConfigService } from '../../../business/services/ConfigService';
 
 const drawerWidth = 240;
 
@@ -82,16 +83,17 @@ function LocaleList() {
     LocaleService.instance().changeLang(locale);
     window.location.reload();
   };
+  var langs = Object.keys(ConfigService.instance().getLangList());
   return (
     <div className="dialog-desc">
-      <Button onClick={() => handleListItemClick('tr')} color={currentLocale == 'tr' ? 'secondary' : undefined}>
-        <img src={process.env.PUBLIC_URL + '/images/flags/turkey.png'} className="mr10" />
-        <span>Türkçe</span>
-      </Button>
-      <Button onClick={() => handleListItemClick('en')} color={currentLocale == 'tr' ? 'secondary' : undefined}>
-        <img src={process.env.PUBLIC_URL + '/images/flags/uk.png'} className="mr10" />
-        <span>English</span>
-      </Button>
+      {langs.map((item, index) => {
+        return (
+          <Button key={index} onClick={() => handleListItemClick(item)} color={currentLocale == item ? 'secondary' : undefined} fullWidth>
+            <img src={process.env.PUBLIC_URL + '/images/flags/' + item + '.png'} className="mr10" />
+            <span>{item}</span>
+          </Button>
+        );
+      })}
     </div>
   );
 }

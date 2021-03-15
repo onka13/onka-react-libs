@@ -336,7 +336,7 @@ export function SearchPage(props: ISearchPage) {
               //role="checkbox"
               aria-checked={isItemSelected}
               tabIndex={-1}
-              key={item.id}
+              key={i}
               selected={isItemSelected}
             >
               {isSelectField && (
