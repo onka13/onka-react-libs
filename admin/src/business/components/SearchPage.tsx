@@ -56,6 +56,8 @@ interface ISearchPage {
   disableOnload?: boolean;
   defaultSort?: string;
   defaultSortOrder?: string;
+  leftComponents?: JSX.Element;
+  rightComponents?: JSX.Element;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -396,14 +398,14 @@ export function SearchPage(props: ISearchPage) {
                       </Button>
                     )}
                     {pageConfig.edit && (
-                      <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                      <Button component={Link} to={UIManager.instance().getLink("edit", pageConfig, { id: data[i]['id']})} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
                         {LocaleService.instance().translate('lib.action.edit')}
                       </Button>
                     )}
                     {pageConfig.get && (
                       <Button
                         component={Link}
-                        to={match.url + '/detail/' + data[i]['id']}
+                        to={UIManager.instance().getLink("detail", pageConfig, { id: data[i]['id']}) }
                         size="small"
                         variant="text"
                         color="secondary"
@@ -561,6 +563,7 @@ export function SearchPage(props: ISearchPage) {
                   {LocaleService.instance().translate('lib.action.add')}
                 </Button>
               )}
+              {props.leftComponents}
             </>
           )}
         </div>
@@ -585,6 +588,12 @@ export function SearchPage(props: ISearchPage) {
                 selections,
               })
             )}
+            {!isHideActions && (
+            <>
+              {props.rightComponents}
+            </>
+          )}
+            
         </div>
       </div>
       <Paper className={classes.paper}>{FilterView}</Paper>
