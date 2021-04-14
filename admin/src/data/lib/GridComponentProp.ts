@@ -25,6 +25,8 @@ export class GridComponentProp extends ComponentPropBase {
    */
   rowData!: any;
 
+  isLink!: boolean;
+
   public constructor(init?: Partial<GridComponentProp>) {
     super(init);
     Object.assign(this, init);

@@ -116,9 +116,14 @@ export class UIManager {
     } else if (pageType == 'list') {
     }
     if (extra.preserveQueryParams) {
-      route += window.location.search;
+      //route += window.location.search;
+      route += '?' + this.getUrlExtraParams();
     }
     return route;
+  }
+
+  getUrlExtraParams(): string {
+    return new URL(window.location.origin + window.location.hash.slice(1)).search.slice(1);
   }
 
   getUrlSearchParams(): URLSearchParams {

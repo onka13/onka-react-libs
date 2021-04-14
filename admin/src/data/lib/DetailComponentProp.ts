@@ -23,6 +23,8 @@ export class DetailComponentProp extends ComponentPropBase {
    */
   rowData!: any;
 
+  isLink!: boolean;
+
   public constructor(init?: Partial<DetailComponentProp>) {
     super(init);
     Object.assign(this, init);

@@ -398,14 +398,14 @@ export function SearchPage(props: ISearchPage) {
                       </Button>
                     )}
                     {pageConfig.edit && (
-                      <Button component={Link} to={UIManager.instance().getLink("edit", pageConfig, { id: data[i]['id']})} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                      <Button component={Link} to={UIManager.instance().getLink("edit", pageConfig, { id: data[i]['id'], preserveQueryParams: true })} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
                         {LocaleService.instance().translate('lib.action.edit')}
                       </Button>
                     )}
                     {pageConfig.get && (
                       <Button
                         component={Link}
-                        to={UIManager.instance().getLink("detail", pageConfig, { id: data[i]['id']}) }
+                        to={UIManager.instance().getLink("detail", pageConfig, { id: data[i]['id'], preserveQueryParams: true}) }
                         size="small"
                         variant="text"
                         color="secondary"

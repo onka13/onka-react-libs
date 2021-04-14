@@ -24,12 +24,19 @@ export function DetailFieldComponent(props: DetailComponentProp) {
     }
   }
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={4}>
+    <Grid container spacing={3} className="detail-grid-field">
+      <Grid item xs={4} className="detail-grid-field-label">
         <strong>{LibService.instance().getFieldLabel(props.pageConfig, field.name)}</strong>
       </Grid>
-      <Grid item xs={8}>
-        : {val}
+      <Grid item xs={8} className="detail-grid-field-value">
+        :
+        {props.isLink ? (
+          <a href={val} target="_blank">
+            {val}
+          </a>
+        ) : (
+          val
+        )}
       </Grid>
     </Grid>
   );

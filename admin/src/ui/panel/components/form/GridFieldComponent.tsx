@@ -5,9 +5,7 @@ import { GridComponentProp } from '../../../../data/lib/GridComponentProp';
 import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles({
-  gridChips: {
-    
-  },
+  gridChips: {},
 });
 
 export function GridFieldComponent(props: GridComponentProp) {
@@ -33,5 +31,15 @@ export function GridFieldComponent(props: GridComponentProp) {
   } else {
     val = LibService.instance().getValue(props.rowData, path);
   }
-  return <span>{val}</span>;
+  return (
+    <span>
+      {props.isLink ? (
+        <a href={val} target="_blank">
+          {val}
+        </a>
+      ) : (
+        val
+      )}
+    </span>
+  );
 }
