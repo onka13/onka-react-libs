@@ -211,7 +211,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         </Popper>
       );
     },
-    [value, options]
+    []
   );
 
   const addAllSubItems = useCallback(
@@ -251,7 +251,6 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
           </List>
         );
       }
-
       const children = params.children instanceof Array && params.children ? params.children : [];
       var isSelected = children.length > 0;
       for (let i = 0; i < children.length; i++) {
@@ -264,7 +263,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       }
       return (
         <Accordion
-          key={item.id + params.key}
+          key={params.key}
           defaultExpanded={true}
           classes={{
             expanded: classes.accordionExpanded,
