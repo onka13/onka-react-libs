@@ -253,6 +253,7 @@
 }
 .inline-cell {
   min-width: 200px;
+  vertical-align: top !important;
 }
 .detail-grid-field-value{
   overflow: auto;

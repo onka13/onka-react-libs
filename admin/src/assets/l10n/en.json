@@ -45,6 +45,7 @@
       "pattern": "Must match a specific format (regexp): ${requiredPattern}"
     },
     "api": {
+      "code-1": "An error occured!",
       "code-2": "Permission denied!",
       "code-10": "Empty model!",
       "code-11": "Invalid model!",

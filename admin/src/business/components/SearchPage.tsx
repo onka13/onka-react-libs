@@ -58,6 +58,7 @@ interface ISearchPage {
   defaultSortOrder?: string;
   leftComponents?: JSX.Element;
   rightComponents?: JSX.Element;
+  pageSize?: number;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -99,7 +100,7 @@ export function SearchPage(props: ISearchPage) {
     filter: defaultValues,
     pagination: {
       page: UIManager.instance().getPageNumber(),
-      perPage: 50,
+      perPage: props.pageSize ?? 50,
     },
     sort: {
       field: UIManager.instance().getSort(props.defaultSort),
