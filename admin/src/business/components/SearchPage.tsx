@@ -508,15 +508,15 @@ export function SearchPage(props: ISearchPage) {
                     {LocaleService.instance().translate('lib.action.save')}
                   </Button>
                   {props.rowActions &&
-                    props.rowActions(
-                      new GridRowExtraActionProp({
-                        key: i,
-                        pageConfig,
-                        gridFields,
-                        data,
-                        rowData: data[i],
-                      })
-                    )}
+                    <props.rowActions {...new GridRowExtraActionProp({
+                      key: i,
+                      pageConfig,
+                      gridFields,
+                      data,
+                      rowData: data[i],
+                      form,
+                      formKey
+                    })}/>}
                   {pageConfig.edit && (
                       <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
                         {LocaleService.instance().translate('lib.action.edit')}
