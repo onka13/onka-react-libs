@@ -26,6 +26,9 @@ export function NumberComponent(props: InputComponentProp) {
       onChange={handleChange}
       type="number"
       fullWidth
+      InputProps={{
+        readOnly: props.isEdit ? props.field.isReadOnlyEdit : props.field.isReadOnlyCreate,
+      }}
     />
   );
 }

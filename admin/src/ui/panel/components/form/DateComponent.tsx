@@ -29,6 +29,9 @@ export function DateComponent(props: InputComponentProp) {
       InputLabelProps={{
         shrink: true,
       }}
+      InputProps={{
+        readOnly: props.isEdit ? props.field.isReadOnlyEdit : props.field.isReadOnlyCreate,
+      }}
       type="datetime-local"
       fullWidth
     />
