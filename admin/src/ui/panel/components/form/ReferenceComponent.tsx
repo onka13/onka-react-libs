@@ -57,6 +57,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   });
   const [error, setError] = useState('');
   const timer = useRef<number>(-1);
+  const [open, setOpen] = useState(false);
+  const timerMenu = useRef<number>(-1);
   const request = useRef<ApiSearchRequest>();
   const refDepend = useRef<any>();
   const [valueEmpty, setValueEmpty] = useState(false);
@@ -84,10 +86,16 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     ]);
   };
 
+  const setOpenByTimer = (isOpen: boolean) => {
+    clearTimeout(timerMenu.current);
+    timerMenu.current = window.setTimeout(() => {
+      setOpen(isOpen);
+    }, 200);
+  };
+
   useEffect(() => {
     var subscription = props.form.subscribe(props.formKey, (data) => {
       const rowData = props.form.getValue(props.formKey, props.path);
-      //console.log('Reference subscribe', props.field.name, rowData, data);
       setDisabled((!!dependField && !props.form.getFormData(props.formKey)[dependField]) || !!valueEmpty);
       if (!rowData) {
         setInputValue('');
@@ -176,6 +184,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const onOpen = (e: any) => {
     // first open
     if (timer.current == -1) makeRequest('');
+    setOpenByTimer(true);
   };
   const onInputChange = (event: any, value: any, reason: any) => {
     if (reason !== 'reset') {
@@ -189,30 +198,27 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     props.form.handleChanges(props.formKey, [{ name: props.field.name + 'Empty', value: e.target.checked }]);
   };
 
-  const MyPopper = useCallback(
-    function (popperProps: any) {
-      //console.log('popperProps', popperProps);
-      if (!props.field.reference.addAllButton) {
-        return <Popper {...popperProps} />;
-      }
-      return (
-        <Popper {...popperProps}>
-          <ButtonGroup color="primary" aria-label="contained primary button group" style={{ backgroundColor: '#fff' }}>
-            <Button
-              color="primary"
-              onClick={(e) => {
-                addAllItems();
-              }}
-            >
-              Add All
-            </Button>
-          </ButtonGroup>
-          {popperProps.children}
-        </Popper>
-      );
-    },
-    []
-  );
+  const MyPopper = useCallback(function (popperProps: any) {
+    if (!props.field.reference.addAllButton) {
+      return <Popper {...popperProps} />;
+    }
+    return (
+      <Popper {...popperProps}>
+        <ButtonGroup color="primary" aria-label="contained primary button group" style={{ backgroundColor: '#fff' }}>
+          <Button
+            color="primary"
+            onClick={(e) => {
+              clearTimeout(timerMenu.current);
+              addAllItems();
+            }}
+          >
+            Add All
+          </Button>
+        </ButtonGroup>
+        {popperProps.children}
+      </Popper>
+    );
+  }, [options]);
 
   const addAllSubItems = useCallback(
     (item: any, isChecked: boolean) => {
@@ -225,7 +231,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     [value, options]
   );
 
-  const addAllItems = useCallback(() => {
+  const addAllItems = useCallback(function() {
     if (reference.parentIsAddable) {
       handleChanges(options);
       return;
@@ -237,11 +243,9 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       return true;
     });
     handleChanges(allItems);
-  }, [value, options]);
-
+  }, [options]);
   const renderGroup = useCallback(
     function (params: AutocompleteRenderGroupParams) {
-      //console.log('renderGroup', params.key, params.group, params.children);
       if (!params.group) return null;
       const item = options[parseInt(params.key)];
       if (params.group == 'no-parent') {
@@ -330,6 +334,10 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         getOptionSelected={getOptionSelected}
         onChange={onChange}
         onOpen={onOpen}
+        onClose={(obj, reason) => {
+          setOpenByTimer(false);
+        }}
+        open={open}
         filterOptions={(options: any, state: object) => options}
         className={props.className}
         fullWidth
