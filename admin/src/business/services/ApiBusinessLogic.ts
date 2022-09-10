@@ -2,6 +2,7 @@ import { BaseBusinessLogicService } from "./BaseBusinessLogic";
 import { ApiSearchRequest } from "../../data/api/ApiRequest";
 import { ServiceListResult, ServiceResult } from "../../data/api/ServiceResult";
 import { Method } from "axios";
+import { Parameters } from '../../data/lib/Types';
 
 /**
  * Api Business Logic
@@ -86,7 +87,7 @@ export class ApiBusinessLogic {
     return this.business.request<ServiceResult<any>>("DELETE", `${route}/delete/${id}`);
   }
 
-  request(method: Method, route: string, data: any): Promise<ServiceResult<any>> {
-    return this.business.request<ServiceResult<any>>(method, route, data);
+  request(method: Method, route: string, data: any,  parameters?: Parameters, headers?: Parameters): Promise<ServiceResult<any>> {
+    return this.business.request<ServiceResult<any>>(method, route, data, parameters, headers);
   }
 }
