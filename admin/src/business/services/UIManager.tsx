@@ -5,7 +5,7 @@ import { Parameters, PageType } from '../../data/lib/Types';
 import { PageConfig } from '../../data/lib/PageConfig';
 import * as H from 'history';
 import { LocaleService } from './LocaleService';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 
 export class UIManager {
   private constructor() {}

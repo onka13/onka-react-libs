@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useHistory, useRouteMatch } from 'react-router-dom';
-import { List, ListItem, Collapse, ListItemText, ListItemIcon, makeStyles, createStyles, Theme } from '@material-ui/core';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import DashboardIcon from '@material-ui/icons/Dashboard';
+import { List, ListItem, Collapse, ListItemText, ListItemIcon, Theme } from '@mui/material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { Menu } from '../../../data/lib/Menu';
 import { LibService } from '../../../business/services/LibService';
 import { RouteItem } from '../../../data/lib/RouteItem';
 import { LocaleService } from '../../../business/services/LocaleService';
+import { makeStyles } from '../../../business/components/makesStyles';
 
 export interface IMenuProp {
   menus: Menu[];
@@ -18,8 +19,8 @@ export interface IMenuProp {
   logo?: string;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+  ({
     root: {
       width: '100%',
       maxWidth: 360,
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export function MenuComponent(props: IMenuProp) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const [menus, setMenus] = useState<Menu[]>([]);
   const [selectedMenu, setSelectedMenu] = useState<String>();
 

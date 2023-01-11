@@ -109,6 +109,6 @@ export class ErrorBoundary extends React.Component<{}, { hasError: boolean }> {
       );
     }
 
-    return this.props.children;
+    return <>this.props.children</>;
   }
 }

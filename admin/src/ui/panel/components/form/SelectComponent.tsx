@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
 import { SelectInputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { LibService } from '../../../../business/services/LibService';
 import { useFormHelper } from '../../../../business/helpers/UseForm';

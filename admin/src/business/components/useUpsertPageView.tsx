@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@mui/material';
 import { allInputs } from '../../ui/panel/components/form';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { Parameters } from '../../data/lib/Types';
@@ -7,9 +7,11 @@ import { LocaleService } from '../services/LocaleService';
 import { UpsertPageViewProp } from '../../data/lib/UpsertPageViewProp';
 import { PageField } from '../../data/lib/PageField';
 import { LibService } from '../services/LibService';
+import { UIManager } from '../services/UIManager';
 
 export function UpsertPageView(props: UpsertPageViewProp) {
   const [tabIndex, setTabIndex] = useState(0);
+  const isHideActions = UIManager.instance().isHideActions() || props.hideActions;
 
   // const onChange = (field: PageField, value: any) => {
   //   const path = LibService.instance().getPath(field.prefix, field.name);
@@ -26,7 +28,6 @@ export function UpsertPageView(props: UpsertPageViewProp) {
 
   const FieldComponent = useCallback(
     (fieldCompProps: { fields: PageField[]; field: PageField }) => {
-
       const inputProps = new InputComponentProp({
         key: fieldCompProps.field.name,
         pageConfig: props.pageConfig,
@@ -36,7 +37,7 @@ export function UpsertPageView(props: UpsertPageViewProp) {
         className: props.isEdit ? 'edit-field' : 'create-field',
         form: props.form,
         path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name),
-        formKey: props.formKey
+        formKey: props.formKey,
       });
 
       if (props.isEdit && fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
@@ -80,7 +81,12 @@ export function UpsertPageView(props: UpsertPageViewProp) {
 
   return (
     <div className="upsert-container">
-      <form onSubmit={e => props.form.handleSubmit(props.formKey, e)}>
+      <form onSubmit={(e) => props.form.handleSubmit(props.formKey, e)}>
+        <div className="list-actions">
+          <div className="container-left">{!isHideActions && <>{props.leftComponents}</>}</div>
+          <div></div>
+          <div className="container-right">{!isHideActions && <>{props.rightComponents}</>}</div>
+        </div>
         <Card>
           <CardHeader></CardHeader>
           <CardContent>

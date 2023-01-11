@@ -1,8 +1,8 @@
 import React from 'react';
-import MuiAlert, { Color } from '@material-ui/lab/Alert';
-import { IconButton } from '@material-ui/core';
-import RemoveIcon from "@material-ui/icons/Clear";
-//import MuiSnackbar from '@material-ui/core/Snackbar';
+import Alert, { AlertColor } from '@mui/material/Alert';
+import { IconButton } from '@mui/material';
+import RemoveIcon from "@mui/icons-material/Clear";
+//import MuiSnackbar from '@mui/material/Snackbar';
 
 interface SnackBarComponentProps {
   onRef: (c: SnackBarComponent) => {};
@@ -52,7 +52,7 @@ export class SnackBarComponent extends React.Component<SnackBarComponentProps> {
       <div className="snack" style={{ display: 'flex', alignItems: 'flex-end' }}>
         {Object.keys(this.state.snackbars).map((key, index) => {
           var snackbar = this.state.snackbars[key];
-          var severity: Color;
+          var severity: AlertColor;
           switch (snackbar.type) {
             case 'danger':
               severity = 'error';
@@ -68,7 +68,7 @@ export class SnackBarComponent extends React.Component<SnackBarComponentProps> {
               break;
           }
           return (
-            <MuiAlert
+            <Alert
               key={key}
               elevation={6}
               variant="filled"
@@ -88,7 +88,7 @@ export class SnackBarComponent extends React.Component<SnackBarComponentProps> {
               }
             >
               {snackbar.text}
-            </MuiAlert>
+            </Alert>
           );
         })}
       </div>

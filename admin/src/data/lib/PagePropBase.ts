@@ -12,6 +12,12 @@ export class PagePropBase {
 
   columnCount?: number;
 
+  leftComponents?: JSX.Element;
+
+  rightComponents?: JSX.Element;
+
+  hideActions?: boolean;
+
   public constructor(init?: Partial<PagePropBase>) {
     Object.assign(this, init);
   }

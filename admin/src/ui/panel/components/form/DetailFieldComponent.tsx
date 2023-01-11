@@ -1,6 +1,6 @@
 import React from 'react';
-import Chip from '@material-ui/core/Chip';
-import Grid from '@material-ui/core/Grid';
+import Chip from '@mui/material/Chip';
+import Grid from '@mui/material/Grid';
 import { LibService } from '../../../../business/services/LibService';
 import { DetailComponentProp } from '../../../../data/lib/DetailComponentProp';
 

@@ -1,15 +1,15 @@
 import React from 'react';
-import Chip from '@material-ui/core/Chip';
+import Chip from '@mui/material/Chip';
 import { LibService } from '../../../../business/services/LibService';
 import { GridComponentProp } from '../../../../data/lib/GridComponentProp';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '../../../../business/components/makesStyles';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   gridChips: {},
 });
 
 export function GridFieldComponent(props: GridComponentProp) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const field = props.gridField;
   var path = LibService.instance().getPath(field.prefix, field.name);
   var val;

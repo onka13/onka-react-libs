@@ -5,7 +5,6 @@ import get from 'lodash/get';
 import {
   Button,
   createStyles,
-  makeStyles,
   Theme,
   Table,
   TableBody,
@@ -18,12 +17,12 @@ import {
   TableSortLabel,
   Checkbox,
   Paper,
-} from '@material-ui/core';
-import ExportIcon from '@material-ui/icons/ImportExport';
-import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DetailIcon from '@material-ui/icons/RemoveRedEye';
+} from '@mui/material';
+import ExportIcon from '@mui/icons-material/ImportExport';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DetailIcon from '@mui/icons-material/RemoveRedEye';
 import { PageConfig } from '../../data/lib/PageConfig';
 import { ApiSearchRequest } from '../../data/api/ApiRequest';
 import { UIManager } from '../services/UIManager';
@@ -41,6 +40,7 @@ import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { PageField } from '../../data/lib/PageField';
 import { HandleChangeType, useForm } from '../helpers/UseForm';
 import { useFilterView } from './useFilterView';
+import { makeStyles } from './makesStyles';
 
 interface ISearchPage {
   pageConfig: PageConfig;
@@ -61,31 +61,29 @@ interface ISearchPage {
   pageSize?: number;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: '100%',
-    },
-    paper: {
-      width: '100%',
-      marginBottom: theme.spacing(2),
-    },
-    table: {
-      minWidth: 750,
-    },
-    visuallyHidden: {
-      border: 0,
-      clip: 'rect(0 0 0 0)',
-      height: 1,
-      margin: -1,
-      overflow: 'hidden',
-      padding: 0,
-      position: 'absolute',
-      top: 20,
-      width: 1,
-    },
-  })
-);
+const useStyles = makeStyles()((theme: Theme) => ({
+  root: {
+    width: '100%',
+  },
+  paper: {
+    width: '100%',
+    marginBottom: theme.spacing(2),
+  },
+  table: {
+    minWidth: 750,
+  },
+  visuallyHidden: {
+    border: 0,
+    clip: 'rect(0 0 0 0)',
+    height: 1,
+    margin: -1,
+    overflow: 'hidden',
+    padding: 0,
+    position: 'absolute',
+    top: 20,
+    width: 1,
+  },
+}));
 
 export function SearchPage(props: ISearchPage) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
@@ -122,7 +120,7 @@ export function SearchPage(props: ISearchPage) {
   const setRequest = (val: ApiSearchRequest) => (refRequest.current = val);
   const [selections, setSelections] = useState<any[]>([]);
 
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   useEffect(() => {
     setData(props.initialData || []);
@@ -399,14 +397,21 @@ export function SearchPage(props: ISearchPage) {
                       </Button>
                     )}
                     {pageConfig.edit && (
-                      <Button component={Link} to={UIManager.instance().getLink("edit", pageConfig, { id: data[i]['id'], preserveQueryParams: true })} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                      <Button
+                        component={Link}
+                        to={UIManager.instance().getLink('edit', pageConfig, { id: data[i]['id'], preserveQueryParams: true })}
+                        size="small"
+                        variant="text"
+                        color="secondary"
+                        startIcon={<EditIcon />}
+                      >
                         {LocaleService.instance().translate('lib.action.edit')}
                       </Button>
                     )}
                     {pageConfig.get && (
                       <Button
                         component={Link}
-                        to={UIManager.instance().getLink("detail", pageConfig, { id: data[i]['id'], preserveQueryParams: true}) }
+                        to={UIManager.instance().getLink('detail', pageConfig, { id: data[i]['id'], preserveQueryParams: true })}
                         size="small"
                         variant="text"
                         color="secondary"
@@ -507,21 +512,24 @@ export function SearchPage(props: ISearchPage) {
                   <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmitUpdateForm(formKey, e)}>
                     {LocaleService.instance().translate('lib.action.save')}
                   </Button>
-                  {props.rowActions &&
-                    <props.rowActions {...new GridRowExtraActionProp({
-                      key: i,
-                      pageConfig,
-                      gridFields,
-                      data,
-                      rowData: data[i],
-                      form,
-                      formKey
-                    })}/>}
+                  {props.rowActions && (
+                    <props.rowActions
+                      {...new GridRowExtraActionProp({
+                        key: i,
+                        pageConfig,
+                        gridFields,
+                        data,
+                        rowData: data[i],
+                        form,
+                        formKey,
+                      })}
+                    />
+                  )}
                   {pageConfig.edit && (
-                      <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
-                        {LocaleService.instance().translate('lib.action.edit')}
-                      </Button>
-                    )}  
+                    <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                      {LocaleService.instance().translate('lib.action.edit')}
+                    </Button>
+                  )}
                   {pageConfig.delete && (
                     <Button
                       size="small"
@@ -573,7 +581,7 @@ export function SearchPage(props: ISearchPage) {
           {!isHideActions && (
             <>
               {pageConfig.export && (
-                <Button variant="outlined" color="default" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
+                <Button variant="outlined" color="inherit" onClick={exportData} startIcon={<ExportIcon />} className="mr10">
                   {LocaleService.instance().translate('lib.action.export')}
                 </Button>
               )}
@@ -589,12 +597,7 @@ export function SearchPage(props: ISearchPage) {
                 selections,
               })
             )}
-            {!isHideActions && (
-            <>
-              {props.rightComponents}
-            </>
-          )}
-            
+          {!isHideActions && <>{props.rightComponents}</>}
         </div>
       </div>
       <Paper className={classes.paper}>{FilterView}</Paper>
@@ -640,12 +643,11 @@ export function SearchPage(props: ISearchPage) {
         {!props.noPaging && status == 'done' && total > 0 && (
           <TablePagination
             rowsPerPageOptions={[10, 20, 50, 100]}
-            component="div"
             count={total}
             rowsPerPage={getRequest().pagination.perPage}
             page={getRequest().pagination.page - 1}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
           />
         )}

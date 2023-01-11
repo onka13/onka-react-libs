@@ -1,5 +1,5 @@
-import { Button } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Button } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import React, { FunctionComponent } from 'react';
 import { PageType, Parameters, ThemeType } from '../../data/lib/Types';
 
@@ -9,7 +9,7 @@ import { PageType, Parameters, ThemeType } from '../../data/lib/Types';
 export interface DialogDataAction {
   value: any;
   label: string;
-  theme?: ThemeType;
+  theme?: 'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
 }
 
 /**

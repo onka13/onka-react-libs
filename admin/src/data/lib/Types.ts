@@ -1,4 +1,4 @@
-import { PropTypes } from '@material-ui/core';
+import { PropTypes } from '@mui/material';
 
 /**
  * Page Type

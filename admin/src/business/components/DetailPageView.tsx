@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Box, Button, Card, CardActions, CardContent, Grid, GridSize, Tab, Tabs } from '@material-ui/core';
-import EditIcon from '@material-ui/icons/Edit';
+import { Box, Button, Card, CardActions, CardContent, Grid, GridSize, Tab, Tabs } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { UIManager } from '../services/UIManager';
 import { allInputs } from '../../ui/panel/components/form/index';
 import { DetailComponentProp } from '../../data/lib/DetailComponentProp';
@@ -13,6 +13,7 @@ import { PageViewProp } from '../../data/lib/PageViewProp';
 export function DetailPageView(props: PageViewProp) {
   const { id } = useParams<{ id: any }>();
   const [tabIndex, setTabIndex] = useState(0);
+  const isHideActions = UIManager.instance().isHideActions() || props.hideActions;
 
   function renderFields(fields: PageField[]) {
     var xs: GridSize = 6;
@@ -52,6 +53,11 @@ export function DetailPageView(props: PageViewProp) {
 
   return (
     <div className="detail-container">
+      <div className="list-actions">
+        <div className="container-left">{!isHideActions && <>{props.leftComponents}</>}</div>
+        <div></div>
+        <div className="container-right">{!isHideActions && <>{props.rightComponents}</>}</div>
+      </div>
       <Card>
         <CardActions>
           {!UIManager.instance().isHideActions() && props.pageConfig.edit && (

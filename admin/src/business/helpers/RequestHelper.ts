@@ -1,4 +1,4 @@
-import axios, { Method, AxiosRequestConfig, AxiosPromise } from 'axios';
+import axios, { Method, AxiosRequestConfig, AxiosPromise, AxiosInstance } from 'axios';
 import { Parameters } from '../../data/lib/Types';
 
 /**
@@ -14,7 +14,7 @@ const httpOptions = {
 };
 
 export const defaultRequestOptions: AxiosRequestConfig = {
-  withCredentials: true
+  withCredentials: true,
 };
 
 /**
@@ -51,10 +51,8 @@ export class RequestHelper {
         options.params[key] = parameters[key];
       }
     }
-    if (headers) {
-      for (const key in headers) {
-        options.headers[key] = headers[key];
-      }
+    if (!headers) {
+      headers = {};
     }
     var timeout = httpOptions.timeout;
     if (data && data.isFileUpload) {
@@ -64,10 +62,10 @@ export class RequestHelper {
       // }
       // data = formData;
       data = this._convertModelToFormData(data, '');
-      options.headers['Content-Type'] = 'multipart/form-data';
+      headers['Content-Type'] = 'multipart/form-data';
       timeout = 0;
     }
-    options = {      
+    options = {
       ...{
         method: method,
         url: endpoint,
@@ -80,7 +78,10 @@ export class RequestHelper {
     };
     console.log('REQUEST', method, endpoint);
     console.log('REQUEST OPTIONS', options);
-    return axios(options);
+    var axiosInstance = axios.create({
+      headers,
+    });
+    return axiosInstance.request(options);
   }
 
   _getFormDataKey(key0: any, key1: any): string {

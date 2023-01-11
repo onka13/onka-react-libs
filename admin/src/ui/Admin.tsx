@@ -12,9 +12,10 @@ import { IToolbarProps } from './panel/components/Toolbar';
 import { Home } from './panel/pages/Home';
 import { ILoginProps, Login } from './public/Login';
 import { NoMatch } from './public/NoMatch';
-import { StylesProvider, createGenerateClassName } from '@material-ui/styles';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles/createTheme';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import createGenerateClassName from '@mui/styles/createGenerateClassName/createGenerateClassName';
+import StylesProvider from '@mui/styles/StylesProvider/StylesProvider';
 
 export interface IAdminProps {
   children?: React.ReactNode;
@@ -48,7 +49,7 @@ export function Admin(props: IAdminProps) {
   }, []);
   if (!done) return <div></div>;
   const wrapper = (child: any) => {
-    if (props.theme) return <MuiThemeProvider theme={props.theme}>{child}</MuiThemeProvider>;
+    if (props.theme) return <ThemeProvider theme={props.theme}>{child}</ThemeProvider>;
     return child;
   };
   return wrapper(

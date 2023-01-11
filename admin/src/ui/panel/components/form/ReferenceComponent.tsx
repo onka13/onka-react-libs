@@ -13,20 +13,20 @@ import {
   AccordionSummary,
   AccordionDetails,
   List,
-  makeStyles,
   Box,
-} from '@material-ui/core';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import { Autocomplete, AutocompleteChangeReason, AutocompleteRenderGroupParams } from '@material-ui/lab';
+} from '@mui/material';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { Autocomplete, AutocompleteChangeReason, AutocompleteRenderGroupParams } from '@mui/material';
 import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { ApiSearchRequest } from '../../../../data/api/ApiRequest';
 import { LibService } from '../../../../business/services/LibService';
 import { ApiBusinessLogic } from '../../../../business/services/ApiBusinessLogic';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import lodash from 'lodash';
+import { makeStyles } from '../../../../business/components/makesStyles';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()((theme) => ({
   accordionExpanded: {
     margin: '0 !important',
   },
@@ -36,7 +36,7 @@ const useStyles = makeStyles({
   accordionSummaryContent: {
     margin: '0 !important',
   },
-});
+}));
 
 export function MultiReferenceComponent(props: InputComponentProp) {
   return <ReferenceComponentBase isMultiple={true} props={props} />;
@@ -49,7 +49,7 @@ const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const [options, setOptions] = useState<any>([]);
   const [disabled, setDisabled] = useState(false);
   const [loading, setLoading] = useState(() => {
@@ -159,7 +159,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   const onChange = (e: any, newValue: any, reason: AutocompleteChangeReason) => {
     setValue(newValue);
     handleChanges(newValue);
-    if (!isMultiple && reason == 'select-option') {
+    if (!isMultiple && reason == 'selectOption') {
       setInputValue(getOptionLabel(newValue));
       timer.current = -1;
     }
@@ -198,27 +198,30 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     props.form.handleChanges(props.formKey, [{ name: props.field.name + 'Empty', value: e.target.checked }]);
   };
 
-  const MyPopper = useCallback(function (popperProps: any) {
-    if (!props.field.reference.addAllButton) {
-      return <Popper {...popperProps} />;
-    }
-    return (
-      <Popper {...popperProps}>
-        <ButtonGroup color="primary" aria-label="contained primary button group" style={{ backgroundColor: '#fff' }}>
-          <Button
-            color="primary"
-            onClick={(e) => {
-              clearTimeout(timerMenu.current);
-              addAllItems();
-            }}
-          >
-            Add All
-          </Button>
-        </ButtonGroup>
-        {popperProps.children}
-      </Popper>
-    );
-  }, [options]);
+  const MyPopper = useCallback(
+    function (popperProps: any) {
+      if (!props.field.reference.addAllButton) {
+        return <Popper {...popperProps} />;
+      }
+      return (
+        <Popper {...popperProps}>
+          <ButtonGroup color="primary" aria-label="contained primary button group" style={{ backgroundColor: '#fff' }}>
+            <Button
+              color="primary"
+              onClick={(e) => {
+                clearTimeout(timerMenu.current);
+                addAllItems();
+              }}
+            >
+              Add All
+            </Button>
+          </ButtonGroup>
+          {popperProps.children}
+        </Popper>
+      );
+    },
+    [options]
+  );
 
   const addAllSubItems = useCallback(
     (item: any, isChecked: boolean) => {
@@ -231,19 +234,22 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
     [value, options]
   );
 
-  const addAllItems = useCallback(function() {
-    if (reference.parentIsAddable) {
-      handleChanges(options);
-      return;
-    }
-    const allItems = options.filter((option: any) => {
-      if (option[treeParentFieldId]) return true;
-      var hasSubItems = options.some((x: any) => x[treeParentFieldId] == option.id);
-      if (hasSubItems) return false;
-      return true;
-    });
-    handleChanges(allItems);
-  }, [options]);
+  const addAllItems = useCallback(
+    function () {
+      if (reference.parentIsAddable) {
+        handleChanges(options);
+        return;
+      }
+      const allItems = options.filter((option: any) => {
+        if (option[treeParentFieldId]) return true;
+        var hasSubItems = options.some((x: any) => x[treeParentFieldId] == option.id);
+        if (hasSubItems) return false;
+        return true;
+      });
+      handleChanges(allItems);
+    },
+    [options]
+  );
   const renderGroup = useCallback(
     function (params: AutocompleteRenderGroupParams) {
       if (!params.group) return null;
@@ -331,7 +337,8 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         multiple={isMultiple}
         disableCloseOnSelect={isMultiple}
         getOptionLabel={getOptionLabel}
-        getOptionSelected={getOptionSelected}
+        // TODO: getOptionSelected 
+        //getOptionSelected={getOptionSelected}
         onChange={onChange}
         onOpen={onOpen}
         onClose={(obj, reason) => {

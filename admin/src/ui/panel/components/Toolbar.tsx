@@ -7,74 +7,61 @@ import { LibService } from '../../../business/services/LibService';
 import { PageConfig } from '../../../data/lib/PageConfig';
 import { UIManager } from '../../../business/services/UIManager';
 import { LocaleService } from '../../../business/services/LocaleService';
-import {
-  AppBar,
-  Button,
-  createStyles,
-  IconButton,
-  ListItemIcon,
-  ListItemText,
-  makeStyles,
-  Menu,
-  MenuItem,
-  Theme,
-  Toolbar as MuiToolbar,
-  Typography,
-} from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import LanguageIcon from '@material-ui/icons/Language';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { Refresh } from '@material-ui/icons';
+import { AppBar, Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Theme, Toolbar as MuiToolbar, Typography } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import LanguageIcon from '@mui/icons-material/Language';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { Refresh } from '@mui/icons-material';
 import { ConfigService } from '../../../business/services/ConfigService';
+import { makeStyles } from '../../../business/components/makesStyles';
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-    },
-    appBar: {
-      transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-    },
-    appBarShift: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
-      transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    drawerHeader: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: theme.spacing(0, 1),
-      // necessary for content to be below app bar
-      ...theme.mixins.toolbar,
-      justifyContent: 'flex-end',
-    },
-    contentShift: {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    },
-    grow: {
-      flexGrow: 1,
-    },
-    sectionDesktop: {
-      display: 'flex',
-    },
-  })
-);
+const useStyles = makeStyles()((theme) => ({
+  root: {
+    display: 'flex',
+  },
+  appBar: {
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  // TODO: drawerHeader
+  // drawerHeader: {
+  //   display: 'flex',
+  //   alignItems: 'center',
+  //   padding: theme.spacing(0, 1),
+  //   // necessary for content to be below app bar
+  //   ...theme.mixins.toolbar,
+  //   justifyContent: 'flex-end',
+  // },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  sectionDesktop: {
+    display: 'flex',
+  },
+}));
 
 function LocaleList() {
   const currentLocale = LocaleService.instance().getCurrentLang();
@@ -105,7 +92,7 @@ export interface IToolbarProps {
 }
 
 export function Toolbar(props: IToolbarProps) {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   let history = useHistory();
   let location = useLocation();
   const [pageConfig, setPageConfig] = useState<PageConfig>();
@@ -123,7 +110,7 @@ export function Toolbar(props: IToolbarProps) {
   };
 
   const handleRefreshPage = (event: any) => {
-    LibService.instance().refreshPage.next();
+    LibService.instance().refreshPage.next(null);
   };
 
   const handleMenuClose = () => {

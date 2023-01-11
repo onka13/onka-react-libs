@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { useTheme, Theme } from '@mui/material/styles';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
 import { UIManager } from '../../../business/services/UIManager';
 import { IMenuProp, MenuComponent } from './MenuComponent';
 import { IToolbarProps, Toolbar } from './Toolbar';
 import { LibService } from '../../../business/services/LibService';
+import { makeStyles } from '../../../business/components/makesStyles';
 
 export interface IMasterProps {
   children?: any;
@@ -17,8 +18,8 @@ export interface IMasterProps {
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+  ({
     root: {
       display: 'flex',
     },
@@ -53,8 +54,9 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       padding: theme.spacing(0, 1),
+      // TODO: drawerHeader
       // necessary for content to be below app bar
-      ...theme.mixins.toolbar,
+      //...theme.mixins.toolbar,
       justifyContent: 'flex-end',
     },
     content: {
@@ -82,8 +84,7 @@ export function Master(props: IMasterProps) {
   if (UIManager.instance().isDialog()) {
     return props.children;
   }
-  const classes = useStyles();
-  const theme = useTheme();
+  const { classes, cx } = useStyles();
   const [open, setOpen] = React.useState(LibService.instance().drawerState.value);
 
   useEffect(() => {

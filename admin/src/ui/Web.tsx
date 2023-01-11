@@ -4,9 +4,10 @@ import { SnackBarComponent } from '../business/components/SnackBarComponent';
 import { ErrorHandler } from '../business/ErrorBoundary';
 import { LocaleService } from '../business/services/LocaleService';
 import { UIManager } from '../business/services/UIManager';
-import { StylesProvider, createGenerateClassName } from '@material-ui/styles';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles/createTheme';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import createGenerateClassName from '@mui/styles/createGenerateClassName/createGenerateClassName';
+import StylesProvider from '@mui/styles/StylesProvider/StylesProvider';
 
 export interface IWebProps {
   children?: React.ReactNode;
@@ -31,7 +32,7 @@ export function Web(props: IWebProps) {
   }, []);
   if (!done) return <div></div>;
   const wrapper = (child: any) => {
-    if (props.theme) return <MuiThemeProvider theme={props.theme}>{child}</MuiThemeProvider>;
+    if (props.theme) return <ThemeProvider theme={props.theme}>{child}</ThemeProvider>;
     return child;
   };
   return wrapper(

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, Button, Card, CardContent, IconButton, InputAdornment, TextField, Typography } from '@material-ui/core';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import { Box, Button, Card, CardContent, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AccountBusinessLogic } from '../../business/services/AccountBusinessLogic';
 import { UIManager } from '../../business/services/UIManager';
 import { LibService } from '../../business/services/LibService';
