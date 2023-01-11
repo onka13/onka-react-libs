@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { DialogComponent } from '../business/components/DialogComponent';
 import { SnackBarComponent } from '../business/components/SnackBarComponent';
 import { ErrorHandler } from '../business/ErrorBoundary';
@@ -60,17 +60,20 @@ export function Admin(props: IAdminProps) {
         <DialogComponent onRef={(c) => (UIManager.instance().drawer = c)} mode="drawer" />
         <SnackBarComponent onRef={(c) => (UIManager.instance().snackbar = c)} />
         {props.children}
-        <Switch>
-          <Route exact path="/">
-            {business.isLoggedIn() ? <Redirect to="/panel" /> : <Redirect to="/login" />}
-          </Route>
-          <PrivateRoute path="/panel">
-            <Home {...props} />
-          </PrivateRoute>
+        <Routes>
+          <Route path="/">{business.isLoggedIn() ? <Navigate to="/panel" /> : <Navigate to="/login" />}</Route>
+          <Route
+            path="/panel"
+            element={
+              <PrivateRoute>
+                <Home {...props} />
+              </PrivateRoute>
+            }
+          />
           {props.rootRoutes}
           <Route path="/login">{props.loginComponent ? <props.loginComponent {...props.login} /> : <Login {...props.login} />}</Route>
           <Route path="*">{props.noMatch ? props.noMatch : <NoMatch />}</Route>
-        </Switch>
+        </Routes>
       </HashRouter>
     </StylesProvider>
   );

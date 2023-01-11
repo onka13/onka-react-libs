@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ParametersArray, Parameters, ParametersFunc, ParametersT } from '../../data/lib/Types';
 import { PageField } from '../../data/lib/PageField';
 import { useFormValidator } from './UseFormValidator';

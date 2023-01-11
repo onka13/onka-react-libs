@@ -1,28 +1,11 @@
-import React, { ReactNode } from "react";
-import { Route, Redirect, RouteProps } from "react-router-dom";
-import { AccountBusinessLogic } from "../../../business/services/AccountBusinessLogic";
+import React, { ReactNode } from 'react';
+import { Navigate, RouteProps } from 'react-router-dom';
+import { AccountBusinessLogic } from '../../../business/services/AccountBusinessLogic';
 
-interface IProps extends RouteProps {
-  children: ReactNode;
-}
-
-export function PrivateRoute({ children, ...rest }: IProps) {
-  var business = AccountBusinessLogic.instance();
-  return (
-    <Route
-      {...rest}
-      render={({ location }) =>
-        business.isLoggedIn() ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/login",
-              state: { from: location },
-            }}
-          />
-        )
-      }
-    />
-  );
+export function PrivateRoute({ children }: RouteProps): React.ReactElement {
+  let isLoggedIn = AccountBusinessLogic.instance().isLoggedIn();
+  if (isLoggedIn) {
+    return <>{children}</>;
+  }
+  return <Navigate to="/login" />;
 }

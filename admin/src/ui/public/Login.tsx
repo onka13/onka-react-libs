@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Card, CardContent, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -13,7 +13,7 @@ export interface ILoginProps {
 }
 
 export function Login(props: ILoginProps) {
-  let history = useHistory();
+  const navigate = useNavigate();
   const [values, setValues] = React.useState({
     email: '',
     password: '',
@@ -32,7 +32,7 @@ export function Login(props: ILoginProps) {
     AccountBusinessLogic.instance()
       .login(values.email, values.password)
       .then(() => {
-        history.push('/panel');
+        navigate('/panel');
       })
       .finally(() => {
         UIManager.instance().displayLoading(false);

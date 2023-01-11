@@ -1,6 +1,6 @@
+import React from 'react';
 import { Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import React, { FunctionComponent } from 'react';
 import { PageType, Parameters, ThemeType } from '../../data/lib/Types';
 
 /**

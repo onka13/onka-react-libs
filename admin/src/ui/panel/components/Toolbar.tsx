@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { StaticService } from '../../../business/services/StaticService';
 import { AccountBusinessLogic } from '../../../business/services/AccountBusinessLogic';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LibService } from '../../../business/services/LibService';
 import { PageConfig } from '../../../data/lib/PageConfig';
 import { UIManager } from '../../../business/services/UIManager';
@@ -93,7 +93,7 @@ export interface IToolbarProps {
 
 export function Toolbar(props: IToolbarProps) {
   const { classes, cx } = useStyles();
-  let history = useHistory();
+  const navigate = useNavigate();
   let location = useLocation();
   const [pageConfig, setPageConfig] = useState<PageConfig>();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -120,7 +120,7 @@ export function Toolbar(props: IToolbarProps) {
   async function handleSignout(e: any) {
     e.preventDefault();
     await AccountBusinessLogic.instance().logout();
-    history.push('/login');
+    navigate('/login');
   }
   function changeLang(e: any) {
     e.preventDefault();

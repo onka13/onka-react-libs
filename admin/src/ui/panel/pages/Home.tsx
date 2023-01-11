@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Switch, useRouteMatch, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { LibService } from '../../../business/services/LibService';
 import { PageConfig } from '../../../data/lib/PageConfig';
 import { IAdminProps } from '../../Admin';
@@ -8,38 +8,36 @@ import { Master } from '../components/Master';
 import { PrivateRoute } from '../components/PrivateRoute';
 
 export function Home(props: IAdminProps) {
-  let match = useRouteMatch();
-
   return (
     <Master toolbar={props.toolbar} menu={props.menu} footer={props.footer}>
-      <Switch>
-        <PrivateRoute exact path={match.url}>
+      <Routes>
+        <PrivateRoute>
           {props.dashboard}
         </PrivateRoute>
         {props.menu.routes.flatMap((item, index) => {
           return item.flatMap((routeItem, i) => {
-            var url = match.url + routeItem.config.route;
+            var url = routeItem.config.route;
             return [
               routeItem.list && (
-                <PrivateRoute key={4 * i} exact path={url}>
+                <PrivateRoute key={4 * i} path={url}>
                   <RouteChanged config={routeItem.config} />
                   <routeItem.list />
                 </PrivateRoute>
               ),
               routeItem.detail && (
-                <PrivateRoute key={4 * i + 1} exact path={url + '/detail/:id'}>
+                <PrivateRoute key={4 * i + 1}  path={url + '/detail/:id'}>
                   <RouteChanged config={routeItem.config} />
                   <routeItem.detail />
                 </PrivateRoute>
               ),
               routeItem.create && (
-                <PrivateRoute key={4 * i + 2} exact path={url + '/create'}>
+                <PrivateRoute key={4 * i + 2}  path={url + '/create'}>
                   <RouteChanged config={routeItem.config} />
                   <routeItem.create />
                 </PrivateRoute>
               ),
               routeItem.edit && (
-                <PrivateRoute key={4 * i + 3} exact path={url + '/edit/:id'}>
+                <PrivateRoute key={4 * i + 3}  path={url + '/edit/:id'}>
                   <RouteChanged config={routeItem.config} />
                   <routeItem.edit />
                 </PrivateRoute>
@@ -50,7 +48,7 @@ export function Home(props: IAdminProps) {
         <Route path="*">
           <NoMatch />
         </Route>
-      </Switch>
+      </Routes>
     </Master>
   );
 }

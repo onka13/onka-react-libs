@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useHistory, useRouteMatch } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import zipcelx from 'zipcelx';
 import get from 'lodash/get';
 import {
@@ -88,8 +88,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
 export function SearchPage(props: ISearchPage) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
   let gridFields = props.gridFields;
-  const match = useRouteMatch();
-  const history = useHistory();
+  const location = useLocation ();
+  const navigate = useNavigate();
   const [status, setStatus] = useState<PageStatus>('loading');
   const [data, setData] = useState(props.initialData || []);
   const [total, setTotal] = useState(0);
@@ -136,7 +136,7 @@ export function SearchPage(props: ISearchPage) {
     //console.log('SearchPage URL Changed page', request.pagination.page);
     setRequest(request);
     loadDataTimer(true);
-  }, [match]);
+  }, [location]);
 
   const isHideActions = UIManager.instance().isHideActions() || props.hideActions;
   const isSelectField = UIManager.instance().isSelectField();
@@ -146,7 +146,7 @@ export function SearchPage(props: ISearchPage) {
   function loadDataTimer(fromUrlChangeEvent: boolean = false) {
     if (!fromUrlChangeEvent) {
       var request = getRequest();
-      UIManager.instance().changeQueryParams(history, {
+      UIManager.instance().changeQueryParams(navigate, {
         page: request.pagination.page,
         perPage: request.pagination.perPage,
         sort: request.sort.field,
@@ -526,7 +526,7 @@ export function SearchPage(props: ISearchPage) {
                     />
                   )}
                   {pageConfig.edit && (
-                    <Button component={Link} to={match.url + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                    <Button component={Link} to={location.pathname + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
                       {LocaleService.instance().translate('lib.action.edit')}
                     </Button>
                   )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiBusinessLogic } from '../services/ApiBusinessLogic';
 import { UIManager } from '../services/UIManager';
 import { LibService } from '../services/LibService';
@@ -13,7 +13,7 @@ import { stringify } from 'querystring';
 
 export function UpsertPage(props: UpsertPageProp) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
-  let history = useHistory();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: any }>();
   const isEdit = !!id || !!props.isEdit;
   const [, setStatus] = useState<PageStatus>('none');
@@ -32,7 +32,7 @@ export function UpsertPage(props: UpsertPageProp) {
       form.updateFormData(formKey, { ...form.getFormData(formKey), ...record.value });
       return;
     }
-    UIManager.instance().gotoPage(history, redirect, pageConfig, {
+    UIManager.instance().gotoPage(navigate, redirect, pageConfig, {
       id: record.value?.id ?? id,
       preserveQueryParams: true,
     });
@@ -55,7 +55,7 @@ export function UpsertPage(props: UpsertPageProp) {
       })
       .catch((reason) => {
         setStatus('none');
-        UIManager.instance().gotoPage(history, 'list', pageConfig, { id, preserveQueryParams: true });
+        UIManager.instance().gotoPage(navigate, 'list', pageConfig, { id, preserveQueryParams: true });
         throw reason;
       });
   };

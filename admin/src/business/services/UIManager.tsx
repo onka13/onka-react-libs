@@ -3,9 +3,9 @@ import { DialogComponent, DialogData } from '../components/DialogComponent';
 import { Snackbar, SnackBarComponent } from '../components/SnackBarComponent';
 import { Parameters, PageType } from '../../data/lib/Types';
 import { PageConfig } from '../../data/lib/PageConfig';
-import * as H from 'history';
 import { LocaleService } from './LocaleService';
 import { CircularProgress } from '@mui/material';
+import { NavigateFunction } from 'react-router-dom';
 
 export class UIManager {
   private constructor() {}
@@ -84,7 +84,7 @@ export class UIManager {
    * Go to page
    */
   gotoPage(
-    history: H.History<H.LocationState>,
+    navigate: NavigateFunction,
     pageType: PageType,
     pageConfig: PageConfig,
     extra: {
@@ -95,7 +95,7 @@ export class UIManager {
     if (pageType == 'none') return;
 
     var route = this.getLink(pageType, pageConfig, extra);
-    history.push(route);
+    navigate(route);
   }
 
   getLink(
@@ -146,15 +146,15 @@ export class UIManager {
     return searchParams.get(key);
   }
 
-  changeQueryParams(history: H.History<H.LocationState>, values: Parameters, replace: boolean = false) {
+  changeQueryParams(navigate: NavigateFunction, values: Parameters, replace: boolean = false) {
     var searchParams = this.getUrlSearchParams();
     for (const key in values) {
       searchParams.set(key, values[key]);
     }
     var search = '?' + searchParams.toString();
     //console.log('url', search);
-    if (replace) history.replace({ search });
-    else history.push({ search });
+    if (replace) navigate({ search }, { replace: true });
+    else navigate({ search });
   }
 
   /* Dialog */

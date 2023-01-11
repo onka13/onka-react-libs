@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { ApiError } from '../data/models/ApiError';
 import { LocaleService } from './services/LocaleService';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ConfigService } from './services/ConfigService';
 import { UIManager } from './services/UIManager';
 import { BaseBusinessLogicService } from './services/BaseBusinessLogic';
@@ -11,7 +11,7 @@ import { ServiceHttpStatusResult } from '../data/api/ServiceResult';
 window.removeEventListeners('unhandledrejection'); // defined in html
 
 export function ErrorHandler() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function globalErrorHandler(e: any) {
     e.preventDefault();
@@ -34,7 +34,7 @@ export function ErrorHandler() {
       }
       if (error.detail.status == 400) {
         if (error.detail.code == 100 || error.detail.code == 101) {
-          history.push('/login');
+          navigate('/login');
         }
         return;
       }
@@ -80,7 +80,7 @@ export function ErrorHandler() {
   return <div></div>;
 }
 
-export class ErrorBoundary extends React.Component<{}, { hasError: boolean }> {
+export class ErrorBoundary extends React.Component<PropsWithChildren<{}>, { hasError: boolean }> {
   state = { hasError: false };
 
   static getDerivedStateFromError(error: any) {
@@ -109,6 +109,6 @@ export class ErrorBoundary extends React.Component<{}, { hasError: boolean }> {
       );
     }
 
-    return <>this.props.children</>;
+    return <>{this.props.children}</>;
   }
 }

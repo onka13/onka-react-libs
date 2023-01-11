@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiBusinessLogic } from '../services/ApiBusinessLogic';
 import { UIManager } from '../services/UIManager';
 import { LibService } from '../services/LibService';
@@ -9,7 +9,7 @@ import { DetailPageView } from './DetailPageView';
 
 export function DetailPage(props: PagePropBase) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
-  let history = useHistory();
+  const navigate = useNavigate();
   const [state, setState] = useState<{ [x: string]: any }>({});
   const [status, setStatus] = useState<PageStatus>('loading');
   const { id } = useParams<{ id: any }>();
@@ -23,7 +23,7 @@ export function DetailPage(props: PagePropBase) {
         setStatus('done');
       })
       .catch((reason) => {
-        UIManager.instance().gotoPage(history, 'list', pageConfig, { id, preserveQueryParams: true });
+        UIManager.instance().gotoPage(navigate, 'list', pageConfig, { id, preserveQueryParams: true });
         throw reason;
       });
   }
