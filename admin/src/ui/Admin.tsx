@@ -38,7 +38,6 @@ const generateClassName = createGenerateClassName({
 
 export function Admin(props: IAdminProps) {
   const [done, setDone] = useState(false);
-  var business = AccountBusinessLogic.instance();
   async function preload() {
     if (props.onLoad) await props.onLoad();
     await LocaleService.instance().loadDefaultLang();
@@ -61,18 +60,19 @@ export function Admin(props: IAdminProps) {
         <SnackBarComponent onRef={(c) => (UIManager.instance().snackbar = c)} />
         {props.children}
         <Routes>
-          <Route path="/">{business.isLoggedIn() ? <Navigate to="/panel" /> : <Navigate to="/login" />}</Route>
           <Route
-            path="/panel"
+            path="/"
             element={
               <PrivateRoute>
-                <Home {...props} />
+                <Navigate to="/panel" />
               </PrivateRoute>
             }
-          />
-          {props.rootRoutes}
-          <Route path="/login">{props.loginComponent ? <props.loginComponent {...props.login} /> : <Login {...props.login} />}</Route>
-          <Route path="*">{props.noMatch ? props.noMatch : <NoMatch />}</Route>
+          ></Route>
+          <Route path="/panel" element={<Home {...props} />}></Route>
+          {/* TODO */}
+          {/* {props.rootRoutes} */}
+          <Route path="/login" element={props.loginComponent ? <props.loginComponent {...props.login} /> : <Login {...props.login} />}></Route>
+          <Route path="*" element={props.noMatch ? props.noMatch : <NoMatch />}></Route>
         </Routes>
       </HashRouter>
     </StylesProvider>

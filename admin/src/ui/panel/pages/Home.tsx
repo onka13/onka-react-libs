@@ -11,36 +11,58 @@ export function Home(props: IAdminProps) {
   return (
     <Master toolbar={props.toolbar} menu={props.menu} footer={props.footer}>
       <Routes>
-        <PrivateRoute>
-          {props.dashboard}
-        </PrivateRoute>
+        <Route path="" element={<PrivateRoute> {props.dashboard}</PrivateRoute>}></Route>
         {props.menu.routes.flatMap((item, index) => {
           return item.flatMap((routeItem, i) => {
             var url = routeItem.config.route;
             return [
               routeItem.list && (
-                <PrivateRoute key={4 * i} path={url}>
-                  <RouteChanged config={routeItem.config} />
-                  <routeItem.list />
-                </PrivateRoute>
+                <Route
+                  key={4 * i}
+                  path={url}
+                  element={
+                    <>
+                      <RouteChanged config={routeItem.config} />
+                      <routeItem.list />
+                    </>
+                  }
+                ></Route>
               ),
               routeItem.detail && (
-                <PrivateRoute key={4 * i + 1}  path={url + '/detail/:id'}>
-                  <RouteChanged config={routeItem.config} />
-                  <routeItem.detail />
-                </PrivateRoute>
+                <Route
+                  key={4 * i + 1}
+                  path={url + '/detail/:id'}
+                  element={
+                    <>
+                      <RouteChanged config={routeItem.config} />
+                      <routeItem.detail />
+                    </>
+                  }
+                ></Route>
               ),
               routeItem.create && (
-                <PrivateRoute key={4 * i + 2}  path={url + '/create'}>
-                  <RouteChanged config={routeItem.config} />
-                  <routeItem.create />
-                </PrivateRoute>
+                <Route
+                  key={4 * i + 2}
+                  path={url + '/create'}
+                  element={
+                    <>
+                      <RouteChanged config={routeItem.config} />
+                      <routeItem.create />
+                    </>
+                  }
+                ></Route>
               ),
               routeItem.edit && (
-                <PrivateRoute key={4 * i + 3}  path={url + '/edit/:id'}>
-                  <RouteChanged config={routeItem.config} />
-                  <routeItem.edit />
-                </PrivateRoute>
+                <Route
+                  key={4 * i + 3}
+                  path={url + '/edit/:id'}
+                  element={
+                    <>
+                      <RouteChanged config={routeItem.config} />
+                      <routeItem.edit />
+                    </>
+                  }
+                ></Route>
               ),
             ];
           });
