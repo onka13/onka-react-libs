@@ -14,8 +14,8 @@ import { ILoginProps, Login } from './public/Login';
 import { NoMatch } from './public/NoMatch';
 import { Theme } from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
-import createGenerateClassName from '@mui/styles/createGenerateClassName/createGenerateClassName';
-import StylesProvider from '@mui/styles/StylesProvider/StylesProvider';
+// import createGenerateClassName from '@mui/styles/createGenerateClassName/createGenerateClassName';
+// import StylesProvider from '@mui/styles/StylesProvider/StylesProvider';
 
 export interface IAdminProps {
   children?: React.ReactNode;
@@ -31,10 +31,10 @@ export interface IAdminProps {
   theme?: Partial<Theme> | ((outerTheme: Theme) => Theme);
 }
 
-const generateClassName = createGenerateClassName({
-  productionPrefix: 'c',
-  disableGlobal: true,
-});
+// const generateClassName = createGenerateClassName({
+//   productionPrefix: 'c',
+//   disableGlobal: true,
+// });
 
 export function Admin(props: IAdminProps) {
   const [done, setDone] = useState(false);
@@ -52,7 +52,6 @@ export function Admin(props: IAdminProps) {
     return child;
   };
   return wrapper(
-    <StylesProvider generateClassName={generateClassName}>
       <HashRouter>
         <ErrorHandler />
         <DialogComponent onRef={(c) => (UIManager.instance().dialog = c)} mode="dialog" />
@@ -75,6 +74,5 @@ export function Admin(props: IAdminProps) {
           <Route path="*" element={props.noMatch ? props.noMatch : <NoMatch />}></Route>
         </Routes>
       </HashRouter>
-    </StylesProvider>
   );
 }

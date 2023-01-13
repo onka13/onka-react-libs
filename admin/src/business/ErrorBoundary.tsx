@@ -16,10 +16,14 @@ export function ErrorHandler() {
   function globalErrorHandler(e: any) {
     e.preventDefault();
     e.stopImmediatePropagation();
+
+    let configService = ConfigService.instance();
+    let localeService = LocaleService.instance();
+
+    console.log('err', e);
+
     UIManager.instance().displayLoading(false);
     if (e.reason instanceof ApiError) {
-      let localeService = LocaleService.instance();
-      let configService = ConfigService.instance();
       let error = e.reason as ApiError;
       console.log('err', error.detail);
 
@@ -51,6 +55,19 @@ export function ErrorHandler() {
           });
         }
       }
+      return;
+    }
+
+    if (configService.isProd()) {
+      UIManager.instance().displayMessage({
+        text: localeService.translate('lib.error'),
+        type: 'danger',
+      });
+    } else {
+      UIManager.instance().displayMessage({
+        text: e.reason || e.message,
+        type: 'danger',
+      });
     }
   }
 

@@ -16,7 +16,7 @@ files.forEach((file) => {
 });
 
 var folders = ['assets'];
-var targets = ['./dist/js', './dist/esm', './dist/umd'];
+var targets = ['./dist/esm'];
 folders.forEach((folder) => {
   var folderPath = path.join('src', folder);
   targets.forEach((target) => {
