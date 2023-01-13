@@ -41,8 +41,6 @@ export function useFilterView(props: IFilterView) {
 
   /*const onChange = (field: PageField, value: any) => {
     var request = getRequest();
-    console.log('useFilterView onChange value', value);
-    console.log('useFilterView onChange request', request);
 
     var path = LibService.instance().getPath(field.prefix, field.name);
     if (field.reference) {
@@ -56,7 +54,6 @@ export function useFilterView(props: IFilterView) {
     loadDataTimer();
   };*/
 
-  console.log('useFilterView render');
   return (
     <div>
       <div className="list-search">

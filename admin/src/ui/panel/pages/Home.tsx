@@ -67,8 +67,7 @@ export function Home(props: IAdminProps) {
             ];
           });
         })}
-        <Route path="*">
-          <NoMatch />
+        <Route path="*" element={<NoMatch />}>          
         </Route>
       </Routes>
     </Master>

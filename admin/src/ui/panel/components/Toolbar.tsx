@@ -39,15 +39,14 @@ const useStyles = makeStyles()((theme) => ({
   menuButton: {
     marginRight: theme.spacing(2),
   },
-  // TODO: drawerHeader
-  // drawerHeader: {
-  //   display: 'flex',
-  //   alignItems: 'center',
-  //   padding: theme.spacing(0, 1),
-  //   // necessary for content to be below app bar
-  //   ...theme.mixins.toolbar,
-  //   justifyContent: 'flex-end',
-  // },
+  drawerHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    minHeight: theme.mixins.toolbar.minHeight,
+    justifyContent: 'flex-end',
+  },
   contentShift: {
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
@@ -130,7 +129,6 @@ export function Toolbar(props: IToolbarProps) {
         title: 'Change Language',
       },
       (response) => {
-        console.log('response', response);
       },
       {
         hasBackdrop: true,

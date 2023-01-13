@@ -15,8 +15,6 @@ export function EditorComponent(props: InputComponentProp) {
   });
   
   const onReady = (editor: any) => {
-    console.log('onReady');
-
     refEditor.current = editor;
     //refEditor.current.setData(props.rowData || '');
   };

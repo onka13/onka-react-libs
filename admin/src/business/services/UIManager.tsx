@@ -127,7 +127,6 @@ export class UIManager {
   }
 
   getUrlSearchParams(): URLSearchParams {
-    //console.log('getUrlSearchParams href', window.location.href);
     return new URLSearchParams(new URL(window.location.origin + window.location.hash.slice(1)).search.slice(1));
   }
 
@@ -135,7 +134,6 @@ export class UIManager {
     var params: Parameters = {};
     var searchParams = this.getUrlSearchParams();
     searchParams.forEach((value, key) => {
-      //console.log("param", key, value);
       params[key] = value;
     });
     return params;
@@ -152,7 +150,6 @@ export class UIManager {
       searchParams.set(key, values[key]);
     }
     var search = '?' + searchParams.toString();
-    //console.log('url', search);
     if (replace) navigate({ search }, { replace: true });
     else navigate({ search });
   }

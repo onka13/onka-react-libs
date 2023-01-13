@@ -83,6 +83,5 @@ export function UpsertPage(props: UpsertPageProp) {
     template: props.template,
     form: form
   };
-  console.log('UpsertPage', viewProps);
   return <UpsertPageView {...viewProps} />;
 }

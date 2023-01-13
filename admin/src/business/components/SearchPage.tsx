@@ -88,7 +88,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
 export function SearchPage(props: ISearchPage) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
   let gridFields = props.gridFields;
-  const location = useLocation ();
+  const location = useLocation();
   const navigate = useNavigate();
   const [status, setStatus] = useState<PageStatus>('loading');
   const [data, setData] = useState(props.initialData || []);
@@ -132,8 +132,6 @@ export function SearchPage(props: ISearchPage) {
     request.pagination.page = UIManager.instance().getPageNumber();
     request.sort.field = UIManager.instance().getSort(props.defaultSort);
     request.sort.order = UIManager.instance().getSortOrder(props.defaultSortOrder);
-    //console.log('SearchPage URL Changed filter', request.filter);
-    //console.log('SearchPage URL Changed page', request.pagination.page);
     setRequest(request);
     loadDataTimer(true);
   }, [location]);
@@ -297,7 +295,6 @@ export function SearchPage(props: ISearchPage) {
   }
 
   useEffect(() => {
-    console.log('SearchPage useEffect');
     loadDataTimer(true);
     var refreshSubscription = LibService.instance().refreshPage.subscribe(() => {
       loadDataTimer(true);
@@ -308,7 +305,6 @@ export function SearchPage(props: ISearchPage) {
   }, []);
 
   function onFilterChanged(data: any) {
-    console.log('onFilterChanged', data);
     const request = getRequest();
     request.filter = data;
     request.pagination.page = 1;
@@ -526,7 +522,14 @@ export function SearchPage(props: ISearchPage) {
                     />
                   )}
                   {pageConfig.edit && (
-                    <Button component={Link} to={location.pathname + '/edit/' + data[i]['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+                    <Button
+                      component={Link}
+                      to={location.pathname + '/edit/' + data[i]['id']}
+                      size="small"
+                      variant="text"
+                      color="secondary"
+                      startIcon={<EditIcon />}
+                    >
                       {LocaleService.instance().translate('lib.action.edit')}
                     </Button>
                   )}
@@ -552,8 +555,6 @@ export function SearchPage(props: ISearchPage) {
       </TableBody>
     );
   };
-
-  console.log('SearchPage render', getRequest());
 
   return (
     <div className="list-container">
@@ -641,15 +642,21 @@ export function SearchPage(props: ISearchPage) {
           </TableContainer>
         )}
         {!props.noPaging && status == 'done' && total > 0 && (
-          <TablePagination
-            rowsPerPageOptions={[10, 20, 50, 100]}
-            count={total}
-            rowsPerPage={getRequest().pagination.perPage}
-            page={getRequest().pagination.page - 1}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            ActionsComponent={TablePaginationActions}
-          />
+          <Table className={classes.table} size={'small'} aria-label="enhanced table">
+            <TableBody>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[10, 20, 50, 100]}
+                  count={total}
+                  rowsPerPage={getRequest().pagination.perPage}
+                  page={getRequest().pagination.page - 1}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableBody>
+          </Table>
         )}
         {status == 'no-data' && <div className="p20">{LocaleService.instance().translate('lib.page.no_data')}</div>}
       </Paper>

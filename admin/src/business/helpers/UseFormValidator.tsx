@@ -57,7 +57,6 @@ function validate(fields: PageField[], state: any): Parameters | undefined {
       if (error) LibService.instance().setValue(errorList, path, error);
     });
   });
-  //console.log("errors", errorList);
   if (Object.keys(errorList).length > 0) {
     return errorList;
   }

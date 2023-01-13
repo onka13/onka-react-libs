@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { LibService } from '../../../../business/services/LibService';
 
 // export function FilterComponent(props: FilterComponentProp) {
-//   console.log('FilterComponent', props);
 //   const handleChange = useCallback((e: any) => {
 //     props.onChange(e.target.value);
 //   }, []);

@@ -41,7 +41,6 @@ export function useForm(): UseFormResponse {
   const errorSubject = useRef<ParametersT<Subject<Parameters>>>({});
 
   const initForm = (props: IUseFormProps) => {
-    console.log('useForm init', props.formKey, props);
     if (refFormData.current[props.formKey]) return;
     refProps.current[props.formKey] = props;
     refFormData.current[props.formKey] = props.initialValues;
@@ -50,7 +49,6 @@ export function useForm(): UseFormResponse {
     if (props.initialValues) updateFormData(props.formKey, props.initialValues);
   };
   const clear = () => {
-    console.log('useForm clear');
     refProps.current = {};
     refFormData.current = {};
     refErrors.current = {};

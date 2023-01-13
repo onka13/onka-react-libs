@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { useTheme, Theme } from '@mui/material/styles';
+import { Theme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import { UIManager } from '../../../business/services/UIManager';
@@ -8,6 +8,7 @@ import { IMenuProp, MenuComponent } from './MenuComponent';
 import { IToolbarProps, Toolbar } from './Toolbar';
 import { LibService } from '../../../business/services/LibService';
 import { makeStyles } from '../../../business/components/makesStyles';
+import { merge } from 'lodash'
 
 export interface IMasterProps {
   children?: any;
@@ -54,9 +55,8 @@ const useStyles = makeStyles()((theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       padding: theme.spacing(0, 1),
-      // TODO: drawerHeader
       // necessary for content to be below app bar
-      //...theme.mixins.toolbar,
+      minHeight: theme.mixins.toolbar.minHeight,
       justifyContent: 'flex-end',
     },
     content: {
@@ -80,7 +80,6 @@ const useStyles = makeStyles()((theme: Theme) =>
 );
 
 export function Master(props: IMasterProps) {
-  console.log('Master', props);
   if (UIManager.instance().isDialog()) {
     return props.children;
   }

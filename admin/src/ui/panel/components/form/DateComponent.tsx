@@ -16,8 +16,6 @@ export function DateComponent(props: InputComponentProp) {
     preSetValue: (rowData, defaultValue) => (rowData ? rowData.slice(0, 16) : defaultValue),
   });
 
-  //console.log('DateComponent render', formHelper.value);
-
   return (
     <TextField
       id={props.field.name}

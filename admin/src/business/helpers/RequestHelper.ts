@@ -1,4 +1,4 @@
-import axios, { Method, AxiosRequestConfig, AxiosPromise, AxiosInstance } from 'axios';
+import axios, { Method, AxiosRequestConfig, AxiosPromise } from 'axios';
 import { Parameters } from '../../data/lib/Types';
 
 /**
@@ -76,8 +76,6 @@ export class RequestHelper {
       ...defaultRequestOptions,
       ...options,
     };
-    console.log('REQUEST', method, endpoint);
-    console.log('REQUEST OPTIONS', options);
     var axiosInstance = axios.create({
       headers,
     });
