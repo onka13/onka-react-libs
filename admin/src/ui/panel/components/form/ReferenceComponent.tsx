@@ -49,7 +49,6 @@ const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: boolean; props: InputComponentProp }) {
-  console.log('ReferenceComponentBase', props);
   const { classes, cx } = useStyles();
   const [options, setOptions] = useState<any>([]);
   const [disabled, setDisabled] = useState(false);
@@ -96,16 +95,13 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
 
   useEffect(() => {
     var subscription = props.form.subscribe(props.formKey, (data) => {
-      console.log('subscription', data);
       const rowData = props.form.getValue(props.formKey, props.path);
-      console.log('rowData', rowData, props.formKey, props.path);
       setDisabled((!!dependField && !props.form.getFormData(props.formKey)[dependField]) || !!valueEmpty);
       if (!rowData) {
         setInputValue('');
         timer.current = -1;
         return;
       }
-      console.log('getValueByData()', getValueByData());
       setValue(getValueByData());
       if (isMultiple && props.isFilter) setValueEmpty(data ? data[props.field.name + 'Empty'] : false);
 
@@ -338,7 +334,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
         multiple={isMultiple}
         disableCloseOnSelect={isMultiple}
         getOptionLabel={getOptionLabel}
-        // TODO: getOptionSelected 
+        // TODO: getOptionSelected
         //getOptionSelected={getOptionSelected}
         onChange={onChange}
         onOpen={onOpen}
@@ -379,8 +375,12 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
           );
         }}
         renderOption={(props, option, state) => {
-          console.log('renderOption', props, option, state);
-          if (!isMultiple) return getOptionLabel(option);
+          if (!isMultiple)
+            return (
+              <li key={'opt' + props.id} {...props}>
+                {getOptionLabel(option)}
+              </li>
+            );
           return (
             <li key={'opt' + props.id} {...props}>
               <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={state.selected} />

@@ -1,22 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { LibService } from '../../../../business/services/LibService';
-import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
+import Editor from 'ckeditor5-custom-build/build/ckeditor';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { InputComponentProp } from '../../../../data/lib/InputComponentProp';
 import { useFormHelper } from '../../../../business/helpers/UseForm';
 
 export function EditorComponent(props: InputComponentProp) {
   const refEditor = useRef<any>();
   const formHelper = useFormHelper({
-    formKey: props.formKey, 
+    formKey: props.formKey,
     form: props.form,
     path: props.path,
     defaultValue: '',
   });
-  
+  const [error, setError] = useState('');
+
   const onReady = (editor: any) => {
     refEditor.current = editor;
-    //refEditor.current.setData(props.rowData || '');
   };
   const onChange = (e: any, editor: any) => {
     const data = editor.getData();
@@ -27,12 +26,20 @@ export function EditorComponent(props: InputComponentProp) {
   const onFocus = (e: any, editor: any) => {};
 
   useEffect(() => {
-    if (!refEditor.current) {
-      setTimeout(() => {
-        refEditor.current && refEditor.current.setData(formHelper.value || '');
-      }, 1000);
-    }
-  }, [formHelper.value]);
+    var subscription = props.form.subscribe(props.formKey, (data) => {
+      const rowData = props.form.getValue(props.formKey, props.path);
+      refEditor.current && refEditor.current.setData(rowData || '');
+    });
+    var subscriptionError = props.form.subscribeError(props.formKey, (data) => {
+      const rowData = props.form.getError(props.formKey, props.path);
+      setError(rowData || '');
+    });
+    props.form.initInitialValues(props.formKey);
+    return () => {
+      props.form.unsubscribe(subscription);
+      props.form.unsubscribeError(subscriptionError);
+    };
+  }, []);
 
   if (props.isEdit && formHelper.value === undefined) return null;
   // console.log(
@@ -42,7 +49,7 @@ export function EditorComponent(props: InputComponentProp) {
   return (
     <div>
       <CKEditor
-        editor={ClassicEditor}
+        editor={Editor}
         config={{
           removePlugins: ['ImageCaption', 'EasyImage', 'MediaEmbed', 'ImageToolbar', 'CKFinder', 'ImageUpload'],
         }}

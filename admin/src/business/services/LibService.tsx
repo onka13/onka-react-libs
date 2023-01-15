@@ -1,7 +1,7 @@
 import React from 'react';
 import { LocaleService } from './LocaleService';
 import { PageConfig } from '../../data/lib/PageConfig';
-import Loadable from 'react-loadable';
+import loadable from '@loadable/component'
 import { Subject, BehaviorSubject } from 'rxjs';
 import { StaticService } from './StaticService';
 import { UIManager } from './UIManager';
@@ -83,19 +83,21 @@ export class LibService {
   }
 
   loadableComp(imp: () => Promise<any>, key: string) {
-    return Loadable({
-      loader: () =>
-        imp()
-          .then((a: any) => new Promise((resolve) => setTimeout(() => resolve(a), 50)))
-          .then((resp: any) => resp[key]),
-      loading() {
-        return (
-          <div className="progress">
-            <div className="progress-bar bg-danger widthloop"></div>
-          </div>
-        );
-      },
-    });
+
+    return loadable(() => imp().then((resp: any) => resp[key]));    
+    // return Loadable({
+    //   loader: () =>
+    //     imp()
+    //       .then((a: any) => new Promise((resolve) => setTimeout(() => resolve(a), 50)))
+    //       .then((resp: any) => resp[key]),
+    //   loading() {
+    //     return (
+    //       <div className="progress">
+    //         <div className="progress-bar bg-danger widthloop"></div>
+    //       </div>
+    //     );
+    //   },
+    // });
   }
 
   isSuperAdmin() {

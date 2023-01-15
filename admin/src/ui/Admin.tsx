@@ -68,7 +68,7 @@ export function Admin(props: IAdminProps) {
               </PrivateRoute>
             }
           ></Route>
-          <Route path="/panel*" element={<Home {...props} />}></Route>
+          <Route path="/panel/*" element={<Home {...props} />}></Route>
           {/* TODO */}
           {/* {props.rootRoutes} */}
           <Route path="/login" element={props.loginComponent ? <props.loginComponent {...props.login} /> : <Login {...props.login} />}></Route>

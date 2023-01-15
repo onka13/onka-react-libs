@@ -21,7 +21,7 @@ export class UIManager {
   renderLoading() {
     return (
       <div className="spinner-border text-primary" role="status">
-        <span className="sr-only">...</span>
+        <span className="sr-only">Loading...</span>
       </div>
     );
   }
