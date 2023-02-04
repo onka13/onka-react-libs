@@ -27,7 +27,18 @@ export class GridRowExtraActionProp {
   rowData!: any;
 
   form!: UseFormResponse;
+
   formKey!: string;
+
+  /**
+   * update all data
+   */
+  updateData!: (value: any, total?: number) => void;
+
+  /**
+   * update the row data
+   */
+  updateRowData!: (value: any) => void;
 
   public constructor(init?: Partial<GridRowExtraActionProp>) {
     Object.assign(this, init);

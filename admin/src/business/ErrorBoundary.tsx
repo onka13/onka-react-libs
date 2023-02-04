@@ -50,7 +50,7 @@ export function ErrorHandler() {
           });
         } else {
           UIManager.instance().displayMessage({
-            text: error.detail.message + '\n\n' + error.detail.statusText,
+            text: error.detail.message + '\n\n' + (error.detail.statusText ? error.detail.statusText.message || error.detail.statusText : ''),
             type: 'danger',
           });
         }

@@ -173,15 +173,26 @@ export function SearchPage(props: ISearchPage) {
       .search(pageConfig.route, request)
       .then((response) => {
         form?.clear();
-        setTotal(response.total);
-        setData(response.value);
-        setStatus(response.value.length > 0 ? 'done' : 'no-data');
+        updateData(response.value, response.total);
       })
       .catch((error) => {
         setStatus('none');
         throw error;
       });
   }
+
+  function updateData(value: any, total?: number) {
+    if (total) setTotal(total);
+    setData(value);
+    setStatus(value.length > 0 ? 'done' : 'no-data');
+  };
+
+  function updateRowData(index: number, value: any) {
+    data[index] = value;
+    updateData([...data]);
+  };
+
+  console.log('s2 render', data.length, data);
 
   function deleteItem(id: any) {
     UIManager.instance().confirm({}, (response) => {
@@ -376,6 +387,8 @@ export function SearchPage(props: ISearchPage) {
                           gridFields,
                           data,
                           rowData: data[i],
+                          updateData,
+                          updateRowData: (value: any) => updateRowData(i, value),
                         })
                       )}
                     {pageConfig.delete && (

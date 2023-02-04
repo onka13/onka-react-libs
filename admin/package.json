@@ -1,6 +1,6 @@
 {
   "name": "onka-react-admin-core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": false,
   "license": "SEE LICENSE IN <../LICENCE> file",
   "homepage": "https://github.com/onka13/onka-react-libs",
@@ -99,7 +99,7 @@
       "last 1 safari version"
     ]
   },
-  "main": "dist/esm/index.js",
+  "main": "dist/js/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts"
+  "types": "dist/js/index.d.ts"
 }

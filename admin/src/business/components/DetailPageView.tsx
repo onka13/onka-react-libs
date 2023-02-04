@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Box, Button, Card, CardActions, CardContent, Grid, GridSize, Tab, Tabs } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { useNavigate } from 'react-router-dom';
 import { UIManager } from '../services/UIManager';
 import { allInputs } from '../../ui/panel/components/form/index';
 import { DetailComponentProp } from '../../data/lib/DetailComponentProp';
@@ -14,6 +15,7 @@ export function DetailPageView(props: PageViewProp) {
   const { id } = useParams<{ id: any }>();
   const [tabIndex, setTabIndex] = useState(0);
   const isHideActions = UIManager.instance().isHideActions() || props.hideActions;
+  const navigate = useNavigate();
 
   function renderFields(fields: PageField[]) {
     var xs: GridSize = 6;
@@ -71,6 +73,9 @@ export function DetailPageView(props: PageViewProp) {
               {LocaleService.instance().translate('lib.action.edit')}
             </Button>
           )}
+          <Button type="button" variant="contained" color="inherit" onClick={(_) => navigate(-1)} className="ml20">
+            {LocaleService.instance().translate('lib.action.back')}
+          </Button>
         </CardActions>
         <CardContent>
           {props.tabs && (
@@ -92,6 +97,22 @@ export function DetailPageView(props: PageViewProp) {
             })}
           {props.fields && renderFields(props.fields)}
         </CardContent>
+        <CardActions>
+          {!UIManager.instance().isHideActions() && props.pageConfig.edit && (
+            <Button
+              variant="contained"
+              color="primary"
+              component={Link}
+              to={UIManager.instance().getLink('edit', props.pageConfig, { id, preserveQueryParams: true })}
+              startIcon={<EditIcon />}
+            >
+              {LocaleService.instance().translate('lib.action.edit')}
+            </Button>
+          )}
+          <Button type="button" variant="contained" color="inherit" onClick={(_) => navigate(-1)} className="ml20">
+            {LocaleService.instance().translate('lib.action.back')}
+          </Button>
+        </CardActions>
       </Card>
     </div>
   );

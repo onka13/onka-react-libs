@@ -32,7 +32,8 @@
       "confirm": "Confirm",
       "prev": "Prev",
       "next": "Next",
-      "update": "Update"
+      "update": "Update",
+      "back": "Back"
     },
     "validation": {
       "required": "Required",

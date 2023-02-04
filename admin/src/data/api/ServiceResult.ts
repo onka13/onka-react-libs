@@ -45,7 +45,7 @@ export class ServiceHttpStatusResult<T> extends ServiceListResult<T> {
   /**
    * Response status text
    */
-  statusText?: string;
+  statusText?: any;
 
   public constructor(init?: Partial<ServiceHttpStatusResult<T>>) {
     super();
