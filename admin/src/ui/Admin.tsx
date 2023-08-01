@@ -3,7 +3,6 @@ import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router
 import { DialogComponent } from '../business/components/DialogComponent';
 import { SnackBarComponent } from '../business/components/SnackBarComponent';
 import { ErrorHandler } from '../business/ErrorBoundary';
-import { AccountBusinessLogic } from '../business/services/AccountBusinessLogic';
 import { LocaleService } from '../business/services/LocaleService';
 import { UIManager } from '../business/services/UIManager';
 import { IMenuProp } from './panel/components/MenuComponent';
@@ -12,7 +11,7 @@ import { IToolbarProps } from './panel/components/Toolbar';
 import { Home } from './panel/pages/Home';
 import { ILoginProps, Login } from './public/Login';
 import { NoMatch } from './public/NoMatch';
-import { Theme } from '@mui/material/styles/createTheme';
+import { Theme } from '@mui/system';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import createGenerateClassName from '@mui/styles/createGenerateClassName/createGenerateClassName';
 import StylesProvider from '@mui/styles/StylesProvider/StylesProvider';
@@ -46,7 +45,9 @@ export function Admin(props: IAdminProps) {
   useEffect(() => {
     preload();
   }, []);
+
   if (!done) return <div></div>;
+
   const wrapper = (child: any) => {
     if (props.theme) return <ThemeProvider theme={props.theme}>{child}</ThemeProvider>;
     return child;

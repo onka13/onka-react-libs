@@ -16,8 +16,9 @@ export function UpsertPage(props: UpsertPageProp) {
   const navigate = useNavigate();
   const { id } = useParams<{ id: any }>();
   const isEdit = !!id || !!props.isEdit;
-  const [, setStatus] = useState<PageStatus>('none');
+  const [pageStatus, setStatus] = useState<PageStatus>('none');
   const formKey = props.pageConfig.route;
+  const form = useForm();
 
   const onSubmit = async function () {
     if (props.onSubmit) {
@@ -38,20 +39,19 @@ export function UpsertPage(props: UpsertPageProp) {
     });
   };
 
-  const form = useForm();
   form.initForm({
     formKey: formKey,
     fields: (props.fields ? props.fields : props.tabs?.flatMap((x) => x.fields)) || [],
     initialValues: props.initialValues,
     onSubmit: onSubmit,
-  })
+  });
 
   const loadData = function () {
     setStatus('loading');
     (props.loadData ? props.loadData() : new ApiBusinessLogic().get(pageConfig.route, id))
-      .then((response) => {        
-        form.updateFormData(formKey, response.value);
+      .then((response) => {
         setStatus('done');
+        form.updateFormData(formKey, response.value);
       })
       .catch((reason) => {
         setStatus('none');
@@ -61,6 +61,7 @@ export function UpsertPage(props: UpsertPageProp) {
   };
 
   useEffect(() => {
+    form.initInitialValues(formKey);
     if (!isEdit) return;
     loadData();
     var refreshSubscription = LibService.instance().refreshPage.subscribe(() => {
@@ -71,8 +72,6 @@ export function UpsertPage(props: UpsertPageProp) {
     };
   }, []);
 
-  //if (status == 'loading') return UIManager.instance().renderLoading();
-
   const viewProps: UpsertPageViewProp = {
     formKey,
     pageConfig: pageConfig,
@@ -81,7 +80,8 @@ export function UpsertPage(props: UpsertPageProp) {
     isEdit: isEdit,
     tabs: props.tabs,
     template: props.template,
-    form: form
+    form: form,
+    loading: pageStatus == 'loading',
   };
   return <UpsertPageView {...viewProps} />;
 }

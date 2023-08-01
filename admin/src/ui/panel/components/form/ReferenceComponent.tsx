@@ -94,16 +94,17 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
   };
 
   useEffect(() => {
-    var subscription = props.form.subscribe(props.formKey, (data) => {
+    var subscription = props.form.subscribe(props.formKey, (data) => {      
       const rowData = props.form.getValue(props.formKey, props.path);
       setDisabled((!!dependField && !props.form.getFormData(props.formKey)[dependField]) || !!valueEmpty);
+      if (isMultiple && props.isFilter && data && data[props.field.name + 'Empty']) setValueEmpty(true);
+
       if (!rowData) {
         setInputValue('');
         timer.current = -1;
         return;
       }
-      setValue(getValueByData());
-      if (isMultiple && props.isFilter) setValueEmpty(data ? data[props.field.name + 'Empty'] : false);
+      setValue(getValueByData());      
 
       if (data && dependField) {
         var dependIsChanged = data[dependField] != refDepend.current;
@@ -120,7 +121,7 @@ export function ReferenceComponentBase({ isMultiple, props }: { isMultiple: bool
       const rowData = props.form.getError(props.formKey, props.path);
       setError(rowData || '');
     });
-    props.form.initInitialValues(props.formKey);
+
     return () => {
       props.form.unsubscribe(subscription);
       props.form.unsubscribeError(subscriptionError);

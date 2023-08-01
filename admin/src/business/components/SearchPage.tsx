@@ -192,8 +192,6 @@ export function SearchPage(props: ISearchPage) {
     updateData([...data]);
   };
 
-  console.log('s2 render', data.length, data);
-
   function deleteItem(id: any) {
     UIManager.instance().confirm({}, (response) => {
       if (!response || !response.value) return;

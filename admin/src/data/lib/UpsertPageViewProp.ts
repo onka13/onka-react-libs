@@ -13,6 +13,7 @@ export class UpsertPageViewProp extends PagePropBase {
   isEdit?: boolean;
   template?: UpsertPageTemplate;
   form!:UseFormResponse;
+  loading?: Boolean;
 
   public constructor(init?: Partial<UpsertPageViewProp>) {
     super(init);

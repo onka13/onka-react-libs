@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, Grid, GridSize, Tab, Tabs } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { allInputs } from '../../ui/panel/components/form';
 import { InputComponentProp } from '../../data/lib/InputComponentProp';
 import { Parameters } from '../../data/lib/Types';
@@ -13,7 +13,6 @@ import { UIManager } from '../services/UIManager';
 export function UpsertPageView(props: UpsertPageViewProp) {
   const [tabIndex, setTabIndex] = useState(0);
   const isHideActions = UIManager.instance().isHideActions() || props.hideActions;
-  const navigate = useNavigate();
 
   // const onChange = (field: PageField, value: any) => {
   //   const path = LibService.instance().getPath(field.prefix, field.name);
@@ -83,6 +82,7 @@ export function UpsertPageView(props: UpsertPageViewProp) {
 
   return (
     <div className="upsert-container">
+      {props.loading && UIManager.instance().renderLoading()}
       <form onSubmit={(e) => props.form.handleSubmit(props.formKey, e)}>
         <div className="list-actions">
           <div className="container-left">{!isHideActions && <>{props.leftComponents}</>}</div>
@@ -95,7 +95,14 @@ export function UpsertPageView(props: UpsertPageViewProp) {
             <Button type="submit" variant="contained" color="primary">
               {LocaleService.instance().translate('lib.action.save')}
             </Button>
-            <Button type="button" variant="contained" color="inherit" onClick={(_) => navigate(-1)} className="ml20">
+            <Button
+              type="button"
+              variant="contained"
+              color="inherit"
+              component={Link}
+              to={UIManager.instance().getLink('list', props.pageConfig, { preserveQueryParams: true })}
+              className="ml20"
+            >
               {LocaleService.instance().translate('lib.action.back')}
             </Button>
           </CardActions>
@@ -123,7 +130,14 @@ export function UpsertPageView(props: UpsertPageViewProp) {
             <Button type="submit" variant="contained" color="primary">
               {LocaleService.instance().translate('lib.action.save')}
             </Button>
-            <Button type="button" variant="contained" color="inherit" onClick={(_) => navigate(-1)} className="ml20">
+            <Button
+              type="button"
+              variant="contained"
+              color="inherit"
+              component={Link}
+              to={UIManager.instance().getLink('list', props.pageConfig, { preserveQueryParams: true })}
+              className="ml20"
+            >
               {LocaleService.instance().translate('lib.action.back')}
             </Button>
           </CardActions>

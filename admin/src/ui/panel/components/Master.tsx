@@ -87,6 +87,7 @@ export function Master(props: IMasterProps) {
   const [open, setOpen] = React.useState(LibService.instance().drawerState.value);
 
   useEffect(() => {
+    ("Master useEffect");
     LibService.instance().drawerState.subscribe((value) => {
       setOpen(value);
     });

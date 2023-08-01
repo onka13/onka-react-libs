@@ -29,14 +29,16 @@ export function DetailFieldComponent(props: DetailComponentProp) {
         <strong>{LibService.instance().getFieldLabel(props.pageConfig, field.name)}</strong>
       </Grid>
       <Grid item xs={8} className="detail-grid-field-value">
-        :
-        {props.isLink ? (
-          <a href={val} target="_blank">
-            {val}
-          </a>
-        ) : (
-          val
-        )}
+        <span>
+          : 
+          {props.isLink ? (
+            <a href={val} target="_blank">
+              {val}
+            </a>
+          ) : (
+            val
+          )}
+        </span>
       </Grid>
     </Grid>
   );

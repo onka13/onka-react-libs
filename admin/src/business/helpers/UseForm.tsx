@@ -174,7 +174,7 @@ export function useFormHelper(props: IUseFormHelperProps): UseFormHelperResponse
       const errorData = props.form.getError(props.formKey, props.path);
       setError(errorData || '');
     });
-    props.form.initInitialValues(props.formKey);
+    
     return () => {
       props.form.unsubscribe(subscription);
       props.form.unsubscribeError(subscriptionError);

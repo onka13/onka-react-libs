@@ -25,7 +25,6 @@ export function SelectComponent(props: SelectInputComponentProp) {
       const rowData = props.form.getError(props.formKey, props.path);
       setError(rowData || '');
     });
-    props.form.initInitialValues(props.formKey);
     return () => {
       props.form.unsubscribe(subscription);
       props.form.unsubscribeError(subscriptionError);
