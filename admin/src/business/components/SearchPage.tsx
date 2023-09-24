@@ -85,6 +85,16 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
 }));
 
+function closeDialog(record?: any) {
+  return () => {
+    // @ts-ignore
+    var callback = window.parent['iframeCallback' + UIManager.instance().getDialogId()];
+    if (callback) {
+      callback(record);
+    }
+  };
+}
+
 export function SearchPage(props: ISearchPage) {
   let pageConfig = LibService.instance().checkConfigPermision(props.pageConfig);
   let gridFields = props.gridFields;
@@ -172,7 +182,6 @@ export function SearchPage(props: ISearchPage) {
     new ApiBusinessLogic()
       .search(pageConfig.route, request)
       .then((response) => {
-        form?.clear();
         updateData(response.value, response.total);
       })
       .catch((error) => {
@@ -185,12 +194,12 @@ export function SearchPage(props: ISearchPage) {
     if (total) setTotal(total);
     setData(value);
     setStatus(value.length > 0 ? 'done' : 'no-data');
-  };
+  }
 
   function updateRowData(index: number, value: any) {
     data[index] = value;
     updateData([...data]);
-  };
+  }
 
   function deleteItem(id: any) {
     UIManager.instance().confirm({}, (response) => {
@@ -290,16 +299,6 @@ export function SearchPage(props: ISearchPage) {
         return;
       }
       setSelections(data.map((x: any) => x['id']));
-    };
-  }
-
-  function closeDialog(record?: any) {
-    return () => {
-      // @ts-ignore
-      var callback = window.parent['iframeCallback' + UIManager.instance().getDialogId()];
-      if (callback) {
-        callback(record);
-      }
     };
   }
 
@@ -437,49 +436,12 @@ export function SearchPage(props: ISearchPage) {
     );
   };
 
-  const form = useForm();
-
-  const onSubmitUpdateForm = async function (formKey: string, e: any) {
-    e.preventDefault();
-    UIManager.instance().displayLoading(true);
-    var record = await new ApiBusinessLogic().updateOnly(pageConfig.route, form.getFormData(formKey));
-    UIManager.instance().displayLoading(false);
-    if (record.value?.id) {
-      form.updateFormData(formKey, { ...form.getFormData(formKey), ...record.value });
-    }
-  };
-
-  const FieldComponent = useCallback(
-    (fieldCompProps: { fields: PageField[]; field: PageField; formKey: string }) => {
-      const inputProps = new InputComponentProp({
-        key: fieldCompProps.field.name,
-        pageConfig: props.pageConfig,
-        fields: fieldCompProps.fields,
-        field: fieldCompProps.field,
-        isEdit: true,
-        className: 'inline-edit-field',
-        form: form,
-        path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name),
-        formKey: fieldCompProps.formKey,
-      });
-
-      if (fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
-      return <allInputs.InputComponent {...inputProps} />;
-    },
-    [props.pageConfig]
-  );
-
   const renderInlineEditBody = () => {
     return (
       <TableBody>
         {data.map((item: any, i: number) => {
           var isItemSelected = isSelected(data[i]);
           const formKey = item.id;
-          form.initForm({
-            formKey: formKey,
-            fields: props.fields,
-            initialValues: { ...item },
-          });
           return (
             <TableRow hover aria-checked={isItemSelected} tabIndex={-1} key={item.id} selected={isItemSelected}>
               {isSelectField && (
@@ -494,44 +456,9 @@ export function SearchPage(props: ISearchPage) {
                   <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
                 </TableCell>
               )}
-              {gridFields.map((gridField, j) => {
-                const field = props.fields?.filter((x) => x.name == gridField.name)[0];
-                return (
-                  <TableCell key={j} className="inline-cell">
-                    <FieldComponent key={gridField.name} fields={props.fields} field={field} formKey={formKey} />
-
-                    {/* {React.createElement(
-                        gridField.gridComponent || allInputs.GridFieldComponent,
-                        new GridComponentProp({
-                          key: j,
-                          pageConfig,
-                          gridFields,
-                          gridField,
-                          data,
-                          rowData: data[i],
-                        })
-                      )} */}
-                  </TableCell>
-                );
-              })}
+              <RenderInlineEditBodyItem {...{ formKey, item, gridFields, fields: props.fields, pageConfig, RowActions: props.rowActions, data }} />
               <TableCell align="right">
                 <div>
-                  <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmitUpdateForm(formKey, e)}>
-                    {LocaleService.instance().translate('lib.action.save')}
-                  </Button>
-                  {props.rowActions && (
-                    <props.rowActions
-                      {...new GridRowExtraActionProp({
-                        key: i,
-                        pageConfig,
-                        gridFields,
-                        data,
-                        rowData: data[i],
-                        form,
-                        formKey,
-                      })}
-                    />
-                  )}
                   {pageConfig.edit && (
                     <Button
                       component={Link}
@@ -674,3 +601,89 @@ export function SearchPage(props: ISearchPage) {
     </div>
   );
 }
+
+const RenderInlineEditBodyItem = ({ formKey, item, gridFields, fields, pageConfig, RowActions, data }: any) => {
+  const form = useForm();
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaded) {
+      form.updateFormData(formKey, { ...item });
+      return;
+    }
+    form.initForm({
+      formKey: formKey,
+      fields: fields,
+      initialValues: null,
+    });
+    setLoaded(true);
+  }, [loaded]);
+
+  const onSubmitUpdateForm = async function (formKey: string, e: any) {
+    e.preventDefault();
+    var data = form.getFormData(formKey);
+    UIManager.instance().displayLoading(true);
+    var record = await new ApiBusinessLogic().updateOnly(pageConfig.route, data);
+    UIManager.instance().displayLoading(false);
+    if (record.value?.id) {
+      form.updateFormData(formKey, { ...data, ...record.value });
+    }
+  };
+
+  const FieldComponent = useCallback(
+    (fieldCompProps: { fields: PageField[]; field: PageField; formKey: string }) => {
+      const inputProps = new InputComponentProp({
+        key: fieldCompProps.field.name,
+        pageConfig: pageConfig,
+        fields: fieldCompProps.fields,
+        field: fieldCompProps.field,
+        isEdit: true,
+        className: 'inline-edit-field',
+        form: form,
+        path: LibService.instance().getPath(fieldCompProps.field.prefix, fieldCompProps.field.name),
+        formKey: fieldCompProps.formKey,
+      });
+
+      if (fieldCompProps.field.editComponent) return <fieldCompProps.field.editComponent {...inputProps} />;
+      return <allInputs.InputComponent {...inputProps} />;
+    },
+    [pageConfig]
+  );
+
+  if (!loaded) {
+    return null;
+  }
+
+  return (
+    <>
+      {gridFields.map((gridField: any, j: number) => {
+        const field = fields?.filter((x: any) => x.name == gridField.name)[0];
+        return (
+          <TableCell key={j} className="inline-cell">
+            <FieldComponent key={gridField.name} fields={fields} field={field} formKey={formKey} />
+          </TableCell>
+        );
+      })}
+      <TableCell align="right">
+        <div>
+          <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmitUpdateForm(formKey, e)}>
+            {LocaleService.instance().translate('lib.action.save')}
+          </Button>
+          {RowActions && (
+            <RowActions
+              {...new GridRowExtraActionProp({
+                key: item.id,
+                pageConfig,
+                gridFields,
+                data,
+                rowData: item,
+                form,
+                formKey,
+              })}
+            />
+          )}
+        </div>
+      </TableCell>
+    </>
+  );
+};
