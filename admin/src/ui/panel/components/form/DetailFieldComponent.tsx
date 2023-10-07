@@ -30,14 +30,13 @@ export function DetailFieldComponent(props: DetailComponentProp) {
       </Grid>
       <Grid item xs={8} className="detail-grid-field-value">
         <span>
-          : 
-          {props.isLink ? (
+          :{' '}
+          {props.isLink && (
             <a href={val} target="_blank">
               {val}
             </a>
-          ) : (
-            val
           )}
+          {!props.isLink && (` ${val}`)}
         </span>
       </Grid>
     </Grid>

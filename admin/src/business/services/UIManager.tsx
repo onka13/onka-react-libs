@@ -190,9 +190,9 @@ export class UIManager {
     return this.getQueryParam('page') || 1;
   }
   getSort(defaultValue?: string): string {
-    return this.getQueryParam('sort') || defaultValue || 'id';
+    return this.getQueryParam('sort') || defaultValue;
   }
   getSortOrder(defaultValue?: string): string {
-    return this.getQueryParam('sortOrder') || defaultValue || 'ASC';
+    return this.getQueryParam('sortOrder') || defaultValue;
   }
 }

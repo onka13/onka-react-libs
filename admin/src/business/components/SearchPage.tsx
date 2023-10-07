@@ -176,8 +176,6 @@ export function SearchPage(props: ISearchPage) {
     }
     setStatus('loading');
     var request = getRequest();
-    if (!request.sort.field) request.sort.field = 'id';
-    if (!request.sort.order) request.sort.order = 'ASC';
 
     new ApiBusinessLogic()
       .search(pageConfig.route, request)

@@ -38,7 +38,7 @@ export function GridFieldComponent(props: GridComponentProp) {
           {val}
         </a>
       ) : (
-        val
+        ` ${val}`
       )}
     </span>
   );
