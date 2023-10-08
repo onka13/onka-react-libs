@@ -36,7 +36,7 @@ export function DetailFieldComponent(props: DetailComponentProp) {
               {val}
             </a>
           )}
-          {!props.isLink && (` ${val}`)}
+          {!props.isLink && (val === undefined ? '' : ` ${val}`)}
         </span>
       </Grid>
     </Grid>

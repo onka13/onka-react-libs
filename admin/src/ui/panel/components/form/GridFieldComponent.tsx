@@ -33,13 +33,12 @@ export function GridFieldComponent(props: GridComponentProp) {
   }
   return (
     <span>
-      {props.isLink ? (
+      {props.isLink && (
         <a href={val} target="_blank">
           {val}
         </a>
-      ) : (
-        ` ${val}`
       )}
+      {!props.isLink && (val === undefined ? '' : ` ${val}`)}
     </span>
   );
 }
