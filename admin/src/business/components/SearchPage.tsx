@@ -59,6 +59,7 @@ interface ISearchPage {
   leftComponents?: JSX.Element;
   rightComponents?: JSX.Element;
   pageSize?: number;
+  actionButtonsOnLeft?: boolean;
 }
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -454,41 +455,41 @@ export function SearchPage(props: ISearchPage) {
                   <Checkbox checked={isItemSelected} onChange={toggleSelected(data[i])} inputProps={{ 'aria-labelledby': '' }} />
                 </TableCell>
               )}
-              <RenderInlineEditBodyItem {...{ formKey, item, gridFields, fields: props.fields, pageConfig, RowActions: props.rowActions, data }} />
-              <TableCell align="right">
-                <div>
-                  {pageConfig.edit && (
-                    <Button
-                      component={Link}
-                      to={location.pathname + '/edit/' + data[i]['id']}
-                      size="small"
-                      variant="text"
-                      color="secondary"
-                      startIcon={<EditIcon />}
-                    >
-                      {LocaleService.instance().translate('lib.action.edit')}
-                    </Button>
-                  )}
-                  {pageConfig.delete && (
-                    <Button
-                      size="small"
-                      variant="text"
-                      color="secondary"
-                      startIcon={<DeleteIcon />}
-                      onClick={(e: any) => {
-                        e.preventDefault();
-                        deleteItem(data[i]['id']);
-                      }}
-                    >
-                      {LocaleService.instance().translate('lib.action.delete')}
-                    </Button>
-                  )}
-                </div>
-              </TableCell>
+              {props.actionButtonsOnLeft && renderInlineEditBodyActions(data[i])}
+              <RenderInlineEditBodyItem {...{ formKey, item, gridFields, fields: props.fields, pageConfig, RowActions: props.rowActions, data, actionButtonsOnLeft: props.actionButtonsOnLeft }} />
+              {!props.actionButtonsOnLeft && renderInlineEditBodyActions(data[i])}
             </TableRow>
           );
         })}
       </TableBody>
+    );
+  };
+
+  const renderInlineEditBodyActions = (rowData: any) => {
+    return (
+      <TableCell align="right">
+        <div>
+          {pageConfig.edit && (
+            <Button component={Link} to={location.pathname + '/edit/' + rowData['id']} size="small" variant="text" color="secondary" startIcon={<EditIcon />}>
+              {LocaleService.instance().translate('lib.action.edit')}
+            </Button>
+          )}
+          {pageConfig.delete && (
+            <Button
+              size="small"
+              variant="text"
+              color="secondary"
+              startIcon={<DeleteIcon />}
+              onClick={(e: any) => {
+                e.preventDefault();
+                deleteItem(rowData['id']);
+              }}
+            >
+              {LocaleService.instance().translate('lib.action.delete')}
+            </Button>
+          )}
+        </div>
+      </TableCell>
     );
   };
 
@@ -600,7 +601,7 @@ export function SearchPage(props: ISearchPage) {
   );
 }
 
-const RenderInlineEditBodyItem = ({ formKey, item, gridFields, fields, pageConfig, RowActions, data }: any) => {
+const RenderInlineEditBodyItem = ({ formKey, item, gridFields, fields, pageConfig, RowActions, data, actionButtonsOnLeft }: any) => {
   const form = useForm();
   const [loaded, setLoaded] = useState(false);
 
@@ -652,16 +653,8 @@ const RenderInlineEditBodyItem = ({ formKey, item, gridFields, fields, pageConfi
     return null;
   }
 
-  return (
-    <>
-      {gridFields.map((gridField: any, j: number) => {
-        const field = fields?.filter((x: any) => x.name == gridField.name)[0];
-        return (
-          <TableCell key={j} className="inline-cell">
-            <FieldComponent key={gridField.name} fields={fields} field={field} formKey={formKey} />
-          </TableCell>
-        );
-      })}
+  const actions = () => {
+    return (
       <TableCell align="right">
         <div>
           <Button size="small" variant="text" color="secondary" startIcon={<EditIcon />} onClick={(e) => onSubmitUpdateForm(formKey, e)}>
@@ -682,6 +675,21 @@ const RenderInlineEditBodyItem = ({ formKey, item, gridFields, fields, pageConfi
           )}
         </div>
       </TableCell>
+    );
+  };
+
+  return (
+    <>
+      {actionButtonsOnLeft && actions()}
+      {gridFields.map((gridField: any, j: number) => {
+        const field = fields?.filter((x: any) => x.name == gridField.name)[0];
+        return (
+          <TableCell key={j} className="inline-cell">
+            <FieldComponent key={gridField.name} fields={fields} field={field} formKey={formKey} />
+          </TableCell>
+        );
+      })}
+      {!actionButtonsOnLeft && actions()}
     </>
   );
 };
